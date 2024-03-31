@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.atravezado{
+    clip-path: polygon(48% 0, 100% 15%, 100% 30%, 0% 0);
+    margin-top: -20px;
+  margin-bottom: -0.75rem;
+  margin-right: 0px;
+}
+@media (min-width: 1024px) {
+    .atravezado {
+        margin-right: -1px;
+    }
+}
+
+
+.rotar-36{
+    --tw-rotate: 38deg;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+   
+}
