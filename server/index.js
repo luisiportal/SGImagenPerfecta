@@ -1,5 +1,5 @@
 import express from "express";
-import { PUERTO } from "./config.js";
+import { FRONTEND_URL, PUERTO } from "./config.js";
 import indexRoutes from "./routes/index.routes.js";
 import productoRoutes from "./routes/producto.routes.js";
 import cookieParser from "cookie-parser";
@@ -15,7 +15,7 @@ import routerRegistroVentas from "./routes/registro_ventas.routes.js";
 export const app = express();
 app.use(
   cors({
-    origin: "http://192.168.1.1:5173",
+    origin: FRONTEND_URL,
     credentials: true,
   })
 );
