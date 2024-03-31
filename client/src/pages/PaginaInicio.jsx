@@ -9,13 +9,13 @@ const PaginaInicio = () => {
       <div className=" max-w-6xl mx-auto pt-5">
         <main>
           <article className="mb-6 lg:mb-20">
-            <img src={"../images/fotos/frontGrande.png"} alt="Foto de Modelo" />
+            <img src={"../images/fotos/frontgrande.png"} alt="Foto de Modelo" />
           </article>
         </main>
         <section className="flex flex-col lg:flex-row">
           <div className="bg-neutral-300 w-full flex-1">
             <ImagenFront
-              ruta={"../images/fotos/frontLeft.png"}
+              ruta={"../images/fotos/frontleft.png"}
               alt={"Foto de Modelo"}
             />
           </div>
@@ -36,7 +36,7 @@ const PaginaInicio = () => {
         <section className="flex flex-col lg:flex-row-reverse mb-20">
           <div className="bg-neutral-200 w-full flex-1">
             <ImagenFront
-              ruta={"../images/fotos/frontRight.png"}
+              ruta={"../images/fotos/frontright.png"}
               alt={"Foto de Modelo"}
             />
           </div>
