@@ -1,6 +1,6 @@
 export const trabajadoresDB = [
   {
-    id_trabajador: 1,
+    id_trabajador: 40,
     nombre: "Luis Ernesto",
     apellidos: "Rodriguez",
     ci: "920151569",

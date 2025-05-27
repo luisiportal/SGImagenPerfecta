@@ -19,7 +19,7 @@ const Ventas = () => {
     loadVentas();
   }, [actualizarVenta]);
   function renderMain() {
-    if (ventas.length === 0) return <h1>No hay productos</h1>;
+    if (ventas.length === 0) return <h1>No hay Ofertas</h1>;
     return ventas.map((venta) => (
       <VentaCard
         venta={venta}
@@ -32,18 +32,18 @@ const Ventas = () => {
     <div>
       <section className="flex justify-center">
         <h1 className="flex justify-center pt-5 text-slate-500 font-bold text-4xl">
-          Ventas
+          Calendario de Trabajos
         </h1>
       </section>
 
       <div className="grid sm:grid-cols-1 gap-2 xl:grid-cols-4 mt-8  px-3 bg-sect_gray">
         {renderMain()}
       </div>
-      <Link to={"/ventas/resumen"}>
-          <button className="text-slate-500 font-bold w-16 h-16 flex justify-center items-center">
+      <div className="flex justify-center"><Link to={"/ventas/resumen"}>
+      <button className="bg-huellas_color font-bold text-white rounded-full ml-8 px-5 py-1">
            Resumen Ventas
           </button>
-        </Link>
+        </Link></div>
     </div>
   );
 };

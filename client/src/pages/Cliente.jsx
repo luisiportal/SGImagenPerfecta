@@ -16,7 +16,7 @@ const Cliente = () => {
 
   function renderMain() {
     try {
-      if (productos.length == 0) return <h1>No hay productos</h1>;
+      if (productos.length == 0) return <h1 className="text-center pt-5 text-slate-500 font-bold text-4xl sm:text-5xl md:text-6xl">NO HAY OFERTAS DISPONIBLES</h1>
       return productos.map((producto) => (
         <ProductoCard producto={producto} key={producto.id_producto} />
       ));
@@ -30,13 +30,13 @@ const Cliente = () => {
       {window.location.pathname === "/cliente" && (
         <section className="px-2 pb-2 text-slate-700">
           <h1 className="flex justify-center pt-5 text-slate-500 font-bold text-4xl">
-       Productos
+       Ofertas
       </h1>
-      <p className="text-sm text-slate-700 font-semibold flex justify-center">Reserve aqui</p>
+      <p className="text-sm text-slate-700 font-semibold flex justify-center">RESERVAR</p>
           
         </section>
       )}
-      <section className="grid sm:grid-cols-1 gap-5 xl:grid-cols-3 pt-5 lg:mx-48">
+      <section>
         {renderMain()}
       </section>
     </div>

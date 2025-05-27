@@ -1,5 +1,4 @@
 function ResumenCard({ resumen }) {
-  console.log(resumen);
 
   return (
     <div

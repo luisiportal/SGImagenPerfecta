@@ -9,6 +9,9 @@ export const Registro_Venta = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
+    id_venta: {
+      type: DataTypes.INTEGER,
+    },
 
     mes: {
       type: DataTypes.INTEGER,

@@ -20,9 +20,9 @@ const App = () => {
     <div className="bg-white min-h-screen">
       <AuthProvider>
         <TrabajadorContextProvider>
-          <nav>
+          
             <NavbarComponent />
-          </nav>
+          
 
           <div className="mx-auto">
             <ProductoContextProvider>

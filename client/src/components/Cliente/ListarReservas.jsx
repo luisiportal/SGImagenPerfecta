@@ -2,20 +2,22 @@ import React from "react";
 import { useState, useEffect } from "react";
 import ListarReservasCard from "./ListarReservasCard";
 
-import {  listarReservasRequest } from "../../api/reservas.api";
+import { listarReservasRequest } from "../../api/reservas.api";
 
 const ListarReservas = () => {
   const [reservas, setReservas] = useState([]);
+  const [actualizarReserva, setActualizarReserva] = useState(false);
 
   useEffect(() => {
     const loadReservas = async () => {
       try {
         const response = await listarReservasRequest();
         setReservas(response);
+        setActualizarReserva(false);
       } catch (error) {}
     };
-    loadReservas()
-  }, []);
+    loadReservas();
+  }, [actualizarReserva]);
 
   return (
     <section>
@@ -24,7 +26,7 @@ const ListarReservas = () => {
       </h1>
       <div className="grid sm:grid-cols-1 gap-2 xl:grid-cols-4 pt-10">
         {reservas.map((reserva) => (
-          <ListarReservasCard reserva={reserva} key={reserva.id_reserva} />
+          <ListarReservasCard reserva={reserva} key={reserva.id_reserva} setActualizarReserva={setActualizarReserva} />
         ))}
       </div>
     </section>

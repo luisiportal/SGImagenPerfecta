@@ -7,6 +7,10 @@ const HandlePerfil = ({ isAuthenticated, user }) => {
 
   const navigate = useNavigate();
 
+  const imageSrc = perfil.foto_perfil
+  ? `/images/trabajadores/perfil/${perfil.foto_perfil}`
+  : "/images/trabajadores/perfil/default.jpg";
+
   return (
     <aside className="flex justify-center items-center pt-4 lg:pt-1 hover:text-huellas_color hover:scale-125 transition-transform duration-300 ">
       {!isAuthenticated ? (
@@ -35,7 +39,7 @@ const HandlePerfil = ({ isAuthenticated, user }) => {
         >
           <img
             className="h-12 w-12 lg:w-8 lg:h-8 object-cover rounded-full"
-            src={`../images/trabajadores/perfil/${perfil.foto_perfil}`}
+            src={imageSrc}
             alt="perfil"
           />
         </button>

@@ -12,9 +12,9 @@ const BarraEscritorio = () => {
           to={"/"}
         >
           <img
-            className="w-24 h-12"
+            className="w-14 h-14"
             src={"../images/logo.png"}
-            alt="Logo Imagen Perfecta"
+            alt="Logo Otra Dimensión"
           />
         </Link>
       </div>

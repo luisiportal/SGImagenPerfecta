@@ -3,18 +3,18 @@ import * as Yup from "yup";
 export const schemaTrabajadores = Yup.object({
   usuario: Yup.string()
     .required("Campo requerido")
-    .matches(/^[a-zA-Z0-9-.]*$/, "Solo se permiten letras y números")
+    .matches(/^[a-zA-Z0-9-. ñÑ áéíóúÁÉÍÓÚ]*$/, "Solo se permiten letras y números")
     .max(20, "El nombre de usuario no debe tener más de 20 caracteres"),
   password: Yup.string()
     .required("Campo requerido")
     .min(8, "La contraseña debe tener al menos 8 caracteres"),
   nombre: Yup.string()
     .required("Campo requerido")
-    .matches(/^[a-zA-Z ]*$/, "Solo se permiten letras")
+    .matches(/^[a-zA-Z ñÑ áéíóúÁÉÍÓÚ]*$/, "Solo se permiten letras")
     .max(20, "El nombre de no debe tener más de 20 caracteres"),
   apellidos: Yup.string()
     .required("Campo requerido")
-    .matches(/^[a-zA-Z ]*$/, "Solo se permiten letras")
+    .matches(/^[a-zA-Z ñÑ áéíóúÁÉÍÓÚ]*$/, "Solo se permiten letras")
     .max(20, "El nombre de no debe tener más de 20 caracteres"),
 
   ci: Yup.string()
@@ -32,7 +32,7 @@ export const schemaTrabajadores = Yup.object({
 
   puesto: Yup.string()
     .required("Campo requerido")
-    .matches(/^[a-zA-Z ]*$/, "Solo se permiten letras")
+    .matches(/^[a-zA-Z ñÑ áéíóúÁÉÍÓÚ]*$/, "Solo se permiten letras")
     .max(20, "El nombre de no debe tener más de 20 caracteres"),
 
   direccion: Yup.string()

@@ -18,6 +18,12 @@ export const associations = () => {
     hooks: true,
   });
 
+  Venta.hasOne(Registro_Venta, {
+    foreignKey: "id_venta",
+    onDelete: "CASCADE",
+    hooks: true,
+  });
+
   Reserva.belongsTo(Producto, { foreignKey: 'id_producto' });
   Producto.hasMany(Reserva, { foreignKey: 'id_producto' });
   //Trabajador
@@ -32,5 +38,10 @@ export const associations = () => {
     foreignKey: "id_tributo",
   });
 
-  Registro_Venta.hasMany(Venta);
+  Registro_Venta.hasMany(Venta, {
+    foreignKey: "id_venta",
+    onDelete: "CASCADE",
+    hooks: true,
+  });
+
 };

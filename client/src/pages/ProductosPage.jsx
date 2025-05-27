@@ -23,7 +23,7 @@ const ProductosPage = () => {
     <div>
       <section className="flex justify-center">
       <h1 className="flex justify-center pt-5 text-slate-500 font-bold text-4xl">
-        Productos
+        Ofertas
       </h1>
       <Link to={"/productos/new"}>
         <button className="text-slate-500 font-bold w-16 h-16 flex justify-center items-center">
@@ -33,7 +33,7 @@ const ProductosPage = () => {
       </section>
       
 
-      <div className="grid sm:grid-cols-1 gap-2 xl:grid-cols-4 mt-8  px-3 bg-sect_gray">
+      <div className="grid sm:grid-cols-1 gap-2 xl:grid-cols-3 mt-8  px-3 bg-sect_gray">
         {renderMain()}
       </div>
     </div>

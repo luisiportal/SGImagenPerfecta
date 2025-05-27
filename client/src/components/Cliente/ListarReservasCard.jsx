@@ -1,9 +1,15 @@
 import React from "react";
 import { eliminarReservaRequest } from "../../api/reservas.api";
 import { useAuth } from "../../context/AuthContext";
+import { useEffect } from "react";
 
-const ListarReservasCard = ({ reserva }) => {
+const ListarReservasCard = ({ reserva, setActualizarReserva }) => {
   const { isAuthenticated } = useAuth();
+
+  const handleEliminarReserva = async () => {
+    await eliminarReservaRequest(reserva.id_reserva);
+    setActualizarReserva(true);
+  };
 
   return (
     <div
@@ -24,14 +30,12 @@ const ListarReservasCard = ({ reserva }) => {
           className={`flex gap-x-1 transition-all duration-500 ease-in-out`}
         >
           <div className="bg-slate-700 px-2 py-1 font-bold text-white rounded hover:bg-slate-900 transition-all duration-500 ease-in-out">
-            <button onClick={() => eliminarReservaRequest(reserva.id_reserva)}>
+            <button onClick={() => handleEliminarReserva(reserva.id_reserva)}>
               Eliminar
             </button>
           </div>
           <div className="bg-slate-700 px-2 py-1 font-bold text-white rounded hover:bg-slate-900 transition-all duration-500 ease-in-out">
-            <button onClick={() => navigate(`edit/${id_producto}`)}>
-              Editar
-            </button>
+            <button>Editar</button>
           </div>
         </section>
       )}

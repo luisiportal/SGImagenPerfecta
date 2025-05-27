@@ -20,14 +20,14 @@ const Navbar = ({ hidden }) => {
 
         {isAuthenticated ? (
           <>
-            <ElementoNavbar nombre={"Productos"} href={"/productos"} />
-            <ElementoNavbar nombre={"Ventas"} href={"/ventas"} />
+            <ElementoNavbar nombre={"Ofertas"} href={"/productos"} isAuthenticated={isAuthenticated} />
+            <ElementoNavbar nombre={"Calendario"} href={"/ventas"} isAuthenticated={isAuthenticated} />
             <ElementoNavbar
               nombre={"Trabajadores"}
               href={"/trabajador/plantilla"}
+              isAuthenticated={isAuthenticated}
             />
-
-            <ElementoNavbar nombre={"Gest.Reservas"} href={"/cliente/reservas"} />
+            <ElementoNavbar nombre={"Gest.Reservas"} href={"/cliente/reservas"} isAuthenticated={isAuthenticated} />
           </>
         ) : (
           ""
