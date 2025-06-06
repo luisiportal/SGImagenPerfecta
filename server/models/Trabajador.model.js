@@ -9,23 +9,23 @@ export const Trabajador = sequelize.define("trabajadores", {
   },
   usuario: {
     type: DataTypes.STRING,
-    allowNull:false,
+    allowNull: false,
   },
   passwordHash: {
     type: DataTypes.STRING,
-    allowNull:false,
+    allowNull: false,
   },
   nombre: {
     type: DataTypes.STRING,
-    allowNull:false,
+    allowNull: false,
   },
   apellidos: {
     type: DataTypes.STRING,
-    allowNull:false,
+    allowNull: false,
   },
   ci: {
     type: DataTypes.STRING,
-    allowNull:false,
+    allowNull: false,
   },
 
   telefono: {
@@ -43,8 +43,4 @@ export const Trabajador = sequelize.define("trabajadores", {
   foto_perfil: {
     type: DataTypes.STRING,
   },
-  total_ventas_realizadas: {
-    type: DataTypes.STRING,
-  },
 });
-

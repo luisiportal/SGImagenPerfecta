@@ -1,5 +1,4 @@
 function ResumenCard({ resumen }) {
-
   return (
     <div
       className={`mx-4 md:mx-1 my-1 bg-neutral-200  shadow rounded overflow-hidden p-2`}

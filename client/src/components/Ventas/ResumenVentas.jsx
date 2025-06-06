@@ -1,10 +1,9 @@
-import React from 'react'
-import { listarResumenVentasRequest } from '../../api/ventas.api';
-import ResumenCard from './ResumenCard';
-import { useState,useEffect } from 'react';
+import React from "react";
+import { listarResumenVentasRequest } from "../../api/ventas.api";
+import ResumenCard from "./ResumenCard";
+import { useState, useEffect } from "react";
 
 const ResumenVentas = () => {
-
   const [resumenVentas, setResumenVentas] = useState([]);
   const [actualizar, setActualizar] = useState([]);
   useEffect(() => {
@@ -20,13 +19,9 @@ const ResumenVentas = () => {
   function renderMain() {
     if (resumenVentas.length === 0) return <h1>No hay datos</h1>;
     return resumenVentas.map((resumen) => (
-      <ResumenCard resumen={resumen} key={resumen.id_registro_venta}/>
+      <ResumenCard resumen={resumen} key={resumen.id_registro_venta} />
     ));
   }
-
-
-
-
 
   return (
     <div>
@@ -43,5 +38,4 @@ const ResumenVentas = () => {
   );
 };
 
-
-export default ResumenVentas
+export default ResumenVentas;

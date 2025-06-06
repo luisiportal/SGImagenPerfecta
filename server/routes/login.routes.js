@@ -8,7 +8,6 @@ const loginRouter = Router();
 loginRouter.post("/trabajadores/login", login);
 loginRouter.post("/trabajadores/logout", logout);
 
-
 loginRouter.get("/auth/verify", verifyToken);
 
 export default loginRouter;

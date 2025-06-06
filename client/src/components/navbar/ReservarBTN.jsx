@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 
 const ReservarBTN = () => {
   return (
-    <button className="bg-huellas_color font-bold text-white rounded-full ml-8 px-5 py-1">
+    // Eliminar ml-8
+    <button className="flex justify-center items-center bg-st_color font-bold text-white rounded-full px-5 py-1 max-h-9 transition-transform duration-200 hover:scale-105">
       <Link to={"/cliente"}>Reservar</Link>
     </button>
   );

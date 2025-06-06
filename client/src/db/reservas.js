@@ -6,7 +6,7 @@ export const reservasDB = [
     ci: "92011543229",
     telefono: "58155194",
     fecha_sesion: "2024-02-01",
-    id_producto: 3,
+    id_oferta: 3,
   },
   {
     id_reserva: 77,
@@ -15,7 +15,7 @@ export const reservasDB = [
     ci: "92011543229",
     telefono: "58155194",
     fecha_sesion: "2024-02-01",
-    id_producto: 3,
+    id_oferta: 3,
   },
   {
     id_reserva: 78,
@@ -24,7 +24,7 @@ export const reservasDB = [
     ci: "92011543229",
     telefono: "58155194",
     fecha_sesion: "2024-02-01",
-    id_producto: 3,
+    id_oferta: 3,
   },
   {
     id_reserva: 13,
@@ -33,7 +33,7 @@ export const reservasDB = [
     ci: "92011543229",
     telefono: "58155194",
     fecha_sesion: "2024-02-01",
-    id_producto: 4,
+    id_oferta: 4,
   },
   {
     id_reserva: 25,
@@ -42,6 +42,6 @@ export const reservasDB = [
     ci: "92011543229",
     telefono: "58155194",
     fecha_sesion: "2024-02-01",
-    id_producto: 3,
+    id_oferta: 3,
   },
 ];

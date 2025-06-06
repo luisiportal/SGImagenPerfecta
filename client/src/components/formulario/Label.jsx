@@ -1,15 +1,13 @@
-import React from 'react'
+import React from "react";
 
-const Label = ({htmlFor,className}) => {
+const Label = ({ htmlFor, className }) => {
   return (
     <div>
-        <label htmlFor={htmlFor} className={className}>
-                * Cliente:
-              </label>
-
-
+      <label htmlFor={htmlFor} className={className}>
+        * Cliente:
+      </label>
     </div>
-  )
-}
+  );
+};
 
-export default Label
+export default Label;

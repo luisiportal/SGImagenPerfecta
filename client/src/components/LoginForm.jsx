@@ -30,11 +30,9 @@ const Login = () => {
         })}
         onSubmit={async (values, { setSubmitting }) => {
           try {
-            const {response} = await login(values);
+            const { response } = await login(values);
             setCredencial_invalida(response.data.message);
-          } catch (error) {
-            
-          }
+          } catch (error) {}
         }}
       >
         {({ isSubmitting, errors }) => (
@@ -44,7 +42,7 @@ const Login = () => {
                 Usuario :
               </label>
               <Field
-                className=" border-b-huellas_color"
+                className=" border-b-st_color"
                 type="text"
                 name="usuario"
               />
@@ -53,7 +51,7 @@ const Login = () => {
                 Contraseña :
               </label>
               <Field
-                className=" border-b-huellas_color"
+                className=" border-b-st_color"
                 type="password"
                 name="password"
               />
@@ -65,7 +63,7 @@ const Login = () => {
                 </span>
               )}
               <button
-                className="w-full bg-huellas_color text-2md hover:bg-amber-600 text-white font-semibold block p-2 rounded transition-colors"
+                className="w-full bg-st_color text-2md hover:bg-amber-600 text-white font-semibold block p-2 rounded transition-colors"
                 type="submit"
                 disabled={isSubmitting}
               >

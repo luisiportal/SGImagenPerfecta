@@ -9,4 +9,4 @@ export const loginRequest = async (values) =>
 export const logoutRequest = async () =>
   await axios.post(`/api/trabajadores/logout`);
 
-  export const verifyTokenRequest = () => axios.get(`api/auth/verify`);
+export const verifyTokenRequest = () => axios.get(`api/auth/verify`);

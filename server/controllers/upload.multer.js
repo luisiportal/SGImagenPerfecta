@@ -5,8 +5,8 @@ import { log } from "console";
 
 const app = express();
 
-export const uploadProducto = multer({
-  dest: `../client/public/images/productos/`,
+export const uploadOferta = multer({
+  dest: `../client/public/images/ofertas/`,
 });
 export const uploadTrabajador = multer({
   dest: `../client/public/images/trabajadores/perfil/`,

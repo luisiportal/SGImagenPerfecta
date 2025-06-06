@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        huellas_color: "#f9a217",
+        st_color: "#f9a217",
         grayFotos:"#474747",
         sect_gray:"#dddddd",
         he_card:"#54595f"

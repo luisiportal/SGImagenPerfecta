@@ -1,67 +1,147 @@
 import { Form, Formik } from "formik";
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import * as Yup from "yup";
+import { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import "../../styles/datepicker-custom.css";
+import { registerLocale, setDefaultLocale } from "react-datepicker";
+import es from "date-fns/locale/es";
+
+// Importa el nuevo schema de validación
+import { reservaSchema } from "../validacionForm/schemaForm"; //
+
 import Input from "../formulario/Input";
-import { crearReservaRequest } from "../../api/reservas.api";
+import {
+  crearReservaRequest,
+  actualizarReservaRequest,
+  obtenerFechasReservadasRequest,
+} from "../../api/reservas.api";
 
-const schema = Yup.object().shape({
-  nombre_cliente: Yup.string()
-    .matches(/^[ñA-Za-záéíóúÁÉÍÓÚ\s]{3,}$/, "Revise su nombre por favor")
-    .required("Nombre cliente requerido"),
-  apellidos: Yup.string()
-    .matches(/^[ñA-Za-záéíóúÁÉÍÓÚ\s]{3,}$/, "Revise sus apellidos por favor")
-    .required("Apellidos requeridos"),
-  telefono: Yup.string()
-    .matches(/^\d{1,10}$/, "Telefono no valido")
-    .required("El teléfono es requerido"),
-  ci: Yup.string()
-    .matches(/^\d{11}$/, "Identidad no valida")
-    .required("CI es requerido"),
-  fecha_sesion: Yup.date().required("Debe seleccionar una fecha"),
-});
+registerLocale("es", es);
 
-const ReservarForm = () => {
+const ReservarForm = ({
+  initialValues,
+  onSubmit,
+  onCancel,
+  isEditing = false,
+  onSuccess,
+  onError,
+}) => {
   const params = useParams();
-  const [producto, setProducto] = useState({
+  const navigate = useNavigate();
+
+  const [formInitialValues, setFormInitialValues] = useState({
     nombre_cliente: "",
     apellidos: "",
     ci: "",
     telefono: "",
-    fecha_sesion: "",
-    id_producto: params.id_producto,
+    correo_electronico: "", // Agrega el nuevo campo de correo electrónico
+    fecha_sesion: null,
+    id_oferta: params.id_oferta,
   });
 
-  const navigate = useNavigate();
-  const handleSubmit = async (values) => {
+  const [reservedDates, setReservedDates] = useState([]);
+
+  useEffect(() => {
+    setDefaultLocale("es");
+
+    const loadReservedDates = async () => {
+      try {
+        const dates = await obtenerFechasReservadasRequest();
+        const dateObjects = dates.map((dateStr) => new Date(dateStr));
+        setReservedDates(dateObjects);
+      } catch (error) {
+        console.error("Error al cargar fechas reservadas:", error);
+      }
+    };
+    loadReservedDates();
+  }, []);
+
+  useEffect(() => {
+    if (initialValues) {
+      const formattedDate = initialValues.fecha_sesion
+        ? new Date(initialValues.fecha_sesion)
+        : null;
+      setFormInitialValues({
+        ...initialValues,
+        fecha_sesion: formattedDate,
+      });
+    }
+  }, [initialValues]);
+
+  const handleSubmit = async (values, { setSubmitting }) => {
+    setSubmitting(true);
     try {
-      crearReservaRequest(values);
-      alert(
-        `Se ha creado su reserva para el día ${values.fecha_sesion} a nombre de la persona ${values.nombre_cliente} ${values.apellidos}`
-      );
-      navigate("/");
+      const fechaCompleta = values.fecha_sesion
+        ? new Date(
+            values.fecha_sesion.getFullYear(),
+            values.fecha_sesion.getMonth(),
+            values.fecha_sesion.getDate(),
+            new Date().getHours(),
+            new Date().getMinutes(),
+            new Date().getSeconds()
+          ).toISOString()
+        : null;
+
+      const dataToSend = {
+        ...values,
+        fecha_sesion: fechaCompleta,
+        id_oferta: values.id_oferta,
+      };
+
+      if (isEditing) {
+        await onSubmit(dataToSend);
+      } else {
+        const res = await crearReservaRequest(dataToSend);
+        if (onSuccess) {
+          onSuccess(res?.message || "Reserva creada con éxito!");
+        }
+        navigate("/");
+      }
     } catch (error) {
-      console.log(error);
+      console.error(
+        "Error al procesar reserva:",
+        error.response?.data || error.message
+      );
+      if (isEditing) {
+        throw error;
+      } else {
+        if (onError) {
+          onError(
+            error.response?.data?.message || "Error al crear la reserva."
+          );
+        } else {
+          alert(
+            `Error al crear la reserva: ${error.response?.data?.message || "Error desconocido"}`
+          );
+        }
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="mx-2 bg-neutral-200 rounded-md p-4">
-      <h1 className="flex justify-center pt-5 text-slate-500 font-bold text-4xl">
-        Reserva
-      </h1>
-
-      <div className="mt-8">
+    <div className={isEditing ? "" : "mx-2 bg-neutral-200 rounded-md p-4"}>
+      <h1 className="hidden">{isEditing ? "Editar Reserva" : "Reserva"}</h1>
+      <div className="mt-2">
         <Formik
-          initialValues={producto}
+          initialValues={formInitialValues}
           onSubmit={handleSubmit}
-          validationSchema={schema}
+          validationSchema={reservaSchema} // Aplica el schema de validación
+          enableReinitialize={true}
         >
-          {({ handleChange, handleSubmit, errors, values, isSubmitting }) => (
-            <Form
-              onSubmit={handleSubmit}
-              className="bg-neutral-200 max-w-md rounded-md p-4 mx-auto"
-            >
+          {(
+            {
+              handleChange,
+              values,
+              errors,
+              setFieldValue,
+              isSubmitting,
+              touched,
+            } // Agrega 'touched' para mostrar errores solo después de interactuar con el campo
+          ) => (
+            <Form className="bg-neutral-200 max-w-md rounded-md p-4 mx-auto">
               <Input
                 name={"nombre_cliente"}
                 label={"Nombre"}
@@ -69,7 +149,8 @@ const ReservarForm = () => {
                 value={values.nombre_cliente}
                 handleChange={handleChange}
                 errors={errors}
-              ></Input>
+                touched={touched} // Pasa 'touched' al Input
+              />
               <Input
                 name={"apellidos"}
                 label={"Apellidos"}
@@ -77,7 +158,8 @@ const ReservarForm = () => {
                 value={values.apellidos}
                 handleChange={handleChange}
                 errors={errors}
-              ></Input>
+                touched={touched} //
+              />
               <Input
                 name={"ci"}
                 label={"Carnet Identidad"}
@@ -85,7 +167,8 @@ const ReservarForm = () => {
                 value={values.ci}
                 handleChange={handleChange}
                 errors={errors}
-              ></Input>
+                touched={touched} //
+              />
 
               <Input
                 name={"telefono"}
@@ -94,24 +177,73 @@ const ReservarForm = () => {
                 value={values.telefono}
                 handleChange={handleChange}
                 errors={errors}
-              ></Input>
+                touched={touched} //
+              />
 
+              {/* Nuevo campo para el correo electrónico */}
               <Input
-                name={"fecha_sesion"}
-                label={"Fecha a Reservar"}
-                type={"date"}
-                value={values.fecha_sesion}
+                name={"correo_electronico"}
+                label={"Correo Electrónico"}
+                type={"email"} // Utiliza type="email" para validación básica del navegador
+                value={values.correo_electronico}
                 handleChange={handleChange}
                 errors={errors}
-              ></Input>
+                touched={touched} //
+              />
+
+              <div className="mb-4">
+                <label
+                  htmlFor="fecha_sesion"
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                >
+                  Fecha de la Sesión
+                </label>
+                <DatePicker
+                  id="fecha_sesion"
+                  name="fecha_sesion"
+                  selected={values.fecha_sesion}
+                  onChange={(date) => setFieldValue("fecha_sesion", date)}
+                  dateFormat="dd/MM/yyyy"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  minDate={new Date()}
+                  excludeDates={reservedDates}
+                  filterDate={(date) => {
+                    const day = date.getDay();
+                    return day !== 0; // Deshabilita domingos
+                  }}
+                  placeholderText="Selecciona una fecha"
+                  locale="es"
+                />
+                {errors.fecha_sesion &&
+                  touched.fecha_sesion && ( // Muestra el error solo si el campo ha sido tocado
+                    <div className="text-red-500 text-xs italic mt-1">
+                      {errors.fecha_sesion}
+                    </div>
+                  )}
+              </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className=" bg-huellas_color w-full text-2md text-black font-bold block p-2 rounded-md"
+                className="bg-st_color w-full text-2md text-black font-bold block p-2 rounded-md mt-4"
               >
-                {isSubmitting ? "Reservando..." : "Reservar"}
+                {isSubmitting
+                  ? isEditing
+                    ? "Actualizando..."
+                    : "Reservando..."
+                  : isEditing
+                    ? "Guardar Cambios"
+                    : "Reservar"}
               </button>
+              {isEditing && (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="mt-2 bg-gray-500 hover:bg-gray-700 text-white font-bold w-full p-2 rounded-md"
+                >
+                  Cancelar
+                </button>
+              )}
               <br />
             </Form>
           )}

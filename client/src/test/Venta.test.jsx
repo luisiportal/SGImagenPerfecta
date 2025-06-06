@@ -9,7 +9,7 @@ describe("Mostrar Venta", () => {
           id_venta: 1,
           nombre_cliente: "Candido",
           apellidos: "Julian",
-          nombre_producto: "Estandar",
+          nombre_oferta: "Estandar",
           descripcion: null,
           pago_confirmado: null,
           precio_venta: "10000.00",

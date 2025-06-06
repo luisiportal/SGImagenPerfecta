@@ -33,9 +33,6 @@ export const login = async (req, res) => {
       id_trabajador: userFound.id_trabajador,
       usuario: userFound.usuario,
     });
-
-    
- 
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

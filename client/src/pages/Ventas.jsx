@@ -39,11 +39,13 @@ const Ventas = () => {
       <div className="grid sm:grid-cols-1 gap-2 xl:grid-cols-4 mt-8  px-3 bg-sect_gray">
         {renderMain()}
       </div>
-      <div className="flex justify-center"><Link to={"/ventas/resumen"}>
-      <button className="bg-huellas_color font-bold text-white rounded-full ml-8 px-5 py-1">
-           Resumen Ventas
+      <div className="flex justify-center">
+        <Link to={"/ventas/resumen"}>
+          <button className="bg-st_color font-bold text-white rounded-full ml-8 px-5 py-1">
+            Resumen Ventas
           </button>
-        </Link></div>
+        </Link>
+      </div>
     </div>
   );
 };

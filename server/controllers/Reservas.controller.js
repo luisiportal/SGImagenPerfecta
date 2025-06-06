@@ -1,13 +1,12 @@
 import { Reserva } from "../models/Reserva.model.js";
-import { Producto } from "../models/Producto.model.js";
-import sequelize from "../db.js";
+import { Oferta } from "../models/Oferta.model.js";
 
 export const ListarReservas = async (req, res) => {
   try {
     const response = await Reserva.findAll({
       include: [
         {
-          model: Producto,
+          model: Oferta,
         },
       ],
     });
@@ -17,6 +16,29 @@ export const ListarReservas = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+// Obtener Fechas de Reservas Existentes
+export const obtenerFechasReservadas = async (req, res) => {
+  try {
+    const reservas = await Reserva.findAll({
+      attributes: ["fecha_sesion"], // columna fecha_sesion
+    });
+
+    // fechas y formatearlas para que sean fáciles de comparar en el frontend
+    // Las fechas vienen como objetos Date de la base de datos, las convertimos a formato 'YYYY-MM-DD'
+    const fechasReservadas = reservas.map((reserva) => {
+      const date = new Date(reserva.fecha_sesion);
+      // evitar problemas de zona horaria, UTC para la comparación
+      return date.toISOString().split("T")[0]; // Ejemplo: "2025-05-29"
+    });
+
+    res.json(fechasReservadas);
+  } catch (error) {
+    console.error("Error al obtener fechas reservadas:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor al obtener fechas reservadas.",
+    });
+  }
+};
 
 export const crearReserva = async (req, res) => {
   try {
@@ -24,18 +46,28 @@ export const crearReserva = async (req, res) => {
       nombre_cliente,
       apellidos,
       ci,
-      id_producto,
+      nombre_oferta,
       fecha_sesion,
       telefono,
-    } = req.body;
+      correo_electronico,
+    } = req.body; // Agrega correo_electronico aquí
+
+    // Obtener los detalles de la oferta
+    const oferta = await Oferta.findByPk(id_oferta);
+    if (!oferta) {
+      return res.status(404).json({ message: "Oferta no encontrada." });
+    }
 
     const response = await Reserva.create({
       nombre_cliente,
       apellidos,
       ci,
-      id_producto,
+      nombre_oferta,
+      descripcion_oferta: oferta.descripcion,
+      precio_venta_oferta: oferta.precio_venta,
       fecha_sesion,
       telefono,
+      correo_electronico, // Incluye el correo electrónico al crear la reserva
     });
 
     res.sendStatus(201);
@@ -44,6 +76,7 @@ export const crearReserva = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 export const actualizarReserva = async (req, res) => {
   try {
     const id_reserva = req.params.id;
@@ -51,25 +84,47 @@ export const actualizarReserva = async (req, res) => {
       nombre_cliente,
       apellidos,
       ci,
-      id_producto,
+      nombre_oferta,
       fecha_sesion,
       telefono,
-    } = req.body;
+      correo_electronico,
+    } = req.body; // Agrega correo_electronico aquí
 
     const response = await Reserva.findByPk(id_reserva);
-    (response.nombre_cliente = nombre_cliente),
-      (response.apellidos = apellidos),
-      (response.ci = ci),
-      (response.id_producto = id_producto),
-      (response.fecha_sesion = fecha_sesion),
-      (response.telefono = telefono),
-      await response.save();
+    if (!response) {
+      return res.status(404).json({ message: "Reserva no encontrada." });
+    }
+
+    // Obtener los detalles de la oferta si se proporciona id_oferta y es diferente
+    let descripcion_oferta_to_save = response.descripcion_oferta;
+    let precio_venta_oferta_to_save = response.precio_venta_oferta;
+
+    if (id_oferta && id_oferta !== response.id_oferta) {
+      const oferta = await Oferta.findByPk(id_oferta);
+      if (!oferta) {
+        return res.status(404).json({ message: "Oferta no encontrada." });
+      }
+      descripcion_oferta_to_save = oferta.descripcion;
+      precio_venta_oferta_to_save = oferta.precio_venta;
+    }
+
+    response.nombre_cliente = nombre_cliente;
+    response.apellidos = apellidos;
+    response.ci = ci;
+    response.nombre_oferta = nombre_oferta;
+    response.descripcion_oferta = descripcion_oferta_to_save;
+    response.precio_venta_oferta = precio_venta_oferta_to_save;
+    response.fecha_sesion = fecha_sesion;
+    response.telefono = telefono;
+    response.correo_electronico = correo_electronico; // Actualiza el campo de correo electrónico
+    await response.save();
 
     res.json(response);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
+
 export const eliminarReserva = async (req, res) => {
   try {
     const response = await Reserva.destroy({
@@ -82,6 +137,7 @@ export const eliminarReserva = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 export const listarUnaReserva = async (req, res) => {
   try {
     const id_reserva = req.params.id;
@@ -90,7 +146,7 @@ export const listarUnaReserva = async (req, res) => {
       where: { ci: id_reserva },
       include: [
         {
-          model: Producto,
+          model: Oferta,
         },
       ],
     });

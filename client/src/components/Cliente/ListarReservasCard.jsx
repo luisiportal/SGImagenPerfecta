@@ -1,45 +1,171 @@
-import React from "react";
-import { eliminarReservaRequest } from "../../api/reservas.api";
+import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useEffect } from "react";
+import ConfirmModal from "../ConfirmModal";
 
-const ListarReservasCard = ({ reserva, setActualizarReserva }) => {
+const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
   const { isAuthenticated } = useAuth();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const handleEliminarReserva = async () => {
-    await eliminarReservaRequest(reserva.id_reserva);
-    setActualizarReserva(true);
+  const handleEliminarClick = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmEliminar = async () => {
+    setShowConfirmModal(false);
+    // VERIFICACIÓN CRÍTICA: Asegúrate de que onDelete es una función antes de llamarla.
+    if (onDelete) {
+      await onDelete(reserva.id_reserva);
+    }
+  };
+
+  const handleCancelEliminar = () => {
+    setShowConfirmModal(false);
+  };
+
+  // NUEVA FUNCIÓN para manejar el click de editar, para añadir la verificación
+  const handleEditarClick = () => {
+    // VERIFICACIÓN CRÍTICA: Asegúrate de que onEdit es una función antes de llamarla.
+    if (onEdit) {
+      onEdit(reserva);
+    }
+  };
+
+  const formatFechaSesion = (dateString) => {
+    if (!dateString) return "";
+
+    let isoFormattedString = dateString.replace(" ", "T");
+    const timezoneOffsetMatch = isoFormattedString.match(
+      /(\+|-)(\d{2})(\d{2})$/
+    );
+    if (timezoneOffsetMatch) {
+      const sign = timezoneOffsetMatch[1];
+      const hours = timezoneOffsetMatch[2];
+      const minutes = timezoneOffsetMatch[3];
+      isoFormattedString = isoFormattedString.replace(
+        /(\+|-)(\d{2})(\d{2})$/,
+        `${sign}${hours}:${minutes}`
+      );
+    }
+
+    const date = new Date(isoFormattedString);
+
+    if (isNaN(date.getTime())) {
+      console.error(
+        "Error: Fecha inválida después del parseo. Cadena original:",
+        dateString,
+        "Cadena formateada para Date:",
+        isoFormattedString
+      );
+      return "Fecha inválida";
+    }
+
+    // Usar toLocaleDateString directamente con las opciones deseadas
+    // Esto es más robusto para formatear fechas a una representación local.
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+    return date.toLocaleDateString("es-ES", options);
   };
 
   return (
-    <div
-      className={`mx-4 md:mx-1 my-1 bg-neutral-200  shadow rounded overflow-hidden p-2`}
-    >
-      <main>
-        <article className="px-3 text-left text-slate-700 font-semibold block">
-          <h4>Cliente : {`${reserva.nombre_cliente} ${reserva.apellidos}`}</h4>
+    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300 my-3 mx-auto w-full max-w-md">
+      <div className="p-6">
+        <div className="uppercase tracking-wide text-sm text-indigo-600 font-bold mb-2 border-b border-indigo-100 pb-2 flex justify-between items-center">
+          <span>Detalle de la Reserva</span>
+          <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+            {formatFechaSesion(reserva.fecha_sesion)}
+          </span>
+        </div>
 
-          <h5>CI:{reserva.ci}</h5>
-          <h5>Telefono: {reserva.telefono}</h5>
-          <h5>Fecha Sesion : {reserva.fecha_sesion}</h5>
-          <h5>Producto : {reserva.producto.nombre_producto}</h5>
-        </article>
-      </main>
-      {isAuthenticated && (
-        <section
-          className={`flex gap-x-1 transition-all duration-500 ease-in-out`}
-        >
-          <div className="bg-slate-700 px-2 py-1 font-bold text-white rounded hover:bg-slate-900 transition-all duration-500 ease-in-out">
-            <button onClick={() => handleEliminarReserva(reserva.id_reserva)}>
-              Eliminar
-            </button>
-          </div>
-          <div className="bg-slate-700 px-2 py-1 font-bold text-white rounded hover:bg-slate-900 transition-all duration-500 ease-in-out">
-            <button>Editar</button>
-          </div>
-        </section>
-      )}
+        <div className="flex justify-between items-start">
+          <h1 className="text-2xl font-extrabold text-gray-900">
+            {reserva.oferta.nombre_oferta}
+          </h1>
+        </div>
+
+        <div className="mt-4 text-gray-700 space-y-2">
+          <p>
+            <span className="font-semibold">Cliente:</span>{" "}
+            {`${reserva.nombre_cliente} ${reserva.apellidos}`}
+          </p>
+          <p>
+            <span className="font-semibold">CI:</span> {reserva.ci}
+          </p>
+          <p>
+            <span className="font-semibold">Teléfono:</span> {reserva.telefono}
+          </p>
+        </div>
+
+        {/* Condicionalmente renderiza el div de botones si el usuario está autenticado */}
+        {/* Y si se ha proporcionado al menos una de las funciones de acción (onEdit o onDelete) */}
+        {isAuthenticated &&
+          (onEdit || onDelete) && ( // <- Condición de renderizado
+            <div className="mt-6 pt-4 border-t border-gray-200 flex justify-end space-x-3">
+              {/* Renderiza el botón de editar SOLO SI la prop onEdit es una función */}
+              {onEdit && ( // <- Condición para el botón de Editar
+                <button
+                  onClick={handleEditarClick} // Llama al nuevo handler que verifica onEdit
+                  className="text-blue-600 hover:text-blue-800 transition-colors"
+                  title="Editar reserva"
+                  type="button"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                </button>
+              )}
+              {/* Renderiza el botón de eliminar SOLO SI la prop onDelete es una función */}
+              {onDelete && ( // <- Condición para el botón de Eliminar
+                <button
+                  onClick={handleEliminarClick}
+                  className="text-red-600 hover:text-red-800 transition-colors"
+                  title="Eliminar reserva"
+                  type="button"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+          )}
+      </div>
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        message={`¿Estás seguro de eliminar la reserva de ${reserva.nombre_cliente} para el ${formatFechaSesion(reserva.fecha_sesion)}?`}
+        onConfirm={handleConfirmEliminar}
+        onCancel={handleCancelEliminar}
+      />
     </div>
   );
 };
+
 export default ListarReservasCard;

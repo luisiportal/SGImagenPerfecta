@@ -5,9 +5,9 @@ import { saveImage } from "./upload.multer.js";
 export const listarTrabajadores = async (req, res) => {
   try {
     const response = await Trabajador.findAll({
-      order: [['id_trabajador', 'DESC']]
+      order: [["id_trabajador", "DESC"]],
     });
-    
+
     res.json(response);
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -15,8 +15,7 @@ export const listarTrabajadores = async (req, res) => {
 };
 
 export const crearTrabajador = async (req, res) => {
-
- let foto_perfil = "default.jpg";
+  let foto_perfil = "default.jpg";
   if (req.file !== undefined) {
     foto_perfil = req.file.originalname;
   }
@@ -37,7 +36,6 @@ export const crearTrabajador = async (req, res) => {
     if (!findUser) {
       const passwordHash =
         password != null ? await bcrypt.hash(password, 10) : "";
-     
 
       // El usuario no existe, crea uno nuevo
       await Trabajador.create({
@@ -64,12 +62,6 @@ export const crearTrabajador = async (req, res) => {
 };
 
 export const actualizarTrabajador = async (req, res) => {
- 
-  let foto_perfil = "default.jpg";
-   if (req.file !== undefined) {
-     foto_perfil = req.file.originalname;
-   }
-   saveImage(req.file, "trabajadores/perfil");
   try {
     const id_trabajador = req.params.id;
     const {
@@ -85,17 +77,25 @@ export const actualizarTrabajador = async (req, res) => {
     } = req.body;
 
     const response = await Trabajador.findByPk(id_trabajador);
-    (response.usuario = usuario),
-      (response.password = password),
-      (response.nombre = nombre),
-      (response.apellidos = apellidos),
-      (response.ci = ci),
-      (response.telefono = telefono),
-      (response.puesto = puesto),
-      (response.direccion = direccion),
-      (response.salario = salario),
-      (response.foto_perfil = foto_perfil),
-      await response.save();
+
+    // Actualizar campos básicos
+    response.usuario = usuario;
+    response.password = password;
+    response.nombre = nombre;
+    response.apellidos = apellidos;
+    response.ci = ci;
+    response.telefono = telefono;
+    response.puesto = puesto;
+    response.direccion = direccion;
+    response.salario = salario;
+
+    // Solo actualizar la imagen si se envió un archivo nuevo
+    if (req.file) {
+      response.foto_perfil = req.file.originalname;
+      saveImage(req.file, "trabajadores/perfil");
+    }
+
+    await response.save();
     res.json(response);
   } catch (error) {
     return res.status(500).json({ message: error.message });
