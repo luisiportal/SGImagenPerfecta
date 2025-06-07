@@ -1,5 +1,7 @@
 import { Reserva } from "../models/Reserva.model.js";
 import { Oferta } from "../models/Oferta.model.js";
+import { Oferta_Personalizada } from "../models/Oferta_Personalizada.js";
+import { Oferta_Servicio } from "../models/Oferta_Servicio.js";
 
 export const ListarReservas = async (req, res) => {
   try {
@@ -41,38 +43,61 @@ export const obtenerFechasReservadas = async (req, res) => {
 };
 
 export const crearReserva = async (req, res) => {
+  const transaction = await sequelize.transaction();
+
   try {
     const {
       nombre_cliente,
       apellidos,
       ci,
-      nombre_oferta,
       fecha_sesion,
       telefono,
       correo_electronico,
-    } = req.body; // Agrega correo_electronico aquí
+      id_oferta,
+      oferta_personalizada,
+    } = req.body;
 
-    // Obtener los detalles de la oferta
-    const oferta = await Oferta.findByPk(id_oferta);
-    if (!oferta) {
-      return res.status(404).json({ message: "Oferta no encontrada." });
+    const reserva = await Reserva.create(
+      {
+        nombre_cliente,
+        apellidos,
+        ci,
+        id_oferta,
+        oferta_personalizada,
+        descripcion_oferta,
+        precio_venta_oferta,
+        fecha_sesion,
+        telefono,
+        correo_electronico,
+      },
+      { transaction }
+    );
+
+    if (oferta_personalizada) {
+      const personalizada = await Oferta_Personalizada.create(
+        { id_reserva: reserva.id_reserva },
+        { transaction }
+      );
+
+      await Promise.all(
+        oferta_personalizada.map((personalizada) =>
+          Oferta_Servicio.create(
+            {
+              id_servicio,
+              id_oferta_personalizada: personalizada.id_oferta_personalizada,
+              cantidad,
+            },
+            { transaction }
+          )
+        )
+      );
     }
 
-    const response = await Reserva.create({
-      nombre_cliente,
-      apellidos,
-      ci,
-      nombre_oferta,
-      descripcion_oferta: oferta.descripcion,
-      precio_venta_oferta: oferta.precio_venta,
-      fecha_sesion,
-      telefono,
-      correo_electronico, // Incluye el correo electrónico al crear la reserva
-    });
-
+    await transaction.commit();
     res.sendStatus(201);
   } catch (error) {
-    console.log(error);
+    await transaction.rollback();
+    console.error(error);
     return res.status(500).json({ message: error.message });
   }
 };

@@ -1,0 +1,13 @@
+import { sequelize } from "../db.js";
+import { DataTypes } from "sequelize";
+
+export const Oferta_Personalizada = sequelize.define("ofertas_personalizadas", {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+   id_reserva: {
+    type: DataTypes.INTEGER,
+  },
+});
