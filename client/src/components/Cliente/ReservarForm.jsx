@@ -43,8 +43,7 @@ const ReservarForm = ({
   });
 
   const [reservedDates, setReservedDates] = useState([]);
-  const {oferta_personalizada,setOferta_personalizada}=useOfertaStore();
-
+  const { oferta_personalizada, setOferta_personalizada } = useOfertaStore();
 
   useEffect(() => {
     setDefaultLocale("es");
@@ -59,10 +58,6 @@ const ReservarForm = ({
       }
     };
     loadReservedDates();
-    console.log(oferta_personalizada);
-    
-    
-    
   }, []);
 
   useEffect(() => {
@@ -90,7 +85,6 @@ const ReservarForm = ({
             new Date().getSeconds()
           ).toISOString()
         : null;
-console.log(oferta_personalizada);
 
       const dataToSend = {
         ...values,
@@ -110,6 +104,7 @@ console.log(oferta_personalizada);
         }
         navigate("/");
       }
+      setOferta_personalizada([]);
     } catch (error) {
       console.error(
         "Error al procesar reserva:",

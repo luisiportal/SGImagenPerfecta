@@ -1,36 +1,31 @@
 import { useNavigate } from "react-router-dom";
 import { useOfertaStore } from "../../Store/Oferta_personalizada.store";
+import { useState } from "react";
+import { listarServiciosRequest } from "../../api/servicios.api";
+import { useEffect } from "react";
 
 const ListarServicios = () => {
-  const {oferta_personalizada,setOferta_personalizada}=useOfertaStore();
+  const { oferta_personalizada, setOferta_personalizada } = useOfertaStore();
+  const [servicios, setServicios] = useState([
+    {
+      id_servicio: 0,
+      nombre_servicio: "",
+      descripcion_servicio: "",
+      precio_servicio: 0,
+    },
+  ]);
 
-  console.log(oferta_personalizada);
-  
+  useEffect(() => {
+    const cargarServicios = async () => {
+      const response = await listarServiciosRequest();
+      setServicios(response);
+    };
+
+    cargarServicios();
+  }, []);
+
   const navigate = useNavigate();
-  const servicios = [
-    {
-      id_servicio: 5,
-      nombre_servicio: "5Sesión de Retrato Profesional",
-      descripcion_servicio:
-        "Sesión fotográfica en estudio con iluminación profesional y retoque básico.",
-      precio_servicio: 120.0,
-    },
-    {
-      id_servicio: 7,
-      nombre_servicio: "Fotografía de Eventos",
-      descripcion_servicio:
-        "Cobertura fotográfica de eventos como bodas, graduaciones y conferencias.",
-      precio_servicio: 350.0,
-    },
-    {
-      id_servicio: 6,
-      nombre_servicio: "Fotografía para Redes Sociales",
-      descripcion_servicio:
-        "Imágenes optimizadas para Instagram, Facebook y otras redes sociales.",
-      precio_servicio: 80.0,
-    },
-    
-  ];
+
   const quitarServicio = (servicio) => {
     const restantes = oferta_personalizada.filter(
       (item) => item.id_servicio != servicio.id_servicio
@@ -39,7 +34,6 @@ const ListarServicios = () => {
   };
   const handleChange = (servicio, isChecked) => {
     if (isChecked) {
-        
       setOferta_personalizada([...oferta_personalizada, servicio]);
     } else {
       quitarServicio(servicio);
@@ -50,7 +44,10 @@ const ListarServicios = () => {
     <div>
       ListarServicios
       {servicios.map((servicio) => (
-        <section key={servicio.id_servicio} className="flex gap-2 bg-white p-2 rounded-lg m-1">
+        <section
+          key={servicio.id_servicio}
+          className="flex gap-2 bg-white p-2 rounded-lg m-1"
+        >
           <input
             type="checkbox"
             name="selecc"
@@ -63,8 +60,13 @@ const ListarServicios = () => {
           </div>
         </section>
       ))}
+      <h2>Oferta Personalizada</h2>
       {oferta_personalizada.map((oferta_personalizada) => (
-        <section>{oferta_personalizada.nombre_servicio}</section>
+        <section key={oferta_personalizada.id_servicio}>
+          {" "}
+          
+          <h2>{oferta_personalizada.nombre_servicio}</h2>
+        </section>
       ))}
       <button
         onClick={() => navigate(`/cliente/reservar/personalizada`)}
