@@ -46,6 +46,10 @@ export const Reserva = sequelize.define(
       onDelete: "RESTRICT", // Impide la eliminación de la oferta si hay reservas asociadas
       onUpdate: "CASCADE", // Si el id_oferta cambia en la tabla Ofertas, se actualiza en Reservas
     },
+    pagado: {
+      type: DataTypes.BOOLEAN, // true si está pagado, false si no. Útil para validación.
+      defaultValue: false, // Valor por defecto si no se especifica
+    },
   },
   {
     timestamps: false,

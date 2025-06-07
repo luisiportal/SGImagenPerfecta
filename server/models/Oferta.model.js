@@ -34,8 +34,4 @@ export const Oferta = sequelize.define("ofertas", {
     type: DataTypes.INTEGER, // Número de cambios de ropa permitidos
     allowNull: true,
   },
-  pagado: {
-    type: DataTypes.BOOLEAN, // true si está pagado, false si no. Útil para validación.
-    defaultValue: false, // Valor por defecto si no se especifica
-  },
 });
