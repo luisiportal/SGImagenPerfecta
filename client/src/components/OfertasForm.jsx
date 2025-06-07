@@ -1,28 +1,27 @@
 import { Form, Formik } from "formik";
-import { useOfertas } from "../context/OfertaProvider"; // Asumo que este contexto es para manejar ofertas
+import { useOfertas } from "../context/OfertaProvider";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-// import * as Yup from "yup"; // Ya no es necesario importar Yup aquí si el esquema viene de otro archivo
 import {
   actualizarOfertaRequest,
   crearOfertaRequest,
   listarunOfertaRequest,
 } from "../api/ofertas.api";
-import Entradas from "./formulario/Entradas"; // Asegúrate de que este componente maneje los tipos de entrada correctamente
+import Entradas from "./formulario/Entradas";
 import ConfirmModal from "./ConfirmModal";
 import Notificacion from "./validacionForm/Notificacion";
-// import schema from './validacionForm/schema'; // ¡Asegúrate de que esta ruta sea correcta!
 
 const OfertaForm = () => {
-  const [file, setFile] = useState(null); // Para manejo de archivos/imágenes
+  const [file, setFile] = useState(null);
   const [oferta, setOferta] = useState({
-    // ¡Ojo! id_oferta: Date.now() genera un ID en el frontend.
-    // Asegúrate de que tu backend no genere un ID duplicado y que use autoIncrement.
-    // Si es para un nuevo registro, usualmente no se envía el ID.
-    id_oferta: "", // Mejor inicializarlo vacío si es para creación
+    id_oferta: "",
     nombre_oferta: "",
     descripcion: "",
     precio_venta: "",
+    cantidad_fotos: "", // Nuevo campo
+    locacion: "", // Nuevo campo
+    transportacion: false, // Nuevo campo, inicializado como booleano
+    cambios_ropa: "", // Nuevo campo
   });
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -41,6 +40,10 @@ const OfertaForm = () => {
             nombre_oferta: ofertaData.nombre_oferta,
             descripcion: ofertaData.descripcion,
             precio_venta: ofertaData.precio_venta,
+            cantidad_fotos: ofertaData.cantidad_fotos, // Cargar nuevo campo
+            locacion: ofertaData.locacion, // Cargar nuevo campo
+            transportacion: ofertaData.transportacion, // Cargar nuevo campo
+            cambios_ropa: ofertaData.cambios_ropa, // Cargar nuevo campo
           });
         } catch (error) {
           console.error("Error al cargar la oferta:", error);
@@ -57,10 +60,12 @@ const OfertaForm = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       let res;
-      // Pre-procesar values si es necesario, por ejemplo, convertir precio_venta a número si no lo hace Formik
       const dataToSend = {
         ...values,
-        precio_venta: parseFloat(values.precio_venta), // Asegurarse de que sea un número antes de enviar
+        precio_venta: parseFloat(values.precio_venta),
+        cantidad_fotos: parseInt(values.cantidad_fotos), // Asegurarse de que sea número
+        cambios_ropa: parseInt(values.cambios_ropa), // Asegurarse de que sea número
+        transportacion: Boolean(values.transportacion), // Asegurarse de que sea booleano
       };
 
       if (params.id_oferta) {
@@ -81,8 +86,7 @@ const OfertaForm = () => {
         navigate("/ofertas");
       }, 2000);
     } catch (error) {
-      console.error("Error al guardar la oferta:", error); // Usar console.error para errores
-      // Capturar el mensaje de error del backend si está disponible
+      console.error("Error al guardar la oferta:", error);
       const errorMessage =
         error.response?.data?.message ||
         "Error desconocido al guardar la oferta.";
@@ -122,7 +126,6 @@ const OfertaForm = () => {
           initialValues={oferta}
           enableReinitialize={true}
           onSubmit={handleSubmit}
-          // validationSchema={schema} // Usando el esquema importado
         >
           {({ handleChange, handleSubmit, errors, values, isSubmitting }) => (
             <Form onSubmit={handleSubmit} className="space-y-6">
@@ -136,14 +139,102 @@ const OfertaForm = () => {
                 </div>
               )}
 
-              {/* Componente Entradas para campos generales */}
-              {/* Asegúrate de que Entradas maneje los campos de Oferta: nombre_oferta, descripcion, precio_venta */}
-              {/* Es posible que Entradas necesite ser más genérico o que necesites un componente específico para Ofertas */}
               <Entradas
                 values={values}
                 handleChange={handleChange}
                 errors={errors}
               />
+
+              {/* Nuevos campos */}
+              <div>
+                <label
+                  htmlFor="cantidad_fotos"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Cantidad de Fotos
+                </label>
+                <input
+                  type="number"
+                  name="cantidad_fotos"
+                  id="cantidad_fotos"
+                  onChange={handleChange}
+                  value={values.cantidad_fotos}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+                {errors.cantidad_fotos && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.cantidad_fotos}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="locacion"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Locación
+                </label>
+                <select
+                  name="locacion"
+                  id="locacion"
+                  onChange={handleChange}
+                  value={values.locacion}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                  <option value="">Selecciona una opción</option>
+                  <option value="Estudio">Estudio</option>
+                  <option value="Exterior">Exterior</option>
+                  <option value="Ambas">Ambas</option>
+                </select>
+                {errors.locacion && (
+                  <p className="mt-2 text-sm text-red-600">{errors.locacion}</p>
+                )}
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="transportacion"
+                  id="transportacion"
+                  onChange={handleChange}
+                  checked={values.transportacion}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label
+                  htmlFor="transportacion"
+                  className="ml-2 block text-sm text-gray-900"
+                >
+                  Incluye Transportación
+                </label>
+                {errors.transportacion && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.transportacion}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="cambios_ropa"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Número de Cambios de Ropa
+                </label>
+                <input
+                  type="number"
+                  name="cambios_ropa"
+                  id="cambios_ropa"
+                  onChange={handleChange}
+                  value={values.cambios_ropa}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+                {errors.cambios_ropa && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {errors.cambios_ropa}
+                  </p>
+                )}
+              </div>
 
               <div className="flex justify-end gap-4 mt-8">
                 <button
