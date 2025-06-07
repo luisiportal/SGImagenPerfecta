@@ -1,15 +1,14 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 
-import ReservarBtn from "./LandingPage/ReservarBtn.jsx"; // Asegúrate de la ruta correcta
-import Edit_ElimBTN from "./LandingPage/Edit_ElimBTN.jsx"; // Asegúrate de la ruta correcta
+import ReservarBtn from "./LandingPage/ReservarBtn.jsx";
+import Edit_ElimBTN from "./LandingPage/Edit_ElimBTN.jsx"; // Asegúrate de que este componente reciba props para el SVG
 
 function OfertaCard({ oferta }) {
-  const navigate = useNavigate(); // Todavía se podría usar si la tarjeta tuviera su propio onClick de navegación
+  const navigate = useNavigate();
+  const [showActions, setShowActions] = useState(false); // Estado para controlar la visibilidad de los botones
 
   const colorExistencia = () => {
-    // Esta lógica de color parece estar relacionada con existencias y stock,
-    // que no se muestran en el HTML actual de OfertaCard, pero se mantiene si es relevante para el futuro.
     return oferta.existencia <= oferta.stockMinimo && oferta.existencia !== "0"
       ? "border-r-8 border-yellow-400"
       : oferta.existencia === "0"
@@ -19,53 +18,72 @@ function OfertaCard({ oferta }) {
 
   return (
     <div
-      // Eliminamos el estilo en línea con 'width: "400px", margin: "0 auto"'
-      // y añadimos 'w-full' para que ocupe todo el ancho disponible en la columna de la cuadrícula.
-      // Se eliminan los manejadores de eventos si no son directamente usados para la tarjeta.
-      className={`w-full justify-center max-w-md  bg-white shadow-lg rounded-lg overflow-hidden relative transform hover:scale-105 transition-transform duration-300 ease-in-out ${colorExistencia()}`}
+      className={`w-full max-w-md bg-white shadow-lg rounded-xl overflow-hidden
+                  relative transform hover:scale-105 transition-transform duration-300
+                  flex flex-col border border-gray-200 ${colorExistencia()}`}
+      onMouseEnter={() => setShowActions(true)} // Muestra los botones al pasar el ratón
+      onMouseLeave={() => setShowActions(false)} // Oculta los botones al quitar el ratón
     >
-      <section className="flex flex-col text-he_card pb-16">
-        <div className="bg-he_card text-white h-28 flex items-center justify-center p-4">
-          <div className="text-center">
-            <h2 className="font-extrabold text-3xl mb-1">
-              {oferta.nombre_oferta}
-            </h2>
-            {/* Si "20 Fotos" no es dinámico y solo un texto fijo, considera quitarlo o hacer un prop */}
-            {/* <h4 className="font-semibold text-lg">20 Fotos</h4> */}
-          </div>
-        </div>
+      {/* Botones de edición/eliminación - Aparecen al pasar el ratón */}
+      <div
+        className={`absolute top-3 right-3 z-10 flex space-x-2 transition-opacity duration-300 ${
+          showActions ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <Edit_ElimBTN id_oferta={oferta.id_oferta} />{" "}
+        {/* Asumo que Edit_ElimBTN renderiza los SVGs */}
+      </div>
 
-        <div className="flex flex-col text-2xl pt-6">
-          <h2 className="flex justify-center text-7xl md:text-6xl lg:text-5xl font-bold text-gray-800">
+      {/* Cabecera naranja sólida */}
+      <div className="flex items-center justify-center  h-28 bg-slate-500 p-4 text-center">
+        <h2 className="text-3xl md:text-4xl lg:text-4xl font-extrabold text-white leading-tight">
+          {oferta.nombre_oferta}
+        </h2>
+      </div>
+
+      <section className="flex flex-col flex-grow p-6">
+        <div className="flex-none text-center mb-6">
+          <h2 className="text-6xl md:text-5xl lg:text-5xl font-bold text-slate-500">
             ${oferta.precio_venta}
           </h2>
-          <h4 className="flex justify-center -mt-2 text-gray-600">CUP</h4>
+          <h4 className="text-xl text-gray-500 -mt-2">CUP</h4>
+        </div>
 
-          <h4
-            className="flex justify-center p-5 text-center text-xl font-medium text-gray-700"
-            style={{ whiteSpace: "pre-wrap" }}
-          >
-            {oferta.formato_entrega}
-          </h4>
+        {/* Contenedor para asegurar el mismo ancho del texto */}
 
-          <p
-            className="flex flex-col grow p-5 text-center font-normal text-gray-700 leading-relaxed"
-            style={{ whiteSpace: "pre-wrap" }}
-          >
-            {oferta.descripcion}
-          </p>
+        <div className="flex-grow flex flex-col justify-between text-center text-gray-700">
+          <p className="text-lg font-semibold text-gray-800">Descripción:</p>
+          {/* Descripción con altura fija y scroll si es necesario */}
+          <div className="flex h-80 items-center justify-center overflow-y-auto mb-4 p-2 border-t border-gray-200 rounded-md">
+            <p className="text-base leading-relaxed text-gray-600 whitespace-pre-wrap">
+              {oferta.descripcion}
+            </p>
+          </div>
 
-          <div className="absolute bottom-0 left-0 w-full p-4 text-sm mt-4 px-5">
-            <ReservarBtn id_oferta={oferta.id_oferta} />
+          {/* Nuevos campos de Oferta.model.js con altura fija si es necesario */}
+          <div className="flex-grow border-t border-gray-200 pt-4 mt-4 space-y-3">
+            <p className="text-md font-medium text-gray-700">
+              <span className="font-semibold">Fotos Incluidas:</span>{" "}
+              {oferta.cantidad_fotos}
+            </p>
+            <p className="text-md font-medium text-gray-700">
+              <span className="font-semibold">Locación:</span> {oferta.locacion}
+            </p>
+            <p className="text-md font-medium text-gray-700">
+              <span className="font-semibold">Transportación:</span>{" "}
+              {oferta.transportacion ? "Sí Incluida" : "No Incluida"}
+            </p>
+            <p className="text-md font-medium text-gray-700">
+              <span className="font-semibold">Cambios de Ropa:</span>{" "}
+              {oferta.cambios_ropa}
+            </p>
           </div>
         </div>
       </section>
 
-      <div className="absolute bottom-0 left-0 w-full p-4 bg-white border-t border-gray-100">
-        <Edit_ElimBTN id_oferta={oferta.id_oferta} />
+      <div className="flex-none p-4 text-sm mt-auto px-5">
+        <ReservarBtn id_oferta={oferta.id_oferta} />
       </div>
-
-      {/* Eliminado el ConfirmModal de aquí, ya que ReservarBtn y Edit_ElimBTN lo gestionan internamente */}
     </div>
   );
 }
