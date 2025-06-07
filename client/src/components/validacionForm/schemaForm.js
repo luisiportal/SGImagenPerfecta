@@ -24,7 +24,5 @@ export const reservaSchema = Yup.object().shape({
     .required("La fecha de la sesión es requerida")
     .nullable()
     .min(new Date(), "La fecha de la sesión no puede ser en el pasado"),
-  id_oferta: Yup.number()
-    .required("La oferta es requerida")
-    .positive("El ID de la oferta debe ser un número positivo"),
+  
 });

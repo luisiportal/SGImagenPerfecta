@@ -38,13 +38,12 @@ export const Reserva = sequelize.define(
     },
     id_oferta: {
       type: DataTypes.INTEGER,
-      allowNull: false, // Una reserva siempre debe estar vinculada a una oferta
-      references: {
-        model: "ofertas", // Nombre de la tabla a la que hace referencia
-        key: "id_oferta", // Clave primaria en la tabla 'ofertas'
-      },
-      onDelete: "RESTRICT", // Impide la eliminación de la oferta si hay reservas asociadas
-      onUpdate: "CASCADE", // Si el id_oferta cambia en la tabla Ofertas, se actualiza en Reservas
+      allowNull: true, // Una reserva siempre debe estar vinculada a una oferta
+    },
+
+    id_oferta_personalizada: {
+      type: DataTypes.INTEGER,
+      allowNull: true, // Una reserva siempre debe estar vinculada a una oferta
     },
     pagado: {
       type: DataTypes.BOOLEAN, // true si está pagado, false si no. Útil para validación.

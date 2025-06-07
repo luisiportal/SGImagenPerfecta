@@ -1,8 +1,10 @@
 import React from "react";
+import ListarServicios from "../components/Servicios/ListarServicios";
 
 const Servicios = () => {
   return (
     <div className="bg-gray-50 py-12 sm:py-16">
+      <ListarServicios/>
       {" "}
       {/* Fondo claro y padding vertical general */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

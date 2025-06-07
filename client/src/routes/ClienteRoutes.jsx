@@ -11,6 +11,7 @@ const ClienteRoutes = () => {
       <Routes>
         <Route path="/" element={<Cliente />} />
         <Route path="/reservar/:id_oferta" element={<ReservarForm />} />
+        <Route path="/reservar/personalizada" element={<ReservarForm />} />
         <Route path="/calendario" element={<ListarReservas />} />
         <Route path="/reserva" element={<ListarReservaCliente />} />
       </Routes>

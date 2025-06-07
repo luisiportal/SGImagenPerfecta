@@ -16,6 +16,8 @@ import {
   actualizarReservaRequest,
   obtenerFechasReservadasRequest,
 } from "../../api/reservas.api";
+import { useOfertas } from "../../context/OfertaProvider";
+import { useOfertaStore } from "../../Store/Oferta_personalizada.store";
 
 registerLocale("es", es);
 
@@ -41,6 +43,8 @@ const ReservarForm = ({
   });
 
   const [reservedDates, setReservedDates] = useState([]);
+  const {oferta_personalizada,setOferta_personalizada}=useOfertaStore();
+
 
   useEffect(() => {
     setDefaultLocale("es");
@@ -55,6 +59,10 @@ const ReservarForm = ({
       }
     };
     loadReservedDates();
+    console.log(oferta_personalizada);
+    
+    
+    
   }, []);
 
   useEffect(() => {
@@ -82,16 +90,20 @@ const ReservarForm = ({
             new Date().getSeconds()
           ).toISOString()
         : null;
+console.log(oferta_personalizada);
 
       const dataToSend = {
         ...values,
         fecha_sesion: fechaCompleta,
         id_oferta: values.id_oferta,
+        oferta_personalizada: values.id_oferta ? [] : oferta_personalizada,
       };
 
       if (isEditing) {
         await onSubmit(dataToSend);
       } else {
+        console.log(dataToSend);
+
         const res = await crearReservaRequest(dataToSend);
         if (onSuccess) {
           onSuccess(res?.message || "Reserva creada con éxito!");

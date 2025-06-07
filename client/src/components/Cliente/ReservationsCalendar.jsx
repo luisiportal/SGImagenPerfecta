@@ -64,7 +64,7 @@ const ReservationsCalendar = ({
         if (!sessionDate) return null;
         return {
           id: reserva.id_reserva,
-          title: `${reserva.nombre_cliente} ${reserva.apellidos.split(" ")[0]}\n${reserva.oferta.nombre_oferta}`,
+          title: `${reserva.nombre_cliente} ${reserva.apellidos.split(" ")[0]}\n${reserva.oferta?.nombre_oferta || "Oferta Personalizada"}`,
           start: sessionDate,
           end: sessionDate,
           allDay: true,
@@ -151,7 +151,9 @@ const ReservationsCalendar = ({
         <div className="rbc-event-title">
           {reserva.nombre_cliente} {primerApellido}
         </div>
-        <div className="rbc-event-offer">{reserva.oferta.nombre_oferta}</div>
+        <div className="rbc-event-offer">
+          {reserva.oferta?.nombre_oferta ?? "Oferta Personalizada"}
+        </div>
       </div>
     );
   }, []);
@@ -183,7 +185,10 @@ const ReservationsCalendar = ({
               </div>
               <div className="detail-item">
                 <span className="detail-label">Oferta:</span>
-                <p>{event.reservaData.oferta.nombre_oferta}</p>
+                <p>
+                  {event.reservaData.oferta?.nombre_oferta ||
+                    "Oferta Personalizada"}
+                </p>
               </div>
               <div className="detail-item">
                 <span className="detail-label">CI:</span>
@@ -321,7 +326,15 @@ const ReservationsCalendar = ({
                     onClick={toggleExpand}
                     className="rbc-offer-expand-button" // Nueva clase para el estilo
                   >
-                    {selectedReserva.oferta?.nombre_oferta || "N/A"}
+                    {selectedReserva.oferta?.nombre_oferta ||
+                      selectedReserva?.ofertas_personalizada?.ofertas_servicios?.map(
+                        (servicio) => (
+                          <section key={servicio.id_servicio}>
+                            {servicio.servicio.nombre_servici}
+                          </section>
+                        )
+                      )}
+
                     <span
                       className={`rbc-modal-arrow ${isExpanded ? "rbc-modal-arrow-up" : "rbc-modal-arrow-down"}`}
                     ></span>

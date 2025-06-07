@@ -2,6 +2,8 @@ import { Reserva } from "../models/Reserva.model.js";
 import { Oferta } from "../models/Oferta.model.js";
 import { Oferta_Personalizada } from "../models/Oferta_Personalizada.js";
 import { Oferta_Servicio } from "../models/Oferta_Servicio.js";
+import sequelize from "../db.js";
+import { Servicio } from "../models/Servicio.model.js";
 
 export const ListarReservas = async (req, res) => {
   try {
@@ -9,6 +11,17 @@ export const ListarReservas = async (req, res) => {
       include: [
         {
           model: Oferta,
+          required: false,
+        },
+        {
+          model: Oferta_Personalizada,
+          required: false,
+          include: [
+            {
+              model: Oferta_Servicio,
+              include: [{ model: Servicio }],
+            },
+          ],
         },
       ],
     });
@@ -57,15 +70,21 @@ export const crearReserva = async (req, res) => {
       oferta_personalizada,
     } = req.body;
 
+    console.log(id_oferta);
+    console.log(oferta_personalizada);
+
+    const personalizada =
+      oferta_personalizada.length > 0
+        ? await Oferta_Personalizada.create({}, { transaction })
+        : 0;
+
     const reserva = await Reserva.create(
       {
         nombre_cliente,
         apellidos,
         ci,
-        id_oferta,
-        oferta_personalizada,
-        descripcion_oferta,
-        precio_venta_oferta,
+        id_oferta: id_oferta,
+        id_oferta_personalizada: personalizada.id,
         fecha_sesion,
         telefono,
         correo_electronico,
@@ -73,19 +92,14 @@ export const crearReserva = async (req, res) => {
       { transaction }
     );
 
-    if (oferta_personalizada) {
-      const personalizada = await Oferta_Personalizada.create(
-        { id_reserva: reserva.id_reserva },
-        { transaction }
-      );
-
+    if (oferta_personalizada.length > 0) {
       await Promise.all(
-        oferta_personalizada.map((personalizada) =>
+        oferta_personalizada.map((servicio) =>
           Oferta_Servicio.create(
             {
-              id_servicio,
-              id_oferta_personalizada: personalizada.id_oferta_personalizada,
-              cantidad,
+              id_servicio: servicio.id_servicio,
+              id_oferta_personalizada: personalizada.id,
+              cantidad: servicio.cantidad,
             },
             { transaction }
           )

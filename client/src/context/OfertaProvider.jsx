@@ -15,6 +15,7 @@ export const useOfertas = () => {
 
 export const OfertaContextProvider = ({ children }) => {
   const [ofertas, setOfertas] = useState([]);
+  const [oferta_personalizada, setOferta_personalizada] = useState([]);
 
   const loadOfertas = async () => {
     try {
@@ -37,8 +38,9 @@ export const OfertaContextProvider = ({ children }) => {
       value={{
         ofertas,
         loadOfertas,
-
         deleteOferta,
+        oferta_personalizada,
+        setOferta_personalizada,
       }}
     >
       {children}

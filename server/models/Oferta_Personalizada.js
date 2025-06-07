@@ -7,7 +7,4 @@ export const Oferta_Personalizada = sequelize.define("ofertas_personalizadas", {
     primaryKey: true,
     autoIncrement: true,
   },
-   id_reserva: {
-    type: DataTypes.INTEGER,
-  },
 });
