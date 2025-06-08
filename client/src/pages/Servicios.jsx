@@ -3,14 +3,8 @@ import ListarServicios from "../components/Servicios/ListarServicios";
 
 const Servicios = () => {
   return (
-    <div className="bg-gray-50 py-12 sm:py-16">
-      <ListarServicios/>
-      {" "}
-      {/* Fondo claro y padding vertical general */}
+    <div className="bg-gray-50 py-8 sm:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {" "}
-        {/* Contenedor principal centrado */}
-        {/* Sección de Encabezado */}
         <div className="text-center mb-12 sm:mb-16">
           <h1 className="text-5xl md:text-6xl font-extrabold text-slate-800 mb-4 tracking-tight">
             Nuestros Servicios
@@ -19,6 +13,20 @@ const Servicios = () => {
             Ofrecemos una amplia gama de soluciones fotográficas diseñadas para
             capturar tus momentos más importantes y dar vida a tus proyectos.
           </p>
+        </div>
+        <div className="text-center mb-12 sm:mb-16">
+          <ListarServicios />
+        </div>
+        <div className="mt-2 text-center bg-st_color p-10 rounded-xl shadow-lg">
+          <h2 className="text-4xl font-bold text-white mb-4">
+            Crea tu Oferta de forma Personalizada
+          </h2>
+          <a
+            href="/cliente" // Asegúrate de que esta ruta sea la correcta para tu página de contacto o reservas
+            className="inline-block bg-white text-st_color hover:bg-gray-100 font-bold py-3 px-8 rounded-full text-lg transition-colors duration-300 shadow-md"
+          >
+            ¡Crear AHORA!
+          </a>
         </div>
         {/* Grid de Servicios */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
