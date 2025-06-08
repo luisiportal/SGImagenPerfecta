@@ -11,7 +11,7 @@ import { authRequired } from "../middlewares/validateToken.js"; // Asumo que nec
 const router = Router();
 
 // Rutas para servicios
-router.get("/servicios", authRequired, listarServicios);
+router.get("/servicios", listarServicios);
 router.post("/servicios", authRequired, crearServicio);
 router.get("/servicios/:id", authRequired, listarUnServicio);
 router.put("/servicios/:id", authRequired, actualizarServicio);
