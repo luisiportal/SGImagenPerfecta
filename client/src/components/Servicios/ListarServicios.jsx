@@ -1,22 +1,41 @@
 import { useNavigate } from "react-router-dom";
 import { useOfertaStore } from "../../Store/Oferta_personalizada.store";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Asegúrate de importar useEffect
 import { listarServiciosRequest } from "../../api/servicios.api";
-import { useEffect } from "react";
 import { useServiciosStore } from "../../Store/Servicios.store";
 
 const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
   const { oferta_personalizada, setOferta_personalizada } = useOfertaStore();
-  const { serviciosStore } = useServiciosStore();
+  // Asumimos que useServiciosStore tiene un setter, por ejemplo, setServiciosStore
+  const { serviciosStore, setServiciosStore } = useServiciosStore(); // <-- Añadir setServiciosStore
 
   const navigate = useNavigate();
 
+  // EFECTO PARA CARGAR LOS SERVICIOS CUANDO EL COMPONENTE SE MONTA
+  useEffect(() => {
+    const fetchServicios = async () => {
+      try {
+        const res = await listarServiciosRequest();
+        setServiciosStore(res.data); // Asume que la respuesta de la API tiene los datos en 'data'
+      } catch (error) {
+        console.error("Error al cargar los servicios:", error);
+      }
+    };
+
+    // Solo cargar si serviciosStore está vacío o si necesitas recargar por alguna razón
+    if (serviciosStore.length === 0) {
+      // O alguna otra condición para evitar recargas excesivas
+      fetchServicios();
+    }
+  }, [setServiciosStore, serviciosStore.length]); // Dependencias del useEffect
+
   const quitarServicio = (servicio) => {
     const restantes = oferta_personalizada.filter(
-      (item) => item.id_servicio != servicio.id_servicio
+      (item) => item.id_servicio !== servicio.id_servicio // Usar !== para comparación estricta
     );
     setOferta_personalizada(restantes);
   };
+
   const handleChange = (servicio, isChecked) => {
     if (isChecked) {
       setOferta_personalizada([...oferta_personalizada, servicio]);
@@ -37,6 +56,9 @@ const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
       0
     );
   };
+
+  // Asegúrate de que la modal solo se renderice si isOpen es true
+  if (!isOpen) return null; // Esto controla que el componente no se muestre si isOpen es false
 
   return (
     <div
@@ -60,6 +82,10 @@ const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
               <input
                 type="checkbox"
                 name="selecc"
+                // Marca el checkbox si el servicio ya está en oferta_personalizada
+                checked={oferta_personalizada.some(
+                  (item) => item.id_servicio === servicio.id_servicio
+                )}
                 onChange={(e) => handleChange(servicio, e.target.checked)}
               />
 

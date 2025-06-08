@@ -1,7 +1,29 @@
-import React from "react";
+import React, { useState, useEffect } from "react"; // Importa useState y useEffect
 import ListarServicios from "../components/Servicios/ListarServicios";
+import { useServiciosStore } from "../Store/Servicios.store"; // Importa tu store de servicios
+import { listarServiciosRequest } from "../api/servicios.api"; // Importa la función de API
 
 const Servicios = () => {
+  const [showServiciosModal, setShowServiciosModal] = useState(false);
+  const { serviciosStore, setServiciosStore } = useServiciosStore(); // Obtén el store y el setter
+
+  // useEffect para cargar los servicios cuando el componente se monta
+  useEffect(() => {
+    const fetchServicios = async () => {
+      try {
+        const res = await listarServiciosRequest();
+        setServiciosStore(res.data); // Asume que la respuesta de la API tiene los datos en 'data'
+      } catch (error) {
+        console.error("Error al cargar los servicios:", error);
+      }
+    };
+
+    // Solo cargar si serviciosStore está vacío para evitar recargas innecesarias
+    if (serviciosStore.length === 0) {
+      fetchServicios();
+    }
+  }, [setServiciosStore, serviciosStore.length]); // Dependencias del useEffect
+
   return (
     <div className="bg-gray-50 py-8 sm:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,26 +36,69 @@ const Servicios = () => {
             capturar tus momentos más importantes y dar vida a tus proyectos.
           </p>
         </div>
-        <div className="text-center mb-12 sm:mb-16">
-          <ListarServicios />
+
+        <div className="mt-8 mb-12">
+          <h2 className="text-3xl font-bold text-slate-800 mb-6 text-center">
+            Lista de Precios de Nuestros Servicios
+          </h2>
+          {serviciosStore.length > 0 ? (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              {serviciosStore.map((servicio) => (
+                <div
+                  key={servicio.id_servicio}
+                  className="flex flex-row justify-between items-baseline py-3 border-b last:border-b-0 border-gray-200"
+                >
+                  {/* Contenedor para Nombre del Servicio y Descripción */}
+                  <div className="flex-1 min-w-0 flex flex-wrap items-baseline gap-x-2">
+                    <h3 className="font-semibold text-lg text-slate-800 flex-shrink-0">
+                      {servicio.nombre_servicio}
+                    </h3>
+                    {/* Descripción al lado, más pequeña y sutil */}
+                    {servicio.descripcion_servicio && ( // Solo muestra si hay descripción
+                      <p className="text-sm text-gray-500 flex-shrink-0">
+                        ({servicio.descripcion_servicio})
+                      </p>
+                    )}
+                    {/* Puntos suspensivos: flex-grow para ocupar espacio, border-dotted, color de st_color y grosor */}
+                    <span className="flex-grow border-b-2 border-dotted border-st_color mx-0 min-w-[30px]"></span>
+                  </div>
+                  {/* Precio: Asegura que no se rompa el diseño con el wrap del nombre/descripción */}
+                  <div className="text-lg font-bold text-st_color sm:ml-4 mt-2 sm:mt-0 flex-shrink-0">
+                    ${Number(servicio.precio_servicio).toFixed(2)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-gray-600">Cargando servicios...</p>
+          )}
         </div>
+
+        <div className="text-center mb-12 sm:mb-16">
+          {showServiciosModal && (
+            <ListarServicios
+              isOpen={showServiciosModal}
+              setShowServicios={setShowServiciosModal}
+            />
+          )}
+        </div>
+
         <div className="mt-2 text-center bg-st_color p-10 rounded-xl shadow-lg">
           <h2 className="text-4xl font-bold text-white mb-4">
             Crea tu Oferta de forma Personalizada
           </h2>
-          <a
-            href="/cliente" // Asegúrate de que esta ruta sea la correcta para tu página de contacto o reservas
+          <button
+            onClick={() => setShowServiciosModal(true)}
             className="inline-block bg-white text-st_color hover:bg-gray-100 font-bold py-3 px-8 rounded-full text-lg transition-colors duration-300 shadow-md"
           >
             ¡Crear AHORA!
-          </a>
+          </button>
         </div>
-        {/* Grid de Servicios */}
+
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-          {/* Tarjeta de Servicio: Fotografía para eventos */}
+          {/* ... Tus tarjetas de servicio ... */}
           <article className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-in-out">
             <div className="text-st_color mb-4">
-              {/* Icono de ejemplo para Eventos - Reemplaza con un SVG real si tienes */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -120,10 +185,8 @@ const Servicios = () => {
             </p>
           </article>
 
-          {/* Tarjeta de Servicio: Impresión fotográfica */}
           <article className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-in-out">
             <div className="text-st_color mb-4">
-              {/* Icono de ejemplo para Impresión - Reemplaza con un SVG real si tienes */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -150,10 +213,8 @@ const Servicios = () => {
             </p>
           </article>
 
-          {/* Tarjeta de Servicio: Servicios de edición de fotografías */}
           <article className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-in-out">
             <div className="text-st_color mb-4">
-              {/* Icono de ejemplo para Edición - Reemplaza con un SVG real si tienes */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -180,10 +241,8 @@ const Servicios = () => {
             </p>
           </article>
 
-          {/* Puedes añadir más servicios aquí */}
           <article className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-in-out">
             <div className="text-st_color mb-4">
-              {/* Icono de ejemplo para Consultoría - Reemplaza con un SVG real si tienes */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -210,7 +269,6 @@ const Servicios = () => {
             </p>
           </article>
         </section>
-        {/* Sección de "Por Qué Elegirnos" / Valor Agregado */}
         <div className="mt-20 text-center">
           <h2 className="text-4xl font-bold text-slate-800 mb-6">
             ¿Por qué elegir "Otra Dimensión"?
@@ -245,7 +303,6 @@ const Servicios = () => {
             </div>
           </div>
         </div>
-        {/* Bloque de Llamada a la Acción Final */}
         <div className="mt-20 text-center bg-st_color p-10 rounded-xl shadow-lg">
           <h2 className="text-4xl font-bold text-white mb-4">
             Transforma tus Ideas en Imágenes Impactantes
@@ -255,7 +312,7 @@ const Servicios = () => {
             Contáctanos hoy mismo para una consulta gratuita.
           </p>
           <a
-            href="/cliente" // Asegúrate de que esta ruta sea la correcta para tu página de contacto o reservas
+            href="/cliente"
             className="inline-block bg-white text-st_color hover:bg-gray-100 font-bold py-3 px-8 rounded-full text-lg transition-colors duration-300 shadow-md"
           >
             Reserva tu Sesión Hoy
