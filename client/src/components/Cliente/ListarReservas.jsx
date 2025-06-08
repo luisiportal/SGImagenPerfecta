@@ -7,7 +7,7 @@ import {
   eliminarReservaRequest,
 } from "../../api/reservas.api";
 import Notificacion from "../validacionForm/Notificacion";
-import ReservationsCalendar from "./ReservationsCalendar";
+import ReservationsCalendar from "../ReservationsCalendar/ReservationsCalendar";
 import { useAuth } from "../../context/AuthContext";
 import ReservationsPdfExport from "../ReservationsPdfExport"; // Asegúrate de que esta ruta sea correcta
 

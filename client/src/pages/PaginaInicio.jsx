@@ -147,26 +147,4 @@ const PaginaInicio = () => {
   );
 };
 
-// // Componente ImagenFront (asumiendo que lo tienes definido)
-// const ImagenFront = ({ ruta, alt }) => (
-//   <img src={ruta} alt={alt} className="w-full h-auto object-cover" />
-// );
-
-// // Componente CardTexto (asumiendo que lo tienes definido)
-// const CardTexto = ({ titulo, slogan, texto, bg, textColor }) => (
-//   <div className={`p-6 ${bg}`}>
-//     <h2 className={`text-xl font-bold ${textColor} mb-2`}>{titulo}</h2>
-//     <p className={`text-lg ${textColor} mb-4`}>{slogan}</p>
-//     <p className={`${textColor}`}>{texto}</p>
-//   </div>
-// );
-
-// // Componente Cliente (asumiendo que lo tienes definido)
-// const Cliente = () => (
-//   <div className="text-center py-8">
-//     <h2 className="text-2xl font-bold text-gray-700 mb-4">Nuestros Clientes (Placeholder)</h2>
-//     <p className="text-gray-600">Aquí irían los logos o testimonios de tus clientes.</p>
-//   </div>
-// );
-
 export default PaginaInicio;

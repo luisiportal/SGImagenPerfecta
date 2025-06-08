@@ -35,10 +35,13 @@ function OfertaCard({ oferta }) {
       </div>
 
       {/* Cabecera naranja sólida */}
-      <div className="flex items-center justify-center  h-28 bg-slate-500 p-4 text-center">
-        <h2 className="text-3xl md:text-4xl lg:text-4xl font-extrabold text-white leading-tight">
+      <div className="grid items-center justify-center bg-slate-500 p-4 text-center">
+        <h2 className="text-3xl md:text-4xl lg:text-4xl mt-4 font-extrabold text-white leading-tight">
           {oferta.nombre_oferta}
         </h2>
+        <p className="text-2xl font-medium text-white mb-4">
+          {oferta.cantidad_fotos} <span className=" font-semibold">Fotos</span>
+        </p>
       </div>
 
       <section className="flex flex-col flex-grow p-6">
@@ -46,15 +49,17 @@ function OfertaCard({ oferta }) {
           <h2 className="text-6xl md:text-5xl lg:text-5xl font-bold text-slate-500">
             ${oferta.precio_venta}
           </h2>
-          <h4 className="text-xl text-gray-500 -mt-2">CUP</h4>
+          <h4 className="text-xl text-gray-500 -mt-1">CUP</h4>
         </div>
 
         {/* Contenedor para asegurar el mismo ancho del texto */}
 
         <div className="flex-grow flex flex-col justify-between text-center text-gray-700">
-          <p className="text-lg font-semibold text-gray-800">Descripción:</p>
+          <p className="text-lg font-semibold mb-2 text-gray-800">
+            Descripción:
+          </p>
           {/* Descripción con altura fija y scroll si es necesario */}
-          <div className="flex h-80 items-center justify-center overflow-y-auto mb-4 p-2 border-t border-gray-200 rounded-md">
+          <div className="flex h-62 items-center justify-center overflow-y-auto p-2 border-t border-gray-200 rounded-md">
             <p className="text-base leading-relaxed text-gray-600 whitespace-pre-wrap">
               {oferta.descripcion}
             </p>
@@ -63,15 +68,11 @@ function OfertaCard({ oferta }) {
           {/* Nuevos campos de Oferta.model.js con altura fija si es necesario */}
           <div className="flex-grow border-t border-gray-200 pt-4 mt-4 space-y-3">
             <p className="text-md font-medium text-gray-700">
-              <span className="font-semibold">Fotos Incluidas:</span>{" "}
-              {oferta.cantidad_fotos}
-            </p>
-            <p className="text-md font-medium text-gray-700">
               <span className="font-semibold">Locación:</span> {oferta.locacion}
             </p>
             <p className="text-md font-medium text-gray-700">
               <span className="font-semibold">Transportación:</span>{" "}
-              {oferta.transportacion ? "Sí Incluida" : "No Incluida"}
+              {oferta.transportacion ? "Incluida" : "No Incluida"}
             </p>
             <p className="text-md font-medium text-gray-700">
               <span className="font-semibold">Cambios de Ropa:</span>{" "}
