@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useOfertas } from "../context/OfertaProvider";
 import OfertaCard from "../components/OfertaCard";
+import { useServicios } from "../hooks/useServicios";
 
 const Cliente = () => {
   const { ofertas, loadOfertas } = useOfertas();
@@ -8,6 +9,9 @@ const Cliente = () => {
   useEffect(() => {
     loadOfertas();
   }, []);
+
+  const { servicios } = useServicios();
+console.log(servicios);
 
   function renderMain() {
     if (ofertas.length === 0) {
@@ -36,6 +40,16 @@ const Cliente = () => {
         {offersToDisplay.map((oferta) => (
           <OfertaCard oferta={oferta} key={oferta.id_oferta} />
         ))}
+        <OfertaCard
+          oferta={{
+            nombre_oferta: "Oferta Personalizada",
+            descripcion: servicios
+              .map((servicio) => servicio.nombre_servicio)
+              .join(", "),
+          }}
+
+          personalizada={true}
+        />
       </div>
     );
   }

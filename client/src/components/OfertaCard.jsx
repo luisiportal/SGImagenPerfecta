@@ -3,10 +3,12 @@ import { useState } from "react";
 
 import ReservarBtn from "./LandingPage/ReservarBtn.jsx";
 import Edit_ElimBTN from "./LandingPage/Edit_ElimBTN.jsx"; // Asegúrate de que este componente reciba props para el SVG
+import ListarServicios from "./Servicios/ListarServicios.jsx";
 
-function OfertaCard({ oferta }) {
+function OfertaCard({ oferta, personalizada }) {
   const navigate = useNavigate();
   const [showActions, setShowActions] = useState(false); // Estado para controlar la visibilidad de los botones
+  const [showServicios, setShowServicios] = useState(false);
 
   const colorExistencia = () => {
     return oferta.existencia <= oferta.stockMinimo && oferta.existencia !== "0"
@@ -83,8 +85,17 @@ function OfertaCard({ oferta }) {
       </section>
 
       <div className="flex-none p-4 text-sm mt-auto px-5">
-        <ReservarBtn id_oferta={oferta.id_oferta} />
+        <ReservarBtn
+          id_oferta={oferta.id_oferta}
+          personalizada={personalizada}
+          setShowServicios={setShowServicios}
+        />
       </div>
+      {showServicios && (
+        <div className="bg-red-500">
+          <ListarServicios setShowServicios={setShowServicios} />
+        </div>
+      )}
     </div>
   );
 }

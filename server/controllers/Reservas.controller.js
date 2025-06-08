@@ -70,8 +70,6 @@ export const crearReserva = async (req, res) => {
       oferta_personalizada,
     } = req.body;
 
-    console.log(id_oferta);
-    console.log(oferta_personalizada);
 
     const personalizada =
       oferta_personalizada.length > 0
