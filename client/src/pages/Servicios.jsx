@@ -1,28 +1,9 @@
-import React, { useState, useEffect } from "react"; // Importa useState y useEffect
-import ListarServicios from "../components/Servicios/ListarServicios";
-import { useServiciosStore } from "../Store/Servicios.store"; // Importa tu store de servicios
-import { listarServiciosRequest } from "../api/servicios.api"; // Importa la función de API
+import { useServicios } from "../hooks/useServicios";
+import ServiciosList from "../components/Servicios/ServiciosList";
 
 const Servicios = () => {
-  const [showServiciosModal, setShowServiciosModal] = useState(false);
-  const { serviciosStore, setServiciosStore } = useServiciosStore(); // Obtén el store y el setter
-
-  // useEffect para cargar los servicios cuando el componente se monta
-  useEffect(() => {
-    const fetchServicios = async () => {
-      try {
-        const res = await listarServiciosRequest();
-        setServiciosStore(res.data); // Asume que la respuesta de la API tiene los datos en 'data'
-      } catch (error) {
-        console.error("Error al cargar los servicios:", error);
-      }
-    };
-
-    // Solo cargar si serviciosStore está vacío para evitar recargas innecesarias
-    if (serviciosStore.length === 0) {
-      fetchServicios();
-    }
-  }, [setServiciosStore, serviciosStore.length]); // Dependencias del useEffect
+  // const [showServiciosModal, setShowServiciosModal] = useState(false);
+  const { servicios } = useServicios();
 
   return (
     <div className="bg-gray-50 py-8 sm:py-8">
@@ -38,61 +19,7 @@ const Servicios = () => {
         </div>
 
         <div className="mt-8 mb-12">
-          <h2 className="text-3xl font-bold text-slate-800 mb-6 text-center">
-            Lista de Precios de Nuestros Servicios
-          </h2>
-          {serviciosStore.length > 0 ? (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              {serviciosStore.map((servicio) => (
-                <div
-                  key={servicio.id_servicio}
-                  className="flex flex-row justify-between items-baseline py-3 border-b last:border-b-0 border-gray-200"
-                >
-                  {/* Contenedor para Nombre del Servicio y Descripción */}
-                  <div className="flex-1 min-w-0 flex flex-wrap items-baseline gap-x-2">
-                    <h3 className="font-semibold text-lg text-slate-800 flex-shrink-0">
-                      {servicio.nombre_servicio}
-                    </h3>
-                    {/* Descripción al lado, más pequeña y sutil */}
-                    {servicio.descripcion_servicio && ( // Solo muestra si hay descripción
-                      <p className="text-sm text-gray-500 flex-shrink-0">
-                        ({servicio.descripcion_servicio})
-                      </p>
-                    )}
-                    {/* Puntos suspensivos: flex-grow para ocupar espacio, border-dotted, color de st_color y grosor */}
-                    <span className="flex-grow border-b-2 border-dotted border-st_color mx-0 min-w-[30px]"></span>
-                  </div>
-                  {/* Precio: Asegura que no se rompa el diseño con el wrap del nombre/descripción */}
-                  <div className="text-lg font-bold text-st_color sm:ml-4 mt-2 sm:mt-0 flex-shrink-0">
-                    ${Number(servicio.precio_servicio).toFixed(2)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center text-gray-600">Cargando servicios...</p>
-          )}
-        </div>
-
-        <div className="text-center mb-12 sm:mb-16">
-          {showServiciosModal && (
-            <ListarServicios
-              isOpen={showServiciosModal}
-              setShowServicios={setShowServiciosModal}
-            />
-          )}
-        </div>
-
-        <div className="mt-2 text-center bg-st_color p-10 rounded-xl shadow-lg">
-          <h2 className="text-4xl font-bold text-white mb-4">
-            Crea tu Oferta de forma Personalizada
-          </h2>
-          <button
-            onClick={() => setShowServiciosModal(true)}
-            className="inline-block bg-white text-st_color hover:bg-gray-100 font-bold py-3 px-8 rounded-full text-lg transition-colors duration-300 shadow-md"
-          >
-            ¡Crear AHORA!
-          </button>
+          <ServiciosList servicios={servicios} />
         </div>
 
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">

@@ -4,8 +4,11 @@ import ImagenFront from "../components/LandingPage/ImagenFront";
 import Cliente from "./Cliente";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import ServiciosList from "../components/Servicios/ServiciosList";
+import { useServicios } from "../hooks/useServicios";
 
 const PaginaInicio = () => {
+  const { servicios } = useServicios(); // Obtén los servicios
   useEffect(() => {
     const carouselItems = document.querySelectorAll(".carousel-item");
     let currentItem = 0;
@@ -127,9 +130,9 @@ const PaginaInicio = () => {
       </div>
       <div>
         <section className="py-8 bg-sect_gray">
-          {" "}
-          {/* Añadimos padding vertical */}
-          {/* Centramos y añadimos padding horizontal adaptable */}
+          <ServiciosList servicios={servicios} />
+        </section>
+        <section className="py-8 bg-sect_gray">
           <Cliente />
         </section>
       </div>

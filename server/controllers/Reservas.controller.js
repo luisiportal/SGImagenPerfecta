@@ -70,7 +70,6 @@ export const crearReserva = async (req, res) => {
       oferta_personalizada,
     } = req.body;
 
-
     const personalizada =
       oferta_personalizada.length > 0
         ? await Oferta_Personalizada.create({}, { transaction })
@@ -114,50 +113,133 @@ export const crearReserva = async (req, res) => {
   }
 };
 
+// export const actualizarReserva = async (req, res) => {
+//   try {
+//     const id_reserva = req.params.id;
+//     const {
+//       nombre_cliente,
+//       apellidos,
+//       ci,
+//       nombre_oferta,
+//       fecha_sesion,
+//       telefono,
+//       correo_electronico,
+//       id_oferta,
+//     } = req.body; // Agrega correo_electronico aquí
+
+//     const response = await Reserva.findByPk(id_reserva);
+//     if (!response) {
+//       return res.status(404).json({ message: "Reserva no encontrada." });
+//     }
+
+//     // Obtener los detalles de la oferta si se proporciona id_oferta y es diferente
+//     let descripcion_oferta_to_save = response.descripcion_oferta;
+//     let precio_venta_oferta_to_save = response.precio_venta_oferta;
+
+//     if (id_oferta && id_oferta !== response.id_oferta) {
+//       const oferta = await Oferta.findByPk(id_oferta);
+//       if (!oferta) {
+//         return res.status(404).json({ message: "Oferta no encontrada." });
+//       }
+//       descripcion_oferta_to_save = oferta.descripcion;
+//       precio_venta_oferta_to_save = oferta.precio_venta;
+//     }
+
+//     response.nombre_cliente = nombre_cliente;
+//     response.apellidos = apellidos;
+//     response.ci = ci;
+//     response.nombre_oferta = nombre_oferta;
+//     response.descripcion_oferta = descripcion_oferta_to_save;
+//     response.precio_venta_oferta = precio_venta_oferta_to_save;
+//     response.fecha_sesion = fecha_sesion;
+//     response.telefono = telefono;
+//     response.correo_electronico = correo_electronico; // Actualiza el campo de correo electrónico
+//     await response.save();
+
+//     res.json(response);
+//   } catch (error) {
+//     return res.status(500).json({ message: error.message });
+//   }
+// };
+
 export const actualizarReserva = async (req, res) => {
+  const transaction = await sequelize.transaction();
+
   try {
     const id_reserva = req.params.id;
     const {
       nombre_cliente,
       apellidos,
       ci,
-      nombre_oferta,
       fecha_sesion,
       telefono,
       correo_electronico,
-    } = req.body; // Agrega correo_electronico aquí
+      id_oferta,
+      oferta_personalizada,
+    } = req.body;
 
-    const response = await Reserva.findByPk(id_reserva);
-    if (!response) {
+    const reserva = await Reserva.findByPk(id_reserva, { transaction });
+    if (!reserva) {
+      await transaction.rollback();
       return res.status(404).json({ message: "Reserva no encontrada." });
     }
 
-    // Obtener los detalles de la oferta si se proporciona id_oferta y es diferente
-    let descripcion_oferta_to_save = response.descripcion_oferta;
-    let precio_venta_oferta_to_save = response.precio_venta_oferta;
+    // Actualizar campos básicos
+    reserva.nombre_cliente = nombre_cliente;
+    reserva.apellidos = apellidos;
+    reserva.ci = ci;
+    reserva.fecha_sesion = fecha_sesion;
+    reserva.telefono = telefono;
+    reserva.correo_electronico = correo_electronico;
 
-    if (id_oferta && id_oferta !== response.id_oferta) {
-      const oferta = await Oferta.findByPk(id_oferta);
-      if (!oferta) {
-        return res.status(404).json({ message: "Oferta no encontrada." });
+    // Manejo de ofertas
+    if (id_oferta) {
+      reserva.id_oferta = id_oferta;
+      const oferta = await Oferta.findByPk(id_oferta, { transaction });
+      if (oferta) {
+        reserva.descripcion_oferta = oferta.descripcion;
+        reserva.precio_venta_oferta = oferta.precio_venta;
       }
-      descripcion_oferta_to_save = oferta.descripcion;
-      precio_venta_oferta_to_save = oferta.precio_venta;
     }
 
-    response.nombre_cliente = nombre_cliente;
-    response.apellidos = apellidos;
-    response.ci = ci;
-    response.nombre_oferta = nombre_oferta;
-    response.descripcion_oferta = descripcion_oferta_to_save;
-    response.precio_venta_oferta = precio_venta_oferta_to_save;
-    response.fecha_sesion = fecha_sesion;
-    response.telefono = telefono;
-    response.correo_electronico = correo_electronico; // Actualiza el campo de correo electrónico
-    await response.save();
+    // Manejo de ofertas personalizadas
+    if (oferta_personalizada && oferta_personalizada.length > 0) {
+      if (!reserva.id_oferta_personalizada) {
+        const nuevaPersonalizada = await Oferta_Personalizada.create(
+          {},
+          { transaction }
+        );
+        reserva.id_oferta_personalizada = nuevaPersonalizada.id;
+      }
 
-    res.json(response);
+      // Eliminar servicios existentes
+      await Oferta_Servicio.destroy({
+        where: { id_oferta_personalizada: reserva.id_oferta_personalizada },
+        transaction,
+      });
+
+      // Agregar nuevos servicios
+      await Promise.all(
+        oferta_personalizada.map((servicio) =>
+          Oferta_Servicio.create(
+            {
+              id_servicio: servicio.id_servicio,
+              id_oferta_personalizada: reserva.id_oferta_personalizada,
+              cantidad: servicio.cantidad || 1,
+            },
+            { transaction }
+          )
+        )
+      );
+    }
+
+    await reserva.save({ transaction });
+    await transaction.commit();
+
+    res.json(reserva);
   } catch (error) {
+    await transaction.rollback();
+    console.error("Error al actualizar reserva:", error);
     return res.status(500).json({ message: error.message });
   }
 };

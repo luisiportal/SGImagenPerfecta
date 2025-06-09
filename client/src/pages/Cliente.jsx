@@ -10,9 +10,6 @@ const Cliente = () => {
     loadOfertas();
   }, []);
 
-  const { servicios } = useServicios();
-console.log(servicios);
-
   function renderMain() {
     if (ofertas.length === 0) {
       return (
@@ -40,16 +37,7 @@ console.log(servicios);
         {offersToDisplay.map((oferta) => (
           <OfertaCard oferta={oferta} key={oferta.id_oferta} />
         ))}
-        <OfertaCard
-          oferta={{
-            nombre_oferta: "Oferta Personalizada",
-            descripcion: servicios
-              .map((servicio) => servicio.nombre_servicio)
-              .join(", "),
-          }}
-
-          personalizada={true}
-        />
+     
       </div>
     );
   }
