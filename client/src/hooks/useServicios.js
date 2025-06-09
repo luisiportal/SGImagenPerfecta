@@ -3,6 +3,7 @@ import { listarServiciosRequest } from "../api/servicios.api";
 import { useServiciosStore } from "../Store/Servicios.store";
 
 export const useServicios = () => {
+  
     const {  setServiciosStore } = useServiciosStore();
   
    const [servicios, setServicios] = useState([
@@ -11,7 +12,7 @@ export const useServicios = () => {
        nombre_servicio: "",
        descripcion_servicio: "",
        precio_servicio: 0,
-     },
+     }
    ]);
  
    useEffect(() => {

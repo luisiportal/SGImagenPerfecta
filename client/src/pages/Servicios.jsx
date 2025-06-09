@@ -2,27 +2,11 @@ import React, { useState, useEffect } from "react"; // Importa useState y useEff
 import ListarServicios from "../components/Servicios/ListarServicios";
 import { useServiciosStore } from "../Store/Servicios.store"; // Importa tu store de servicios
 import { listarServiciosRequest } from "../api/servicios.api"; // Importa la función de API
+import { useServicios } from "../hooks/useServicios";
 
 const Servicios = () => {
   const [showServiciosModal, setShowServiciosModal] = useState(false);
-  const { serviciosStore, setServiciosStore } = useServiciosStore(); // Obtén el store y el setter
-
-  // useEffect para cargar los servicios cuando el componente se monta
-  useEffect(() => {
-    const fetchServicios = async () => {
-      try {
-        const res = await listarServiciosRequest();
-        setServiciosStore(res.data); // Asume que la respuesta de la API tiene los datos en 'data'
-      } catch (error) {
-        console.error("Error al cargar los servicios:", error);
-      }
-    };
-
-    // Solo cargar si serviciosStore está vacío para evitar recargas innecesarias
-    if (serviciosStore.length === 0) {
-      fetchServicios();
-    }
-  }, [setServiciosStore, serviciosStore.length]); // Dependencias del useEffect
+  const { servicios } = useServicios();
 
   return (
     <div className="bg-gray-50 py-8 sm:py-8">
@@ -41,9 +25,9 @@ const Servicios = () => {
           <h2 className="text-3xl font-bold text-slate-800 mb-6 text-center">
             Lista de Precios de Nuestros Servicios
           </h2>
-          {serviciosStore.length > 0 ? (
+          {servicios.length > 0 ? (
             <div className="bg-white rounded-lg shadow-md p-6">
-              {serviciosStore.map((servicio) => (
+              {servicios.map((servicio) => (
                 <div
                   key={servicio.id_servicio}
                   className="flex flex-row justify-between items-baseline py-3 border-b last:border-b-0 border-gray-200"
