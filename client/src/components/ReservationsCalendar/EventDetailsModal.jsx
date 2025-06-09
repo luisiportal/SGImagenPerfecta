@@ -21,6 +21,15 @@ const EventDetailsModal = ({
 
   if (!isOpen || !reserva) return null;
 
+  // Determinar el nombre de la oferta a mostrar inicialmente
+  // Si existe reserva.oferta.nombre_oferta, lo usamos.
+  // Si no, verificamos si existe reserva.ofertas_personalizada.nombre_oferta, y lo usamos.
+  // Si ninguno existe, mostramos "Oferta no disponible" o un texto por defecto.
+  const offerDisplayName =
+    reserva.oferta?.nombre_oferta ||
+    reserva.ofertas_personalizada?.nombre_oferta ||
+    "Oferta Personalizada";
+
   return (
     <div
       className={`rbc-modal-overlay ${isOpen ? "rbc-modal-overlay-visible" : ""}`}
@@ -60,14 +69,8 @@ const EventDetailsModal = ({
                 onClick={toggleExpand}
                 className="rbc-offer-expand-button"
               >
-                {reserva.oferta?.nombre_oferta ||
-                  reserva?.ofertas_personalizada?.ofertas_servicios?.map(
-                    (servicio) => (
-                      <section key={servicio.id_servicio}>
-                        {servicio.servicio.nombre_servici}
-                      </section>
-                    )
-                  )}
+                {/* Muestra el nombre de la oferta estándar o personalizada */}
+                {offerDisplayName}
                 <span
                   className={`rbc-modal-arrow ${isExpanded ? "rbc-modal-arrow-up" : "rbc-modal-arrow-down"}`}
                 ></span>
@@ -76,15 +79,35 @@ const EventDetailsModal = ({
 
             {isExpanded && (
               <div className="rbc-modal-collapsible-content">
-                <p className="rbc-pre-wrap-text">
-                  {reserva.descripcion_oferta || "No disponible"}
-                </p>
-                <p>
+                {/* Si es una oferta personalizada y tiene servicios, los lista */}
+                {reserva.ofertas_personalizada?.ofertas_servicios &&
+                reserva.ofertas_personalizada.ofertas_servicios.length > 0 ? (
+                  <>
+                    <p className="rbc-modal-detail-label">
+                      Servicios incluidos:
+                    </p>
+                    <ul className="rbc-modal-service-list">
+                      {reserva.ofertas_personalizada.ofertas_servicios.map(
+                        (servicio) => (
+                          <li key={servicio.id_servicio}>
+                            {servicio.servicio.nombre_servici}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </>
+                ) : (
+                  // Si no es una oferta personalizada con servicios, muestra la descripción general
+                  <p className="rbc-pre-wrap-text">
+                    {reserva.descripcion_oferta || "Descripción no disponible"}
+                  </p>
+                )}
+                <p className="border-gray-200 border-t-2">
                   <span className="rbc-modal-detail-label">
                     Precio de Venta:
                   </span>{" "}
                   {reserva.precio_venta_oferta
-                    ? `${reserva.precio_venta_oferta} CUP`
+                    ? `$${reserva.precio_venta_oferta} CUP`
                     : "No disponible"}
                 </p>
               </div>

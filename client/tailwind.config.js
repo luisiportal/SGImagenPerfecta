@@ -5,16 +5,20 @@ export default {
     extend: {
       colors: {
         st_color: "#f9a217",
-        grayFotos:"#474747",
-        sect_gray:"#dddddd",
-        he_card:"#54595f"
+        grayFotos: "#474747",
+        sect_gray: "#dddddd",
+        he_card: "#54595f",
       },
-      width:{
-        w_4foto:569 ,
+      width: {
+        w_4foto: 569,
       },
-      height:{
-        h_4foto:379,
-      }
+      height: {
+        h_4foto: 379,
+      },
+      fontFamily: {
+        // Aquí defines tu nueva familia de fuentes
+        greatVibes: ['"Great Vibes"', "cursive"], // Puedes añadir fuentes de fallback
+      },
     },
   },
   plugins: [],

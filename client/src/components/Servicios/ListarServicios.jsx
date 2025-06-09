@@ -1,3 +1,5 @@
+// ListarServicios.jsx
+
 import { useNavigate } from "react-router-dom";
 import { useOfertaStore } from "../../Store/Oferta_personalizada.store";
 import { useState, useEffect } from "react"; // Asegúrate de importar useEffect
@@ -31,108 +33,131 @@ const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
 
   const quitarServicio = (servicio) => {
     const restantes = oferta_personalizada.filter(
-      (item) => item.id_servicio !== servicio.id_servicio // Usar !== para comparación estricta
+      (s) => s.id_servicio !== servicio.id_servicio
     );
     setOferta_personalizada(restantes);
   };
 
-  const handleChange = (servicio, isChecked) => {
-    if (isChecked) {
+  const agregarServicio = (servicio) => {
+    // Verificar si el servicio ya está en la oferta_personalizada
+    const servicioExistente = oferta_personalizada.find(
+      (s) => s.id_servicio === servicio.id_servicio
+    );
+
+    if (!servicioExistente) {
+      // Si el servicio no existe, agrégalo
       setOferta_personalizada([...oferta_personalizada, servicio]);
     } else {
-      quitarServicio(servicio);
+      // Si el servicio ya existe, podrías manejarlo (por ejemplo, mostrar un mensaje o no hacer nada)
+      console.log("Este servicio ya ha sido agregado.");
     }
   };
 
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      setShowServicios(false);
-    }
-  };
-
-  const calcularPrecioOfertaPersonalizada = (oferta_personalizada) => {
-    return oferta_personalizada.reduce(
+  // Función para calcular el precio total de la oferta personalizada
+  const calcularPrecioOfertaPersonalizada = (servicios) => {
+    return servicios.reduce(
       (total, servicio) => total + (Number(servicio.precio_servicio) || 0),
       0
     );
   };
 
-  // Asegúrate de que la modal solo se renderice si isOpen es true
-  if (!isOpen) return null; // Esto controla que el componente no se muestre si isOpen es false
+  const handleAccept = () => {
+    // Pasar el array de servicios seleccionados a la ruta
+    navigate(`/cliente/reservar/personalizada`, {
+      state: { serviciosSeleccionados: oferta_personalizada },
+    });
+    setShowServicios(false);
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50"
-      onClick={handleOverlayClick}
-    >
-      <div
-        className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
-          {" "}
-          Seleccionar Servicios
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl p-6 max-w-4xl w-full mx-4 my-8 max-h-[90vh] overflow-y-auto">
+        <h2 className="text-2xl font-bold text-center text-st_color mb-6">
+          Seleccione los Servicios para la Oferta Personalizada
         </h2>
-        <div>
-          {serviciosStore.map((servicio) => (
-            <section
-              key={servicio.id_servicio}
-              className="flex flex-row justify-between items-baseline py-3 border-b last:border-b-0 border-gray-200" // Añadidas clases para el estilo de fila
-            >
-              <input
-                type="checkbox"
-                name="selecc"
-                checked={oferta_personalizada.some(
-                  (item) => item.id_servicio === servicio.id_servicio
-                )}
-                onChange={(e) => handleChange(servicio, e.target.checked)}
-                className="mr-2" // Pequeño margen a la derecha del checkbox
-              />
-              <div className="flex-1 min-w-0 flex flex-wrap items-baseline gap-x-2">
-                <h3 className="font-semibold text-lg text-slate-800 flex-shrink-0">
-                  {servicio.nombre_servicio}
-                </h3>
-                {servicio.descripcion_servicio && (
-                  <p className="text-sm text-gray-500 flex-shrink-0">
-                    ({servicio.descripcion_servicio})
-                  </p>
-                )}
-                <span className="flex-grow border-b-2 border-dotted border-st_color mx-0 min-w-[30px]"></span>
+
+        {message && (
+          <p className="text-center text-red-500 font-semibold mb-4">
+            {message}
+          </p>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Columna de Servicios Disponibles */}
+          <div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              Servicios Disponibles
+            </h3>
+            {serviciosStore.length > 0 ? (
+              <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2">
+                {serviciosStore.map((servicio) => (
+                  <section
+                    key={servicio.id_servicio}
+                    className="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm hover:bg-gray-100 transition-colors cursor-pointer"
+                    onClick={() => agregarServicio(servicio)}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-medium text-gray-700">
+                        {servicio.nombre_servicio}
+                      </h3>
+                      <p className="text-sm text-gray-500 truncate">
+                        {servicio.descripcion_servicio}
+                      </p>
+                    </div>
+                    <div className="text-base font-bold text-st_color ml-4">
+                      ${Number(servicio.precio_servicio).toFixed(2)}
+                    </div>
+                  </section>
+                ))}
               </div>
-              <div className="text-lg font-bold text-st_color sm:ml-4 mt-2 sm:mt-0 flex-shrink-0">
-                ${Number(servicio.precio_servicio).toFixed(2)}
-              </div>
-            </section>
-          ))}
-          <h2 className="text-xl font-bold text-gray-800 mt-6 mb-4">
-            Usted ha Escogido
-          </h2>
-          {oferta_personalizada.map(
-            (
-              servicio // Cambiado 'oferta_personalizada' a 'servicio' para claridad
-            ) => (
-              <section
-                key={servicio.id_servicio}
-                className="flex flex-row justify-between items-baseline py-2 border-b last:border-b-0 border-gray-100"
-              >
-                <h3 className="font-semibold text-lg text-gray-700 flex-shrink-0">
-                  {servicio.nombre_servicio}
-                </h3>
-                <span className="flex-grow border-b-2 border-dotted border-gray-300 mx-0 min-w-[20px]"></span>
-                <div className="text-base font-bold text-gray-600 sm:ml-4 mt-1 sm:mt-0 flex-shrink-0">
-                  ${Number(servicio.precio_servicio).toFixed(2)}
+            ) : (
+              <p className="text-gray-600 text-center">
+                No hay servicios disponibles.
+              </p>
+            )}
+          </div>
+
+          {/* Columna de Servicios Seleccionados */}
+          <div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              Servicios Seleccionados ({oferta_personalizada.length})
+            </h3>
+            {oferta_personalizada.length > 0 ? (
+              <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2">
+                {oferta_personalizada.map((servicio) => (
+                  <section
+                    key={servicio.id_servicio}
+                    className="flex justify-between items-center bg-blue-50 p-3 rounded-lg shadow-sm hover:bg-blue-100 transition-colors cursor-pointer"
+                    onClick={() => quitarServicio(servicio)}
+                  >
+                    <h3 className="text-base font-medium text-blue-700 flex-shrink-0">
+                      {servicio.nombre_servicio}
+                    </h3>
+                    <span className="flex-grow border-b-2 border-dotted border-gray-300 mx-0 min-w-[20px]"></span>
+                    <div className="text-base font-bold text-gray-600 sm:ml-4 mt-1 sm:mt-0 flex-shrink-0">
+                      ${Number(servicio.precio_servicio).toFixed(2)}
+                    </div>
+                  </section>
+                ))}
+                <div className="mt-4 pt-4 border-t border-gray-300 flex justify-between items-baseline">
+                  <h2 className="text-xl font-bold text-gray-800">
+                    Precio Total:
+                  </h2>
+                  <div className="text-2xl font-extrabold text-st_color">
+                    $
+                    {calcularPrecioOfertaPersonalizada(
+                      oferta_personalizada
+                    ).toFixed(2)}
+                  </div>
                 </div>
-              </section>
-            )
-          )}
-          <div className="mt-4 pt-4 border-t border-gray-300 flex justify-between items-baseline">
-            <h2 className="text-xl font-bold text-gray-800">Precio Total:</h2>
-            <div className="text-2xl font-extrabold text-st_color">
-              $
-              {calcularPrecioOfertaPersonalizada(oferta_personalizada).toFixed(
-                2
-              )}
-            </div>
+              </div>
+            ) : (
+              <p className="text-gray-600 text-center">
+                Aún no ha seleccionado ningún servicio.
+              </p>
+            )}
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6">
@@ -143,7 +168,7 @@ const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
             Cancelar
           </button>
           <button
-            onClick={() => navigate(`/cliente/reservar/personalizada`)}
+            onClick={handleAccept}
             className="px-4 py-2 rounded-md bg-st_color text-white font-semibold hover:bg-st_color transition-colors"
           >
             Aceptar

@@ -3,6 +3,7 @@ import OfertaCard from "../components/OfertaCard";
 import { useOfertas } from "../context/OfertaProvider";
 import { Link } from "react-router-dom";
 import AgregarSVG from "../components/SVG/AgregarSVG";
+import ServiciosList from "../components/Servicios/ServiciosList";
 
 const OfertasPage = () => {
   const { ofertas, loadOfertas } = useOfertas();
@@ -35,7 +36,6 @@ const OfertasPage = () => {
 
     return (
       <div className={`${gridClasses} max-w-full lg:max-w-7xl mx-auto p-4`}>
-        {/* Usamos offersToDisplay para mostrar todas las ofertas */}
         {offersToDisplay.map((oferta) => (
           <OfertaCard oferta={oferta} key={oferta.id_oferta} />
         ))}
@@ -55,6 +55,7 @@ const OfertasPage = () => {
             Añadir Nueva Oferta
           </button>
         </Link>
+        {/* <ServiciosList servicios={servicios} /> */}
       </section>
 
       {renderMain()}

@@ -126,6 +126,12 @@ const ComprobarReservaForm = () => {
 
   return (
     <div className="mx-2 bg-neutral-200 rounded-md p-4">
+      {notificacion_msg && (
+        <Notificacion
+          mensaje={notificacion_msg.mensaje}
+          errorColor={notificacion_msg.errorColor}
+        />
+      )}
       <h1 className="flex justify-center pt-5 text-slate-500 font-bold text-4xl">
         Comprobar Reserva
       </h1>
@@ -173,13 +179,6 @@ const ComprobarReservaForm = () => {
           )}
         </Formik>
       </div>
-
-      {notificacion_msg && (
-        <Notificacion
-          mensaje={notificacion_msg.mensaje}
-          errorColor={notificacion_msg.errorColor}
-        />
-      )}
 
       {/* Modal de Edición */}
       {selectedReserva && showEditModal && (

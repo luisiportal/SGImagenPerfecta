@@ -79,7 +79,8 @@ const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
 
         <div className="flex justify-between items-start">
           <h1 className="text-2xl font-extrabold text-gray-900">
-            {reserva.oferta.nombre_oferta}
+            {/* Mostrar la descripción de la oferta o la lista de servicios */}
+            {reserva.descripcion_oferta || "Oferta no especificada"}
           </h1>
         </div>
 
@@ -93,6 +94,13 @@ const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
           </p>
           <p>
             <span className="font-semibold">Teléfono:</span> {reserva.telefono}
+          </p>
+          {/* Mostrar el precio de venta de la oferta (estándar o personalizada) */}
+          <p>
+            <span className="font-semibold">Precio de Venta:</span>{" "}
+            {reserva.precio_venta_oferta
+              ? `$${Number(reserva.precio_venta_oferta).toFixed(2)} CUP`
+              : "No disponible"}
           </p>
         </div>
 
@@ -150,7 +158,9 @@ const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
 
       <ConfirmModal
         isOpen={showConfirmModal}
-        message={`¿Estás seguro de eliminar la reserva de ${reserva.nombre_cliente} para el ${formatFechaSesion(reserva.fecha_sesion)}?`}
+        message={`¿Estás seguro de eliminar la reserva de ${
+          reserva.nombre_cliente
+        } para el ${formatFechaSesion(reserva.fecha_sesion)}?`}
         onConfirm={handleConfirmEliminar}
         onCancel={handleCancelEliminar}
       />
