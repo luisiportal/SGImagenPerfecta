@@ -1,8 +1,19 @@
+<<<<<<< HEAD
 import { useServicios } from "../hooks/useServicios";
 import ServiciosList from "../components/Servicios/ServiciosList";
 
 const Servicios = () => {
   // const [showServiciosModal, setShowServiciosModal] = useState(false);
+=======
+import React, { useState, useEffect } from "react"; // Importa useState y useEffect
+import ListarServicios from "../components/Servicios/ListarServicios";
+import { useServiciosStore } from "../Store/Servicios.store"; // Importa tu store de servicios
+import { listarServiciosRequest } from "../api/servicios.api"; // Importa la función de API
+import { useServicios } from "../hooks/useServicios";
+
+const Servicios = () => {
+  const [showServiciosModal, setShowServiciosModal] = useState(false);
+>>>>>>> 21cb6b37180f57c6a33bdc59f1bd76ed267d656a
   const { servicios } = useServicios();
 
   return (
