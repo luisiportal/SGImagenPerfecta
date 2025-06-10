@@ -97,7 +97,10 @@ const ComprobarReservaForm = () => {
 
   const handleGuardarEdicion = async (values) => {
     try {
-      await actualizarReservaRequest(selectedReserva.id_reserva, values);
+      await actualizarReservaRequest(selectedReserva.id_reserva, {
+        ...values,
+        oferta_personalizada: selectedReserva.oferta_personalizada || [],
+      });
 
       // Vuelve a usar setNotificacion_msg para el éxito de la actualización (como estaba antes)
       setNotificacion_msg({

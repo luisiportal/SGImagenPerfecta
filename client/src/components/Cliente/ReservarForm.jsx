@@ -40,6 +40,7 @@ const ReservarForm = ({
     correo_electronico: "", // Agrega el nuevo campo de correo electrónico
     fecha_sesion: null,
     id_oferta: params.id_oferta,
+    oferta_personalizada: [], // Añade esto
   });
 
   const [reservedDates, setReservedDates] = useState([]);
@@ -68,6 +69,7 @@ const ReservarForm = ({
       setFormInitialValues({
         ...initialValues,
         fecha_sesion: formattedDate,
+        oferta_personalizada: initialValues.oferta_personalizada || [], // Añade esto
       });
     }
   }, [initialValues]);
@@ -79,25 +81,29 @@ const ReservarForm = ({
         ? new Date(
             values.fecha_sesion.getFullYear(),
             values.fecha_sesion.getMonth(),
-            values.fecha_sesion.getDate(),
-            new Date().getHours(),
-            new Date().getMinutes(),
-            new Date().getSeconds()
-          ).toISOString()
+            values.fecha_sesion.getDate()
+          )
+            .toISOString()
+            .split("T")[0]
         : null;
 
       const dataToSend = {
         ...values,
         fecha_sesion: fechaCompleta,
-        id_oferta: values.id_oferta,
-        oferta_personalizada: values.id_oferta ? [] : oferta_personalizada,
+        id_oferta: values.id_oferta || null, // Asegurar que sea null si no hay oferta
+        oferta_personalizada: values.id_oferta
+          ? []
+          : oferta_personalizada.map((s) => ({
+              id_servicio: s.id_servicio,
+              nombre_servicio: s.nombre_servicio,
+              precio_servicio: s.precio_servicio,
+              cantidad: s.cantidad || 1,
+            })),
       };
 
       if (isEditing) {
         await onSubmit(dataToSend);
       } else {
-        console.log(dataToSend);
-
         const res = await crearReservaRequest(dataToSend);
         if (onSuccess) {
           onSuccess(res?.message || "Reserva creada con éxito!");
@@ -110,18 +116,8 @@ const ReservarForm = ({
         "Error al procesar reserva:",
         error.response?.data || error.message
       );
-      if (isEditing) {
-        throw error;
-      } else {
-        if (onError) {
-          onError(
-            error.response?.data?.message || "Error al crear la reserva."
-          );
-        } else {
-          alert(
-            `Error al crear la reserva: ${error.response?.data?.message || "Error desconocido"}`
-          );
-        }
+      if (onError) {
+        onError(error.response?.data?.message || "Error al crear la reserva.");
       }
     } finally {
       setSubmitting(false);

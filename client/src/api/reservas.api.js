@@ -3,6 +3,7 @@ import axios from "./axios.js";
 
 export const crearReservaRequest = async (values) => {
   try {
+    console.log(values);
     const res = await axios.post(`/reservas/crear`, values);
     return res.data; // Devuelve la respuesta si es exitosa
   } catch (error) {

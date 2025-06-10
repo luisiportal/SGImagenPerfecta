@@ -78,7 +78,7 @@ const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
         </div>
 
         <div className="flex justify-between items-start">
-          <h1 className="text-2xl font-extrabold text-gray-900">
+          <h1 className="whitespace-pre-line text-gray-900">
             {/* Mostrar la descripción de la oferta o la lista de servicios */}
             {reserva.descripcion_oferta || "Oferta no especificada"}
           </h1>

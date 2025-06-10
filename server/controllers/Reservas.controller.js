@@ -67,58 +67,79 @@ export const crearReserva = async (req, res) => {
       telefono,
       correo_electronico,
       id_oferta,
-      oferta_personalizada, // Este array contendrá los servicios seleccionados del frontend
+      oferta_personalizada,
     } = req.body;
 
+    // Validación básica
+    if (id_oferta && oferta_personalizada?.length > 0) {
+      await transaction.rollback();
+      return res.status(400).json({
+        message:
+          "No se puede asignar tanto una oferta estándar como personalizada.",
+      });
+    }
+
     let id_oferta_personalizada_db = null;
-    let descripcion_oferta_para_reserva = null;
-    let precio_venta_oferta_para_reserva = null;
+    let descripcion = null;
+    let precio_venta = null;
 
     // Lógica para oferta personalizada
     if (oferta_personalizada && oferta_personalizada.length > 0) {
-      // 1. Crear la Oferta_Personalizada (si aún no tiene ID)
       const nuevaOfertaPersonalizada = await Oferta_Personalizada.create(
         {},
         { transaction }
       );
       id_oferta_personalizada_db = nuevaOfertaPersonalizada.id;
 
-      // 2. Calcular la descripción de la oferta y el precio total
-      const nombresServicios = oferta_personalizada.map(
-        (s) => s.nombre_servicio
-      );
-      descripcion_oferta_para_reserva = `Oferta Personalizada: ${nombresServicios.join(
-        ", "
-      )}`;
-
-      const precioTotal = oferta_personalizada.reduce((total, servicio) => {
-        return total + (Number(servicio.precio_servicio) || 0);
-      }, 0);
-      precio_venta_oferta_para_reserva = precioTotal;
-
-      // 3. Crear las relaciones en Oferta_Servicio
+      // Crear relaciones con servicios
       await Promise.all(
         oferta_personalizada.map((servicio) =>
           Oferta_Servicio.create(
             {
               id_servicio: servicio.id_servicio,
               id_oferta_personalizada: id_oferta_personalizada_db,
-              cantidad: servicio.cantidad || 1, // Asegúrate de que cantidad esté definido o usa un default
+              cantidad: servicio.cantidad || 1,
             },
             { transaction }
           )
         )
       );
-    } else if (id_oferta) {
-      // Lógica para oferta estándar (si se proporciona id_oferta y no hay servicios personalizados)
+
+      // Obtener detalles de los servicios para la descripción y precio
+      const servicios = await Servicio.findAll({
+        where: {
+          id_servicio: oferta_personalizada.map((s) => s.id_servicio),
+        },
+        transaction,
+      });
+
+      descripcion = `Oferta Personalizada: ${servicios
+        .map((s) => s.nombre_servicio)
+        .join(", ")}`;
+      precio_venta = servicios.reduce(
+        (total, servicio) => total + (Number(servicio.precio_servicio) || 0),
+        0
+      );
+    }
+    // Lógica para oferta estándar
+    else if (id_oferta) {
       const ofertaEstandar = await Oferta.findByPk(id_oferta, { transaction });
-      if (ofertaEstandar) {
-        descripcion_oferta_para_reserva = ofertaEstandar.descripcion;
-        precio_venta_oferta_para_reserva = ofertaEstandar.precio_venta;
+      if (!ofertaEstandar) {
+        await transaction.rollback();
+        return res
+          .status(404)
+          .json({ message: "Oferta estándar no encontrada." });
       }
+      descripcion = ofertaEstandar.descripcion;
+      precio_venta = ofertaEstandar.precio_venta;
+    } else {
+      await transaction.rollback();
+      return res.status(400).json({
+        message: "Debe proporcionar una oferta estándar o personalizada.",
+      });
     }
 
-    // Crear la Reserva
+    // Crear la reserva
     const reserva = await Reserva.create(
       {
         nombre_cliente,
@@ -127,16 +148,16 @@ export const crearReserva = async (req, res) => {
         fecha_sesion,
         telefono,
         correo_electronico,
-        id_oferta: id_oferta || null, // Asegúrate de que sea null si es personalizada
-        id_oferta_personalizada: id_oferta_personalizada_db, // Asigna el ID de la oferta personalizada
-        descripcion_oferta: descripcion_oferta_para_reserva, // Guarda la descripción generada
-        precio_venta_oferta: precio_venta_oferta_para_reserva, // Guarda el precio calculado
+        id_oferta: id_oferta || null,
+        id_oferta_personalizada: id_oferta_personalizada_db,
+        descripcion_oferta: descripcion,
+        precio_venta_oferta: precio_venta,
       },
       { transaction }
     );
 
     await transaction.commit();
-    res.sendStatus(201);
+    res.status(201).json(reserva);
   } catch (error) {
     await transaction.rollback();
     console.error("Error al crear reserva:", error);
@@ -274,35 +295,53 @@ export const actualizarReserva = async (req, res) => {
 };
 
 export const eliminarReserva = async (req, res) => {
+  const transaction = await sequelize.transaction();
   try {
-    const response = await Reserva.destroy({
+    const id_reserva = req.params.id;
+
+    // Buscar la reserva para obtener su id_oferta_personalizada
+    const reserva = await Reserva.findByPk(id_reserva, { transaction });
+    if (!reserva) {
+      await transaction.rollback();
+      return res.status(404).json({ message: "Reserva no encontrada." });
+    }
+
+    // Finalmente eliminar la reserva
+    await Reserva.destroy({
       where: {
-        id_reserva: req.params.id,
+        id_reserva,
       },
+      transaction,
     });
+
+    await transaction.commit();
     res.sendStatus(204);
   } catch (error) {
+    await transaction.rollback();
+    console.error("Error al eliminar reserva:", error);
     return res.status(500).json({ message: error.message });
   }
 };
 
 export const listarUnaReserva = async (req, res) => {
   try {
-    const id_reserva = req.params.id; // Este 'id' es el CI enviado desde el frontend
+    const id_reserva = req.params.id; // Este es el CI que viene del frontend
+
     const response = await Reserva.findAll({
-      where: { ci: id_reserva }, // Busca por el campo 'ci'
+      // Cambiado de findByPk a findAll para usar 'where' con CI
+      where: { ci: id_reserva },
       include: [
         {
           model: Oferta,
-          required: false, // Incluir Oferta si existe
+          required: false, // No es obligatoria si es personalizada
         },
         {
-          model: Oferta_Personalizada, // Asegúrate de incluir ofertas personalizadas si es necesario para la visualización
-          required: false,
+          model: Oferta_Personalizada, // <-- ¡Asegúrate de incluir esto!
+          required: false, // No es obligatoria si es oferta estándar
           include: [
             {
-              model: Oferta_Servicio,
-              include: [{ model: Servicio }],
+              model: Oferta_Servicio, // <-- ¡Y esto!
+              include: [{ model: Servicio }], // <-- ¡Y esto para los detalles del servicio!
             },
           ],
         },
@@ -313,13 +352,12 @@ export const listarUnaReserva = async (req, res) => {
       return res.status(404).json({ message: "Reserva no encontrada." });
     }
 
-    // ¡CAMBIO CLAVE AQUÍ!
-    // Si un CI puede tener múltiples reservas, devuelve el array completo:
+    // Devuelve el array completo si puede haber múltiples reservas por CI,
+    // o response[0] si siempre esperas una única. Tu frontend ComprobarReservaForm
+    // espera un array (usa .map).
     res.json(response);
-    // Si solo se espera una reserva por CI, puedes mantener:
-    // res.json(response[0]); // Esto devolvería solo la primera
   } catch (error) {
-    console.error("Error al listar una reserva por CI:", error); // Log más descriptivo
+    console.error("Error al listar una reserva por CI:", error);
     return res.status(500).json({ message: error.message });
   }
 };

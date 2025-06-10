@@ -37,13 +37,12 @@ const Cliente = () => {
         {offersToDisplay.map((oferta) => (
           <OfertaCard oferta={oferta} key={oferta.id_oferta} />
         ))}
-     
       </div>
     );
   }
 
   return (
-    <div className="bg-sect_gray min-h-screen">
+    <div className="bg-sect_gray">
       {window.location.pathname === "/cliente" && (
         <section className="px-2 pb-2 text-slate-700 flex flex-col items-center">
           <h1 className="flex justify-center pt-5 text-slate-500 font-bold text-4xl sm:text-5xl md:text-6xl">

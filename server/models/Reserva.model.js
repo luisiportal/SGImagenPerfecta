@@ -34,7 +34,7 @@ export const Reserva = sequelize.define(
       allowNull: true, // Puedes cambiar a false si es obligatorio
     },
     fecha_sesion: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
     },
     id_oferta: {
       type: DataTypes.INTEGER,

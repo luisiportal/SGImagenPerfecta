@@ -7,13 +7,13 @@ export const Oferta_Servicio = sequelize.define("ofertas_servicios", {
     primaryKey: true,
     autoIncrement: true,
   },
-   id_servicio: {
+  id_servicio: {
     type: DataTypes.INTEGER,
   },
-    id_oferta_personalizada: {
+  id_oferta_personalizada: {
     type: DataTypes.INTEGER,
   },
-    cantidad: {
+  cantidad: {
     type: DataTypes.INTEGER,
   },
 });

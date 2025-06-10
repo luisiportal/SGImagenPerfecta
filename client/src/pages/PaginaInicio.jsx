@@ -32,7 +32,7 @@ const PaginaInicio = () => {
 
   return (
     <div className="relative">
-      <article className="mb-8 lg:mb-20">
+      <article>
         <div className="relative h-[400px] lg:h-[900px]">
           <div className="absolute inset-0 bg-black/40 z-10"></div>
           <div className="carousel overflow-hidden h-full">
@@ -71,7 +71,7 @@ const PaginaInicio = () => {
           </div>
         </div>
       </article>
-      <div className="max-w-6xl mx-auto pt-5 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto py-20 px-4 sm:px-6 lg:px-8">
         <section className="flex flex-col lg:flex-row overflow-hidden">
           <div className="w-full lg:w-1/2">
             <ImagenFront
@@ -115,11 +115,11 @@ const PaginaInicio = () => {
         </section>
       </div>
       <div>
-        <section className="py-8 bg-sect_gray mt-28">
-          <ServiciosList servicios={servicios} />
-        </section>
-        <section className="py-8 bg-sect_gray">
+        <section className=" bg-sect_gray py-14">
           <Cliente />
+        </section>
+        <section className="pt-8 bg-sect_gray">
+          <ServiciosList servicios={servicios} />
         </section>
       </div>
       <footer>
