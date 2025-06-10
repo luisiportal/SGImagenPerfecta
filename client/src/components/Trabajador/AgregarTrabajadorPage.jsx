@@ -1,15 +1,14 @@
-// src/pages/AgregarTrabajadorPage.jsx
-import React, { useState } from "react";
+// src/components/Trabajador/AgregarTrabajadorPage.jsx
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import TrabajadorForm from "./TrabajadorForm"; // Asegúrate de la ruta correcta
-import { useTrabajadores } from "../../context/TrabajadorContext"; // Asegúrate de la ruta correcta
-import { crearTrabajadoresRequest } from "../../api/trabajador.api"; // Asegúrate de la ruta correcta
+import TrabajadorForm from "./TrabajadorForm";
+import { useTrabajadores } from "../../context/TrabajadorContext";
+import { crearTrabajadoresRequest } from "../../api/trabajador.api";
 
 const AgregarTrabajadorPage = () => {
   const navigate = useNavigate();
-  const { loadTrabajadoresContext } = useTrabajadores(); // Para recargar la lista después de añadir
+  const { loadTrabajadoresContext } = useTrabajadores();
 
-  // Valores iniciales para un nuevo trabajador (todos vacíos)
   const initialValues = {
     usuario: "",
     password: "",
@@ -24,12 +23,7 @@ const AgregarTrabajadorPage = () => {
     foto_perfil: "",
   };
 
-  const handleSubmit = async (
-    values,
-    file,
-    formikBag,
-    setFormikNotificacion
-  ) => {
+  const handleSubmit = async (values, file, formikBag, setNotificacion) => {
     const formData = new FormData();
     formData.append("usuario", values.usuario);
     if (values.password) {
@@ -49,21 +43,21 @@ const AgregarTrabajadorPage = () => {
 
     try {
       await crearTrabajadoresRequest(formData);
-      setFormikNotificacion({
+      setNotificacion({
         mensaje: "Usuario creado correctamente",
         errorColor: false,
       });
-      setTimeout(() => {
-        loadTrabajadoresContext(); // Recarga la lista en el contexto
+      setTimeout(async () => {
+        await loadTrabajadoresContext();
         navigate("/trabajador/plantilla");
       }, 2000);
     } catch (error) {
       console.error("Error al crear trabajador:", error);
       const errorMessage =
         error.response?.data?.message || "Error al crear trabajador.";
-      setFormikNotificacion({ mensaje: errorMessage, errorColor: true });
+      setNotificacion({ mensaje: errorMessage, errorColor: true });
     } finally {
-      formikBag.setSubmitting(false); // Resetea el estado de envío de Formik
+      formikBag.setSubmitting(false);
     }
   };
 
@@ -77,6 +71,7 @@ const AgregarTrabajadorPage = () => {
       initialValues={initialValues}
       onSubmit={handleSubmit}
       onCancel={handleCancel}
+      isEditing={false} // Pasar la prop isEditing
     />
   );
 };

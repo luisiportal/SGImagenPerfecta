@@ -52,7 +52,9 @@ const ReservarForm = ({
     const loadReservedDates = async () => {
       try {
         const dates = await obtenerFechasReservadasRequest();
-        const dateObjects = dates.map((dateStr) => new Date(dateStr));
+        const dateObjects = dates.map(
+          (dateStr) => new Date(`${dateStr}T00:00:00`)
+        );
         setReservedDates(dateObjects);
       } catch (error) {
         console.error("Error al cargar fechas reservadas:", error);
@@ -64,12 +66,12 @@ const ReservarForm = ({
   useEffect(() => {
     if (initialValues) {
       const formattedDate = initialValues.fecha_sesion
-        ? new Date(initialValues.fecha_sesion)
+        ? new Date(`${initialValues.fecha_sesion}T00:00:00`)
         : null;
       setFormInitialValues({
         ...initialValues,
         fecha_sesion: formattedDate,
-        oferta_personalizada: initialValues.oferta_personalizada || [], // Añade esto
+        oferta_personalizada: initialValues.oferta_personalizada || [],
       });
     }
   }, [initialValues]);
@@ -78,13 +80,12 @@ const ReservarForm = ({
     setSubmitting(true);
     try {
       const fechaCompleta = values.fecha_sesion
-        ? new Date(
-            values.fecha_sesion.getFullYear(),
-            values.fecha_sesion.getMonth(),
-            values.fecha_sesion.getDate()
-          )
-            .toISOString()
-            .split("T")[0]
+        ? `${values.fecha_sesion.getFullYear()}-${String(
+            values.fecha_sesion.getMonth() + 1
+          ).padStart(
+            2,
+            "0"
+          )}-${String(values.fecha_sesion.getDate()).padStart(2, "0")}`
         : null;
 
       const dataToSend = {
@@ -100,7 +101,7 @@ const ReservarForm = ({
               cantidad: s.cantidad || 1,
             })),
       };
-
+      console.log("Fecha enviada:", fechaCompleta);
       if (isEditing) {
         await onSubmit(dataToSend);
       } else {

@@ -1,20 +1,19 @@
-// src/components/TrabajadorForm.jsx
-import { Formik, Form, ErrorMessage } from "formik";
-import { useState } from "react"; // Solo necesitas useState aquí
-import Input from "../formulario/Input"; // Asegúrate de la ruta correcta
-// import { schemaTrabajadores } from "../validacionForm/schemaTrabajadores"; // Asegúrate de la ruta correcta
-import Notificacion from "../validacionForm/Notificacion"; // Asegúrate de la ruta correcta para tu componente Notificacion
-import ConfirmModal from "../ConfirmModal"; // Asegúrate de la ruta correcta para tu componente ConfirmModal
+import { Formik, Form } from "formik";
+import { useState } from "react";
+import Input from "../formulario/Input";
+import schemaTrabajadores from "../validacionForm/schemaTrabajadores";
+import Notificacion from "../validacionForm/Notificacion";
+import ConfirmModal from "../ConfirmModal";
 
-// Las props que este componente espera
 const TrabajadorForm = ({
   initialValues,
-  onSubmit, // Función que recibirá los valores del formulario y el archivo
-  onCancel, // Función que se llamará al cancelar
-  formTitle, // Título dinámico para el formulario (Agregar o Editar)
+  onSubmit,
+  onCancel,
+  formTitle,
+  isEditing,
 }) => {
-  const [file, setFile] = useState(null); // Estado local para el archivo de imagen
-  const [notificacion_msg, setNotificacion_msg] = useState(null); // Estado local para mensajes de notificación
+  const [file, setFile] = useState(null);
+  const [notificacion_msg, setNotificacion_msg] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const handleCancelClick = () => {
@@ -23,7 +22,7 @@ const TrabajadorForm = ({
 
   const handleConfirmCancel = () => {
     setShowConfirmModal(false);
-    onCancel(); // Llama a la función onCancel pasada por el padre
+    onCancel();
   };
 
   const handleCloseConfirmModal = () => {
@@ -33,19 +32,24 @@ const TrabajadorForm = ({
   return (
     <div className="pb-10">
       <h1 className="flex justify-center pt-5 text-slate-500 font-bold text-2xl lg:text-4xl">
-        {formTitle} {/* Usa el prop formTitle aquí */}
+        {formTitle}
       </h1>
       <Formik
         initialValues={initialValues}
-        enableReinitialize={true} // Muy importante: permite que Formik se actualice cuando initialValues cambian
-        // validationSchema={schema}
-        // Pasamos values, el archivo, el formikBag (para setSubmitting) y setNotificacion_msg al onSubmit del padre
-        onSubmit={(values, formikBag) =>
-          onSubmit(values, file, formikBag, setNotificacion_msg)
-        }
-        // validationSchema={schemaTrabajadores}
+        enableReinitialize={true}
+        validationSchema={schemaTrabajadores()}
+        context={{ $isEditing: isEditing }} // Pasar isEditing como contexto
+        onSubmit={(values, formikBag) => {
+          const submitValues = { ...values };
+          // No enviar password ni confirmPassword si están vacíos
+          if (!submitValues.password) {
+            delete submitValues.password;
+            delete submitValues.confirmPassword;
+          }
+          onSubmit(submitValues, file, formikBag, setNotificacion_msg);
+        }}
       >
-        {({ handleChange, values, errors, isSubmitting }) => (
+        {({ handleChange, values, errors, isSubmitting, setFieldValue }) => (
           <Form className="max-w-md mx-auto mt-8">
             <div className="p-6 shadow-xl rounded-lg bg-neutral-200">
               {/* Contenedor de la imagen */}
@@ -88,6 +92,7 @@ const TrabajadorForm = ({
                   value={values.password}
                   handleChange={handleChange}
                   errors={errors}
+                  placeholder={"Cambiar contraseña (opcional)"}
                 />
                 <Input
                   name="confirmPassword"
@@ -96,6 +101,11 @@ const TrabajadorForm = ({
                   value={values.confirmPassword}
                   handleChange={handleChange}
                   errors={errors}
+                  placeholder={
+                    isEditing
+                      ? "Cambiar contraseña (opcional)"
+                      : "Confirma la contraseña"
+                  }
                 />
                 <Input
                   name="nombre"
@@ -153,7 +163,6 @@ const TrabajadorForm = ({
                   handleChange={handleChange}
                   errors={errors}
                 />
-
                 <div className="pt-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Imagen de Perfil
@@ -165,9 +174,7 @@ const TrabajadorForm = ({
                         src={
                           file
                             ? URL.createObjectURL(file)
-                            : values.foto_perfil
-                              ? `/images/trabajadores/perfil/${values.foto_perfil}`
-                              : "/images/trabajadores/perfil/default.jpg"
+                            : `/images/trabajadores/perfil/${values.foto_perfil || "default.jpg"}`
                         }
                         alt="Foto de perfil"
                         onError={(e) => {
@@ -179,16 +186,16 @@ const TrabajadorForm = ({
                     <label className="flex-1">
                       <span className="sr-only">Seleccionar imagen</span>
                       <input
-                        name="imagenPerfil"
                         type="file"
+                        name="imagenPerfil"
                         accept="image/*"
                         onChange={(e) => setFile(e.target.files?.[0])}
                         className="block w-full text-sm text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-md file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-st_color file:text-black
-                      hover:file:bg-st_color-dark"
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-md file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-blue-500 file:text-white
+                          hover:file:bg-blue-600"
                       />
                     </label>
                   </div>
@@ -197,15 +204,15 @@ const TrabajadorForm = ({
 
               <div className="flex justify-between mt-6">
                 <button
-                  className="w-[48%] bg-gray-500 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
                   type="button"
+                  className="w-[48%] bg-gray-500 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
                   onClick={handleCancelClick}
                 >
                   Cancelar
                 </button>
                 <button
-                  className="w-[48%] bg-st_color text-black font-bold py-2 px-4 rounded-md hover:bg-st_color-dark transition-colors"
                   type="submit"
+                  className="w-[48%] bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 transition-colors"
                   disabled={isSubmitting}
                 >
                   Aceptar

@@ -11,6 +11,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import format from "date-fns/format"; // Todavía necesitamos format para el ConfirmModal
 import { es } from "date-fns/locale"; // Todavía necesitamos es para el ConfirmModal
 
+
 // Importar utilidades y componentes de presentación
 import { localizer, parseDateForCalendar } from "../../utils/dateUtils";
 import { CalendarEvent, AgendaEvent } from "./CalendarEvent";

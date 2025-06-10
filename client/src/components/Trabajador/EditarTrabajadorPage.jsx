@@ -1,49 +1,54 @@
-// src/pages/EditarTrabajadorPage.jsx
+// src/components/Trabajador/EditarTrabajadorPage.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import TrabajadorForm from "./TrabajadorForm"; // Asegúrate de la ruta correcta
-import { useTrabajadores } from "../../context/TrabajadorContext"; // Asegúrate de la ruta correcta
-import { editarTrabajadoresRequest } from "../../api/trabajador.api"; // Asegúrate de la ruta correcta
+import TrabajadorForm from "./TrabajadorForm";
+import { useTrabajadores } from "../../context/TrabajadorContext";
+import {
+  editarTrabajadoresRequest,
+  listarunTrabajadorRequest,
+} from "../../api/trabajador.api";
 
 const EditarTrabajadorPage = () => {
-  const { id } = useParams(); // Obtiene el ID del trabajador de la URL
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { loadTrabajador, perfil, loadTrabajadoresContext } = useTrabajadores();
-  const [initialValues, setInitialValues] = useState(null); // Estado para los valores iniciales (null mientras carga)
-  const [loading, setLoading] = useState(true); // Estado para indicar si los datos están cargando
+  const { loadTrabajadoresContext } = useTrabajadores();
+  const [initialValues, setInitialValues] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTrabajador = async () => {
-      setLoading(true); // Inicia la carga
+      setLoading(true);
       if (id) {
-        await loadTrabajador(id); // Carga el perfil del trabajador en el contexto
+        try {
+          const trabajador = await listarunTrabajadorRequest(id);
+          setInitialValues({
+            id_trabajador: trabajador.id_trabajador,
+            usuario: trabajador.usuario,
+            password: "",
+            confirmPassword: "",
+            nombre: trabajador.nombre,
+            apellidos: trabajador.apellidos,
+            ci: trabajador.ci,
+            telefono: trabajador.telefono,
+            puesto: trabajador.puesto,
+            direccion: trabajador.direccion,
+            salario: trabajador.salario,
+            foto_perfil: trabajador.foto_perfil,
+          });
+        } catch (error) {
+          console.error("Error al cargar trabajador:", error);
+          setInitialValues(null);
+        }
       }
-      setLoading(false); // Finaliza la carga
+      setLoading(false);
     };
     fetchTrabajador();
-  }, [id, loadTrabajador]); // Depende de 'id' y 'loadTrabajador'
+  }, [id]);
 
-  useEffect(() => {
-    // Cuando el perfil se carga (o se actualiza) en el contexto, actualiza initialValues
-    if (id && perfil) {
-      setInitialValues({
-        ...perfil,
-        password: "", // Contraseña siempre vacía por seguridad en edición
-        confirmPassword: "",
-      });
-    }
-  }, [perfil, id]); // Depende de 'perfil' y 'id'
-
-  const handleSubmit = async (
-    values,
-    file,
-    formikBag,
-    setFormikNotificacion
-  ) => {
+  const handleSubmit = async (values, file, formikBag, setNotificacion) => {
     const formData = new FormData();
     formData.append("usuario", values.usuario);
     if (values.password) {
-      // Solo si se proporciona una nueva contraseña
       formData.append("password", values.password);
     }
     formData.append("nombre", values.nombre);
@@ -55,27 +60,26 @@ const EditarTrabajadorPage = () => {
     formData.append("salario", values.salario);
 
     if (file) {
-      // Si se seleccionó un nuevo archivo
       formData.append("imagenPerfil", file);
     }
 
     try {
       await editarTrabajadoresRequest(formData, id);
-      setFormikNotificacion({
+      setNotificacion({
         mensaje: "Trabajador actualizado correctamente",
         errorColor: false,
       });
-      setTimeout(() => {
-        loadTrabajadoresContext(); // Recarga la lista en el contexto
+      setTimeout(async () => {
+        await loadTrabajadoresContext();
         navigate("/trabajador/plantilla");
       }, 2000);
     } catch (error) {
       console.error("Error al actualizar trabajador:", error);
       const errorMessage =
-        error.response?.data?.message || "Error al actualizar trabajador.";
-      setFormikNotificacion({ mensaje: errorMessage, errorColor: true });
+        error.response?.data?.message || "Error al actualizar el trabajador.";
+      setNotificacion({ mensaje: errorMessage, errorColor: true });
     } finally {
-      formikBag.setSubmitting(false); // Resetea el estado de envío de Formik
+      formikBag.setSubmitting(false);
     }
   };
 
@@ -83,7 +87,6 @@ const EditarTrabajadorPage = () => {
     navigate("/trabajador/plantilla");
   };
 
-  // Muestra un mensaje de carga mientras se obtienen los datos o si initialValues aún no está listo
   if (loading || (id && !initialValues)) {
     return (
       <div className="text-center mt-8 text-slate-600">
@@ -94,13 +97,13 @@ const EditarTrabajadorPage = () => {
 
   return (
     <>
-      {/* Solo renderiza el formulario si initialValues ya está establecido (para edición) */}
       {initialValues && (
         <TrabajadorForm
           formTitle="Editar Trabajador"
           initialValues={initialValues}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
+          isEditing={true} // Pasar la prop isEditing
         />
       )}
     </>

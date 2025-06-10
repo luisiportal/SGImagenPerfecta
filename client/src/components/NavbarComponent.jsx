@@ -68,7 +68,7 @@ const NavbarComponent = () => {
             <Link to={"/"}>
               <img
                 className="w-14 h-14 object-cover" // Tamaño fijo y object-cover para evitar distorsión
-                src={"../../images/logo.png"}
+                src={"/images/logo.png"}
                 alt="Logo Otra Dimensión"
               />
             </Link>

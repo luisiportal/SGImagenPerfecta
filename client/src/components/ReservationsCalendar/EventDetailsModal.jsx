@@ -117,8 +117,10 @@ const EventDetailsModal = ({
               <span className="rbc-modal-detail-label">Fecha:</span>{" "}
               {format(
                 parseDateForCalendar(reserva.fecha_sesion),
-                "dd MMMM, HH:mm",
-                { locale: es }
+                "dd MMMM yyyy",
+                {
+                  locale: es,
+                }
               )}
             </p>
             <p>

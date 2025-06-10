@@ -37,17 +37,9 @@ export const ListarReservas = async (req, res) => {
 export const obtenerFechasReservadas = async (req, res) => {
   try {
     const reservas = await Reserva.findAll({
-      attributes: ["fecha_sesion"], // columna fecha_sesion
+      attributes: ["fecha_sesion"],
     });
-
-    // fechas y formatearlas para que sean fáciles de comparar en el frontend
-    // Las fechas vienen como objetos Date de la base de datos, las convertimos a formato 'YYYY-MM-DD'
-    const fechasReservadas = reservas.map((reserva) => {
-      const date = new Date(reserva.fecha_sesion);
-      // Formato 'YYYY-MM-DD'
-      return date.toISOString().split("T")[0];
-    });
-
+    const fechasReservadas = reservas.map((reserva) => reserva.fecha_sesion);
     res.json(fechasReservadas);
   } catch (error) {
     console.error("Error al obtener fechas de reservas:", error);

@@ -1,34 +1,30 @@
-import React, { useEffect, useState } from "react"; // Importar useState para el estado de carga
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTrabajadores } from "../../context/TrabajadorContext";
 
 const PerfilTrabajador = () => {
   const { logout, user } = useAuth();
-  const { loadTrabajador, perfil } = useTrabajadores();
-
+  const { loadPerfilUsuario, perfilUsuario } = useTrabajadores();
   const navigate = useNavigate();
-  const params = useParams(); // Puedes quitarlo si no lo usas, como se mencionó anteriormente
-
-  const [isLoading, setIsLoading] = useState(true); // Nuevo estado de carga
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchPerfil = async () => {
       if (user && user.id_trabajador) {
-        setIsLoading(true); // Iniciar carga
+        setIsLoading(true);
         try {
-          await loadTrabajador(user.id_trabajador);
+          await loadPerfilUsuario(user.id_trabajador);
         } finally {
-          setIsLoading(false); // Finalizar carga
+          setIsLoading(false);
         }
       } else {
-        setIsLoading(false); // Si no hay usuario, no hay carga
+        setIsLoading(false);
       }
     };
     fetchPerfil();
-  }, [user, loadTrabajador]); // Dependencias: user y loadTrabajador
+  }, [user, loadPerfilUsuario]);
 
-  // Si está cargando, muestra un indicador
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-50">
@@ -40,35 +36,31 @@ const PerfilTrabajador = () => {
 
   return (
     <div className="pt-24 min-h-screen bg-gray-50 flex justify-center items-center">
-      {/* Contenedor principal de la tarjeta */}
       <div className="min-h-80 w-full max-w-sm bg-white shadow-xl rounded-xl text-gray-900 overflow-hidden transform transition-all duration-300 hover:scale-[1.01]">
-        {/* Cabecera con imagen de perfil */}
         <div className="relative h-40 bg-gradient-to-r from-st_color to-blue-500 flex justify-center items-end p-4">
           <div className="absolute -bottom-16">
             <img
               className="w-32 h-32 object-cover rounded-full border-4 border-white shadow-lg"
-              src={`../images/trabajadores/perfil/${perfil.foto_perfil || "default.jpg"}`}
+              src={`../images/trabajadores/perfil/${perfilUsuario?.foto_perfil || "default.jpg"}`}
               alt="Foto de perfil"
             />
           </div>
         </div>
 
-        {/* Sección del nombre y puesto */}
         <div className="text-center mt-20 px-6 pb-6">
           <h2 className="text-3xl font-extrabold text-gray-800 leading-tight">
-            {`${perfil.nombre || "N/A"} ${perfil.apellidos || ""}`}
+            {`${perfilUsuario?.nombre || "N/A"} ${perfilUsuario?.apellidos || ""}`}
           </h2>
           <p className="text-xl text-gray-600 mt-2">
-            {perfil.puesto || "Puesto no especificado"}
+            {perfilUsuario?.puesto || "Puesto no especificado"}
           </p>
 
-          {/* Botón de edición */}
           <div className="mt-4">
             <button
               onClick={() =>
-                perfil.id_trabajador
+                perfilUsuario?.id_trabajador
                   ? navigate(
-                      `../trabajador/profile/edit/${perfil.id_trabajador}`
+                      `../trabajador/profile/edit/${perfilUsuario.id_trabajador}`
                     )
                   : null
               }
@@ -93,26 +85,23 @@ const PerfilTrabajador = () => {
           </div>
         </div>
 
-        {/* Detalles del perfil */}
         <div className="bg-gray-100 px-6 py-6 border-t border-gray-200">
           <ul className="space-y-3 text-lg text-gray-700">
             <li>
               <span className="font-semibold text-gray-800">Móvil:</span>{" "}
-              {perfil.telefono || "N/A"}
+              {perfilUsuario?.telefono || "N/A"}
             </li>
             <li>
               <span className="font-semibold text-gray-800">Dirección:</span>{" "}
-              {perfil.direccion || "N/A"}
+              {perfilUsuario?.direccion || "N/A"}
             </li>
             <li>
               <span className="font-semibold text-gray-800">Salario:</span>{" "}
-              {perfil.salario ? `${perfil.salario} CUP` : "N/A"}
+              {perfilUsuario?.salario ? `${perfilUsuario.salario} CUP` : "N/A"}
             </li>
-            {/* Puedes añadir más campos aquí, por ejemplo: CI, Usuario, etc. */}
           </ul>
         </div>
 
-        {/* Botón de Cerrar Sesión */}
         <button
           className="w-full py-4 bg-st_color text-black text-xl font-bold hover:bg-st_color-dark transition-colors duration-200"
           onClick={logout}

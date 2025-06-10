@@ -27,7 +27,11 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await loginRequest(user);
       setIsAuthenticated(true);
-      setUser(data);
+      setUser({
+        id_trabajador: data.id_trabajador, // Asegúrate de que la API devuelva esto
+        usuario: data.usuario,
+        foto_perfil: data.foto_perfil, // Incluir si está disponible
+      });
     } catch (error) {
       return error;
     }

@@ -28,31 +28,13 @@ const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
   };
 
   const formatFechaSesion = (dateString) => {
-    if (!dateString) return "";
+    if (!dateString) return "Fecha no disponible";
 
-    let isoFormattedString = dateString.replace(" ", "T");
-    const timezoneOffsetMatch = isoFormattedString.match(
-      /(\+|-)(\d{2})(\d{2})$/
-    );
-    if (timezoneOffsetMatch) {
-      const sign = timezoneOffsetMatch[1];
-      const hours = timezoneOffsetMatch[2];
-      const minutes = timezoneOffsetMatch[3];
-      isoFormattedString = isoFormattedString.replace(
-        /(\+|-)(\d{2})(\d{2})$/,
-        `${sign}${hours}:${minutes}`
-      );
-    }
-
-    const date = new Date(isoFormattedString);
+    // Asumir que dateString es YYYY-MM-DD
+    const date = new Date(`${dateString}T00:00:00`); // Agregar hora para evitar desfases
 
     if (isNaN(date.getTime())) {
-      console.error(
-        "Error: Fecha inválida después del parseo. Cadena original:",
-        dateString,
-        "Cadena formateada para Date:",
-        isoFormattedString
-      );
+      console.error("Error: Fecha inválida. Cadena original:", dateString);
       return "Fecha inválida";
     }
 
@@ -61,8 +43,6 @@ const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
       year: "numeric",
       month: "long",
       day: "numeric",
-      // hour: "2-digit",
-      // minute: "2-digit",
     };
     return date.toLocaleDateString("es-ES", options);
   };

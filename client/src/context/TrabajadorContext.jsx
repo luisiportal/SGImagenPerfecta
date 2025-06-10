@@ -1,11 +1,10 @@
-// TrabajadorContext.jsx
 import {
   createContext,
   useContext,
   useState,
   useEffect,
   useCallback,
-} from "react"; // Importar useCallback
+} from "react";
 import {
   eliminarTrabajadorRequest,
   listarTrabajadoresRequest,
@@ -28,7 +27,7 @@ export const useTrabajadores = () => {
 export const TrabajadorContextProvider = ({ children }) => {
   const [trabajadores, setTrabajadores] = useState([]);
   const [perfil, setPerfil] = useState({
-    id_trabajador: "", // Añadir id_trabajador aquí
+    id_trabajador: "",
     usuario: "",
     password: "",
     nombre: "",
@@ -40,6 +39,7 @@ export const TrabajadorContextProvider = ({ children }) => {
     salario: "",
     foto_perfil: "",
   });
+  const [perfilUsuario, setPerfilUsuario] = useState(null); // Nuevo estado para el usuario autenticado
 
   const { isAuthenticated, user } = useAuth();
 
@@ -53,7 +53,6 @@ export const TrabajadorContextProvider = ({ children }) => {
     }
   };
 
-  // *** CORRECCIÓN: Envolver loadTrabajador con useCallback ***
   const loadTrabajador = useCallback(async (id_trabajador) => {
     if (!id_trabajador) {
       setPerfil({
@@ -78,7 +77,7 @@ export const TrabajadorContextProvider = ({ children }) => {
         setPerfil({
           id_trabajador: trabajador.id_trabajador,
           usuario: trabajador.usuario,
-          password: "", // No cargar passwordHash por seguridad
+          password: "",
           nombre: trabajador.nombre,
           apellidos: trabajador.apellidos,
           ci: trabajador.ci,
@@ -122,7 +121,33 @@ export const TrabajadorContextProvider = ({ children }) => {
         foto_perfil: "",
       });
     }
-  }, []); // Dependencias vacías porque setPerfil y listarunTrabajadorRequest son estables
+  }, []);
+
+  const loadPerfilUsuario = useCallback(async (id_trabajador) => {
+    try {
+      const trabajador = await listarunTrabajadorRequest(id_trabajador);
+      if (trabajador) {
+        setPerfilUsuario({
+          id_trabajador: trabajador.id_trabajador,
+          usuario: trabajador.usuario,
+          nombre: trabajador.nombre,
+          apellidos: trabajador.apellidos,
+          ci: trabajador.ci,
+          telefono: trabajador.telefono,
+          puesto: trabajador.puesto,
+          direccion: trabajador.direccion,
+          salario: trabajador.salario,
+          foto_perfil: trabajador.foto_perfil,
+        });
+      }
+    } catch (error) {
+      console.error(
+        "Error al cargar el perfil del usuario autenticado:",
+        error
+      );
+      setPerfilUsuario(null);
+    }
+  }, []);
 
   const deleteTrabajador = async (id_trabajador) => {
     try {
@@ -142,26 +167,12 @@ export const TrabajadorContextProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    // Al añadir loadTrabajador a las dependencias, React se asegura de que este efecto se ejecute
-    // solo cuando 'loadTrabajador' (que ahora es estable gracias a useCallback), 'isAuthenticated' o 'user' cambien.
     if (isAuthenticated && user && user.id_trabajador) {
-      loadTrabajador(user.id_trabajador);
+      loadPerfilUsuario(user.id_trabajador);
     } else {
-      setPerfil({
-        id_trabajador: "",
-        usuario: "",
-        password: "",
-        nombre: "",
-        apellidos: "",
-        ci: "",
-        telefono: "",
-        puesto: "",
-        direccion: "",
-        salario: "",
-        foto_perfil: "",
-      });
+      setPerfilUsuario(null);
     }
-  }, [isAuthenticated, user, loadTrabajador]); // loadTrabajador como dependencia (ahora es estable)
+  }, [isAuthenticated, user, loadPerfilUsuario]);
 
   return (
     <TrabajadorContext.Provider
@@ -171,6 +182,8 @@ export const TrabajadorContextProvider = ({ children }) => {
         trabajadores,
         perfil,
         loadTrabajador,
+        perfilUsuario,
+        loadPerfilUsuario,
       }}
     >
       {children}

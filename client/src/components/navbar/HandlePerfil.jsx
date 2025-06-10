@@ -1,16 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 import { useTrabajadores } from "../../context/TrabajadorContext";
-const HandlePerfil = ({ isAuthenticated, user }) => {
-  const { perfil } = useTrabajadores();
 
-  const imageSrc = perfil.foto_perfil
-    ? `/images/trabajadores/perfil/${perfil.foto_perfil}`
+const HandlePerfil = ({ isAuthenticated }) => {
+  const { perfilUsuario } = useTrabajadores(); // Usar perfilUsuario
+
+  const imageSrc = perfilUsuario?.foto_perfil
+    ? `/images/trabajadores/perfil/${perfilUsuario.foto_perfil}`
     : "/images/trabajadores/perfil/default.jpg";
 
   return (
-    <aside className="flex justify-center items-center pt-4 lg:pt-1  hover:scale-125 transition-transform duration-300 ">
+    <aside className="flex justify-center items-center pt-4 lg:pt-1 hover:scale-125 transition-transform duration-300">
       {!isAuthenticated ? (
         <Link to={"/trabajador/login"}>
           <button>
@@ -32,7 +32,7 @@ const HandlePerfil = ({ isAuthenticated, user }) => {
         </Link>
       ) : (
         <Link to={`/trabajador/login`}>
-          <button className=" text-slate-500 hover:text-black-300 p-1 rounded-full transition-colors focus:ring-2 focus:ring-slate-200">
+          <button className="text-slate-500 hover:text-black-300 p-1 rounded-full transition-colors focus:ring-2 focus:ring-slate-200">
             <img
               className="h-12 w-12 lg:w-8 lg:h-8 object-cover rounded-full"
               src={imageSrc}
