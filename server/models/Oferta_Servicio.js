@@ -16,4 +16,7 @@ export const Oferta_Servicio = sequelize.define("ofertas_servicios", {
   cantidad: {
     type: DataTypes.INTEGER,
   },
+  totalServicio: {
+    type: DataTypes.DECIMAL(10,2),
+  },
 });

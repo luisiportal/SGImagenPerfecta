@@ -30,7 +30,7 @@ app.use(serviciosRoutes);
 // app.use(routerRegistroVentas);
 app.use(routerTrabajadores);
 app.use("/api", loginRouter);
-
+           
 associations();
 await sequelize.sync({ alter: true });
 

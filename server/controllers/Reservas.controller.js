@@ -91,6 +91,7 @@ export const crearReserva = async (req, res) => {
               id_servicio: servicio.id_servicio,
               id_oferta_personalizada: id_oferta_personalizada_db,
               cantidad: servicio.cantidad || 1,
+              totalServicio: servicio.cantidad * servicio.precio_servicio
             },
             { transaction }
           )

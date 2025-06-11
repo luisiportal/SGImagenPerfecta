@@ -2,9 +2,10 @@
 
 import { useNavigate } from "react-router-dom";
 import { useOfertaStore } from "../../Store/Oferta_personalizada.store";
-import { useState, useEffect } from "react"; // Asegúrate de importar useEffect
+import {  useEffect } from "react"; // Asegúrate de importar useEffect
 import { listarServiciosRequest } from "../../api/servicios.api";
 import { useServiciosStore } from "../../Store/Servicios.store";
+import CantidadButtons from "./CantidadButtons";
 
 const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
   const { oferta_personalizada, setOferta_personalizada } = useOfertaStore();
@@ -46,7 +47,10 @@ const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
 
     if (!servicioExistente) {
       // Si el servicio no existe, agrégalo
-      setOferta_personalizada([...oferta_personalizada, servicio]);
+      setOferta_personalizada([
+        ...oferta_personalizada,
+        { ...servicio, cantidad: 1 },
+      ]);
     } else {
       // Si el servicio ya existe, podrías manejarlo (por ejemplo, mostrar un mensaje o no hacer nada)
       console.log("Este servicio ya ha sido agregado.");
@@ -55,10 +59,13 @@ const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
 
   // Función para calcular el precio total de la oferta personalizada
   const calcularPrecioOfertaPersonalizada = (servicios) => {
-    return servicios.reduce(
-      (total, servicio) => total + (Number(servicio.precio_servicio) || 0),
+    const total = servicios.reduce(
+      (total, servicio) =>
+        total + (Number(servicio.precio_servicio * servicio.cantidad) || 0),
       0
     );
+
+    return total;
   };
 
   const handleAccept = () => {
@@ -127,18 +134,31 @@ const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
             {oferta_personalizada.length > 0 ? (
               <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2">
                 {oferta_personalizada.map((servicio) => (
-                  <section
-                    key={servicio.id_servicio}
-                    className="flex justify-between items-center bg-blue-50 p-3 rounded-lg shadow-sm hover:bg-blue-100 transition-colors cursor-pointer"
-                    onClick={() => quitarServicio(servicio)}
-                  >
-                    <h3 className="text-base font-medium text-blue-700 flex-shrink-0">
-                      {servicio.nombre_servicio}
-                    </h3>
-                    <span className="flex-grow border-b-2 border-dotted border-gray-300 mx-0 min-w-[20px]"></span>
-                    <div className="text-base font-bold text-gray-600 sm:ml-4 mt-1 sm:mt-0 flex-shrink-0">
-                      ${Number(servicio.precio_servicio).toFixed(2)}
-                    </div>
+                  <section className="flex items-center gap-2">
+                    {" "}
+                    <section
+                      key={servicio.id_servicio}
+                      className="flex w-full justify-between items-center bg-blue-50 p-3 rounded-lg shadow-sm hover:bg-blue-100 transition-colors cursor-pointer"
+                    >
+                      <CantidadButtons
+                        setOferta_personalizada={setOferta_personalizada}
+                        oferta_personalizada={oferta_personalizada}
+                        servicio={servicio}
+                      />
+                      <h3 className="text-base font-medium text-blue-700 flex-shrink-0">
+                        {servicio.cantidad} x {servicio.nombre_servicio}
+                      </h3>
+                      <span className="flex-grow border-b-2 border-dotted border-gray-300 mx-0 min-w-[20px]"></span>
+                      <div className="text-base font-bold text-gray-600 sm:ml-4 mt-1 sm:mt-0 flex-shrink-0">
+                        ${Number(servicio.precio_servicio).toFixed(2)}
+                      </div>
+                    </section>
+                    <button
+                      onClick={() => quitarServicio(servicio)}
+                      className="bg-red-500 p-2 w-8 h-8 flex justify-center items-center rounded-full aspect-square"
+                    >
+                      x
+                    </button>
                   </section>
                 ))}
                 <div className="mt-4 pt-4 border-t border-gray-300 flex justify-between items-baseline">
