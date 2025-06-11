@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import ServiciosList from "../components/Servicios/ServiciosList";
 import { useServicios } from "../hooks/useServicios";
+import Footer from "./Footer";
 
 const PaginaInicio = () => {
   const { servicios } = useServicios(); // Obtén los servicios
@@ -122,14 +123,7 @@ const PaginaInicio = () => {
           <ServiciosList servicios={servicios} />
         </section>
       </div>
-      <footer>
-        <div className="bg-gray-800 text-white py-4 text-center">
-          <p className="text-sm">
-            © {new Date().getFullYear()} Estudio Fotográfico Otra Dimensión.
-            Holguín. Cuba
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

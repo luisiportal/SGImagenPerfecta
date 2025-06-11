@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useOfertas } from "../context/OfertaProvider";
 import OfertaCard from "../components/OfertaCard";
-import { useServicios } from "../hooks/useServicios";
 
 const Cliente = () => {
   const { ofertas, loadOfertas } = useOfertas();

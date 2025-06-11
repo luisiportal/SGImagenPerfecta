@@ -47,14 +47,14 @@ const ListadoTrabajadores = () => {
 
   return (
     <>
-      <section className="flex justify-center">
-        <h1 className="flex justify-center pt-5 text-slate-500 font-bold text-4xl">
+      <section className="flex flex-col items-center pt-8 px-4">
+        <h1 className="text-5xl font-extrabold text-gray-800 leading-tight mb-6">
           Trabajadores
         </h1>
-        {/* Este Link debe apuntar a la nueva ruta /trabajador/new */}
         <Link to={"/trabajador/new"}>
-          <button className="text-slate-500 font-bold w-16 h-16 flex justify-center items-center">
+          <button className="flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-105">
             <AgregarSVG />
+            Añadir Nuevos Trabajadores
           </button>
         </Link>
       </section>
