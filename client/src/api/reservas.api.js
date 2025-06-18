@@ -1,11 +1,10 @@
-// client/src/api/reservas.api.js
 import axios from "./axios.js";
 
 export const crearReservaRequest = async (values) => {
   try {
     console.log(values);
     const res = await axios.post(`/reservas/crear`, values);
-    return res.data; // Devuelve la respuesta si es exitosa
+    return res.data;
   } catch (error) {
     console.error(
       "Error en crearReservaRequest:",
@@ -57,14 +56,12 @@ export const actualizarReservaRequest = async (id_reserva, values) => {
 export const listarunReservaRequest = async (ci) => {
   try {
     const res = await axios.get(`/reservas/listar/${ci}`);
-    return res.data; // Devolver los datos directamente
+    return res.data;
   } catch (error) {
-    // console.error("Error en listarunReservaRequest:", error.response?.data || error.message);
     throw error;
   }
 };
 
-// Obtener las fechas de las reservas
 export const obtenerFechasReservadasRequest = async () => {
   try {
     const { data } = await axios.get(`/reservas/fechas-reservadas`);

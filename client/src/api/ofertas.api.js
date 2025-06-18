@@ -1,6 +1,5 @@
 import axios from "./axios.js";
 
-// crear oferta
 export const crearOfertaRequest = async (values) => {
   try {
     const res = await axios.post(`/ofertas`, values);
@@ -10,11 +9,10 @@ export const crearOfertaRequest = async (values) => {
       "Error en crearOfertaRequest:",
       error.response?.data || error.message
     );
-    throw error; // Re-lanza el error para que el componente lo maneje
+    throw error;
   }
 };
 
-// listarOfertas
 export const listarOfertasRequest = async () => {
   try {
     const { data } = await axios.get(`/ofertas`);

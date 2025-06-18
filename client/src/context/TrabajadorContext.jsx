@@ -39,7 +39,7 @@ export const TrabajadorContextProvider = ({ children }) => {
     salario: "",
     foto_perfil: "",
   });
-  const [perfilUsuario, setPerfilUsuario] = useState(null); // Nuevo estado para el usuario autenticado
+  const [perfilUsuario, setPerfilUsuario] = useState(null);
 
   const { isAuthenticated, user } = useAuth();
 
@@ -127,7 +127,7 @@ export const TrabajadorContextProvider = ({ children }) => {
     try {
       const trabajador = await listarunTrabajadorRequest(id_trabajador);
       if (trabajador) {
-        setPerfilUsuario({
+        const newProfile = {
           id_trabajador: trabajador.id_trabajador,
           usuario: trabajador.usuario,
           nombre: trabajador.nombre,
@@ -138,14 +138,18 @@ export const TrabajadorContextProvider = ({ children }) => {
           direccion: trabajador.direccion,
           salario: trabajador.salario,
           foto_perfil: trabajador.foto_perfil,
-        });
+        };
+        setPerfilUsuario(newProfile);
+        return newProfile;
       }
+      return null;
     } catch (error) {
       console.error(
         "Error al cargar el perfil del usuario autenticado:",
         error
       );
       setPerfilUsuario(null);
+      return null;
     }
   }, []);
 

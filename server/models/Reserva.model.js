@@ -18,7 +18,6 @@ export const Reserva = sequelize.define(
     ci: {
       type: DataTypes.STRING,
     },
-    // Nuevos campos para almacenar detalles de la oferta
     descripcion_oferta: {
       type: DataTypes.TEXT,
     },
@@ -28,26 +27,26 @@ export const Reserva = sequelize.define(
     telefono: {
       type: DataTypes.STRING,
     },
-    // Nuevo campo para el correo electrónico
     correo_electronico: {
       type: DataTypes.STRING,
-      allowNull: true, // Puedes cambiar a false si es obligatorio
+      allowNull: false,
     },
     fecha_sesion: {
       type: DataTypes.DATEONLY,
+      allowNull: false,
     },
     id_oferta: {
       type: DataTypes.INTEGER,
-      allowNull: true, // Una reserva siempre debe estar vinculada a una oferta
+      allowNull: true,
     },
 
     id_oferta_personalizada: {
       type: DataTypes.INTEGER,
-      allowNull: true, // Una reserva siempre debe estar vinculada a una oferta
+      allowNull: true,
     },
     pagado: {
-      type: DataTypes.BOOLEAN, // true si está pagado, false si no. Útil para validación.
-      defaultValue: false, // Valor por defecto si no se especifica
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
   },
   {

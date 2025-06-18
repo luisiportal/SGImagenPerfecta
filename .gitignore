@@ -27,4 +27,4 @@ dist-ssr
 /blob-report/
 /playwright/.cache/
 
-server/config.js
+

@@ -18,10 +18,10 @@ const OfertaForm = () => {
     nombre_oferta: "",
     descripcion: "",
     precio_venta: "",
-    cantidad_fotos: "", // Nuevo campo
-    locacion: "", // Nuevo campo
-    transportacion: false, // Nuevo campo, inicializado como booleano
-    cambios_ropa: "", // Nuevo campo
+    cantidad_fotos: "",
+    locacion: "",
+    transportacion: false,
+    cambios_ropa: "",
   });
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -40,10 +40,10 @@ const OfertaForm = () => {
             nombre_oferta: ofertaData.nombre_oferta,
             descripcion: ofertaData.descripcion,
             precio_venta: ofertaData.precio_venta,
-            cantidad_fotos: ofertaData.cantidad_fotos, // Cargar nuevo campo
-            locacion: ofertaData.locacion, // Cargar nuevo campo
-            transportacion: ofertaData.transportacion, // Cargar nuevo campo
-            cambios_ropa: ofertaData.cambios_ropa, // Cargar nuevo campo
+            cantidad_fotos: ofertaData.cantidad_fotos,
+            locacion: ofertaData.locacion,
+            transportacion: ofertaData.transportacion,
+            cambios_ropa: ofertaData.cambios_ropa,
           });
         } catch (error) {
           console.error("Error al cargar la oferta:", error);
@@ -63,9 +63,9 @@ const OfertaForm = () => {
       const dataToSend = {
         ...values,
         precio_venta: parseFloat(values.precio_venta),
-        cantidad_fotos: parseInt(values.cantidad_fotos), // Asegurarse de que sea número
-        cambios_ropa: parseInt(values.cambios_ropa), // Asegurarse de que sea número
-        transportacion: Boolean(values.transportacion), // Asegurarse de que sea booleano
+        cantidad_fotos: parseInt(values.cantidad_fotos),
+        cambios_ropa: parseInt(values.cambios_ropa),
+        transportacion: Boolean(values.transportacion),
       };
 
       if (params.id_oferta) {
@@ -144,8 +144,6 @@ const OfertaForm = () => {
                 handleChange={handleChange}
                 errors={errors}
               />
-
-              {/* Nuevos campos */}
               <div>
                 <label
                   htmlFor="cantidad_fotos"

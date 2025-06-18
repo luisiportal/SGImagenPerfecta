@@ -1,11 +1,7 @@
-// src/components/ReservationsCalendar/CalendarEvent.jsx
-
-import React from "react";
 import format from "date-fns/format";
 import { es } from "date-fns/locale";
-import { parseDateForCalendar } from "../../utils/dateUtils"; // Importa la utilidad
+import { parseDateForCalendar } from "../../utils/dateUtils";
 
-// Componente para la visualización de eventos dentro del calendario
 export const CalendarEvent = ({ event }) => {
   const reserva = event.reservaData;
   const primerApellido = reserva.apellidos.split(" ")[0];
@@ -22,7 +18,6 @@ export const CalendarEvent = ({ event }) => {
   );
 };
 
-// Componente para la visualización de eventos en la vista de Agenda
 export const AgendaEvent = ({ event }) => {
   return (
     <div className="agenda-event-card">

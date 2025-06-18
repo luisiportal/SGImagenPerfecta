@@ -1,16 +1,11 @@
-import React from "react";
 import CardTexto from "../components/LandingPage/CardTexto";
 import ImagenFront from "../components/LandingPage/ImagenFront";
 import Cliente from "./Cliente";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import ServiciosList from "../components/Servicios/ServiciosList";
-import { useServicios } from "../hooks/useServicios";
 import Footer from "./Footer";
 
 const PaginaInicio = () => {
-  const { servicios } = useServicios(); // Obtén los servicios
-
   useEffect(() => {
     const carouselItems = document.querySelectorAll(".carousel-item");
     let currentItem = 0;
@@ -21,13 +16,10 @@ const PaginaInicio = () => {
       carouselItems[currentItem].classList.add("active");
     }
 
-    // Inicializar el primer ítem como visible
     carouselItems[currentItem].classList.add("active");
 
-    // Cambiar imagen cada 4 segundos
     const interval = setInterval(showNextItem, 4000);
 
-    // Limpiar el intervalo al desmontar el componente
     return () => clearInterval(interval);
   }, []);
 
@@ -72,7 +64,7 @@ const PaginaInicio = () => {
           </div>
         </div>
       </article>
-      <div className="max-w-6xl mx-auto py-20 px-4 sm:px-6 lg:px-8">
+      <div className="md:max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <section className="flex flex-col lg:flex-row overflow-hidden">
           <div className="w-full lg:w-1/2">
             <ImagenFront
@@ -116,14 +108,10 @@ const PaginaInicio = () => {
         </section>
       </div>
       <div>
-        <section className=" bg-sect_gray py-14">
+        <section className=" bg-sect_gray">
           <Cliente />
         </section>
-        <section className="pt-8 bg-sect_gray">
-          <ServiciosList servicios={servicios} />
-        </section>
       </div>
-      <Footer />
     </div>
   );
 };

@@ -19,6 +19,9 @@ export default {
         // Aquí defines tu nueva familia de fuentes
         greatVibes: ['"Great Vibes"', "cursive"], // Puedes añadir fuentes de fallback
       },
+      screens: {
+        "min-line": { raw: "(max-width: 200px)" }, // ajusta a lo que necesites
+      },
     },
   },
   plugins: [],

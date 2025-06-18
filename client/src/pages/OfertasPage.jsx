@@ -8,7 +8,7 @@ import { useServicios } from "../hooks/useServicios";
 import Footer from "./Footer";
 
 const OfertasPage = () => {
-  const { servicios } = useServicios(); // Obtén los servicios
+  const { servicios } = useServicios();
   const { ofertas, loadOfertas } = useOfertas();
 
   useEffect(() => {
@@ -26,15 +26,12 @@ const OfertasPage = () => {
       );
     }
 
-    // Mantener la ordenación si es deseado, pero eliminar la limitación
     const offersToDisplay = [...ofertas].sort(
       (a, b) => a.precio_venta - b.precio_venta
-    ); // Las ordena por precio de venta
+    );
 
     return (
-      <div
-        className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center max-w-7xl mx-auto py-12`}
-      >
+      <div className={`flex flex-wrap justify-center p-10 gap-8 mx-auto`}>
         {offersToDisplay.map((oferta) => (
           <OfertaCard oferta={oferta} key={oferta.id_oferta} />
         ))}

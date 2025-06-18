@@ -1,8 +1,8 @@
-// src/components/Trabajador/EditarTrabajadorPage.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import TrabajadorForm from "./TrabajadorForm";
 import { useTrabajadores } from "../../context/TrabajadorContext";
+import { useAuth } from "../../context/AuthContext";
 import {
   editarTrabajadoresRequest,
   listarunTrabajadorRequest,
@@ -11,7 +11,8 @@ import {
 const EditarTrabajadorPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { loadTrabajadoresContext } = useTrabajadores();
+  const { loadTrabajadoresContext, loadPerfilUsuario } = useTrabajadores();
+  const { user } = useAuth();
   const [initialValues, setInitialValues] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -71,6 +72,12 @@ const EditarTrabajadorPage = () => {
       });
       setTimeout(async () => {
         await loadTrabajadoresContext();
+        console.log("User.Idtrabaj: ", user.id_trabajador);
+        console.log("este es user: ", user);
+        console.log("este es id: ", id);
+        if (user && user.id_trabajador == id) {
+          await loadPerfilUsuario(user.id_trabajador);
+        }
         navigate("/trabajador/plantilla");
       }, 2000);
     } catch (error) {
@@ -103,7 +110,7 @@ const EditarTrabajadorPage = () => {
           initialValues={initialValues}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
-          isEditing={true} // Pasar la prop isEditing
+          isEditing={true}
         />
       )}
     </>

@@ -1,8 +1,7 @@
-// src/components/Trabajador/ListadoTrabajadores.jsx
 import { useEffect, useState } from "react";
 import TrabajadorCard from "./TrabajadorCard";
 import { useTrabajadores } from "../../context/TrabajadorContext";
-import { useAuth } from "../../context/AuthContext"; // Importa useAuth para obtener el usuario autenticado
+import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 import AgregarSVG from "../SVG/AgregarSVG";
 import ConfirmModal from "../ConfirmModal";
@@ -10,9 +9,7 @@ import ConfirmModal from "../ConfirmModal";
 const ListadoTrabajadores = () => {
   const { trabajadores, loadTrabajadoresContext, deleteTrabajador } =
     useTrabajadores();
-  const { user } = useAuth(); // Obtiene el objeto 'user' del contexto de autenticación
-  // Asumo que 'user' contiene el 'id_trabajador' del usuario logeado.
-  // Si tu contexto de autenticación lo llama 'perfil', usa 'perfil' en su lugar.
+  const { user } = useAuth();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [trabajadorToDelete, setTrabajadorToDelete] = useState(null);
 
@@ -58,17 +55,15 @@ const ListadoTrabajadores = () => {
           </button>
         </Link>
       </section>
-      <div className="flex flex-wrap justify-center gap-2 max-w-6xl mx-auto">
+      <div className="flex flex-wrap justify-center gap-2 max-w-6xl mx-auto p-12">
         {trabajadores.map((trabajador) => (
           <TrabajadorCard
             trabajador={trabajador}
             key={trabajador.id_trabajador}
             onDeleteClick={handleDeleteClick}
-            // AÑADE ESTA LÍNEA CLAVE:
             isCurrentUser={
               user && user.id_trabajador === trabajador.id_trabajador
             }
-            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/4 2xl:w-1/5 p-2"
           />
         ))}
       </div>

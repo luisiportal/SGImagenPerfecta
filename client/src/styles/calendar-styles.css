@@ -1,214 +1,195 @@
-/* General Calendar Styling */
 .rbc-calendar {
-  font-family:
-    "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Professional font */
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   background-color: #ffffff;
-  margin: 0; /* Asegura que no haya márgenes externos no deseados */
-  padding: 0 8px; /* Pequeño padding horizontal para la tabla */
+  margin: 0;
+  padding: 0 8px;
 }
 .rbc-agenda-event-cell {
   background-color: #ffffff;
 }
 
-/* Container for the whole calendar component */
 .rbc-calendar-container {
-  padding: 16px; /* p-4 */
-  background-color: #ffffff; /* bg-white */
-  border-radius: 8px; /* rounded-lg */
+  padding: 16px;
+  background-color: #ffffff;
+  border-radius: 8px;
   box-shadow:
     0 4px 6px rgba(0, 0, 0, 0.1),
-    0 10px 15px rgba(0, 0, 0, 0.1); /* shadow-md */
+    0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Calendar title */
 .rbc-calendar-title {
-  font-size: 2rem; /* text-2xl, adjust for sm:text-xl */
-  font-weight: 700; /* font-bold */
-  color: #374151; /* text-gray-800 */
+  font-size: 2rem;
+  font-weight: 700;
+  color: #374151;
   margin-bottom: 1rem;
-  text-align: center; /* mb-4 */
+  text-align: center;
 }
 
-/* Event text styles */
 .rbc-event-title {
-  font-weight: 700; /* font-bold */
-  font-size: 0.875rem; /* text-sm */
-  color: #ffffff; /* text-indigo-800 */
-  white-space: nowrap; /* truncate */
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #ffffff;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .rbc-event-offer {
-  color: #f3f3f3; /* text-gray-700 */
-  font-size: 0.875rem; /* text-sm */
-  white-space: nowrap; /* truncate */
+  color: #f3f3f3;
+  font-size: 0.875rem;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Day header label (e.g., "Monday") */
 .rbc-header-label {
-  text-align: center; /* text-center */
-  padding-top: 4px; /* py-1 */
-  padding-bottom: 4px; /* py-1 */
-  font-weight: 500; /* font-medium */
-  font-size: 0.875rem; /* text-sm */
-  color: #4b5563; /* text-gray-700 */
+  text-align: center;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #4b5563;
 }
 
-/* Day wrapper for positioning add button */
 .rbc-day-wrapper {
-  position: relative; /* relative */
+  position: relative;
 }
 
-/* Add reservation button */
 .rbc-add-reservation-button {
-  position: absolute; /* absolute */
-  bottom: 4px; /* bottom-1 */
-  right: 4px; /* right-1 */
-  padding: 4px; /* p-1 */
-  color: #9ca3af; /* text-gray-400 */
-  transition-property: color; /* transition-colors */
-  transition-duration: 150ms; /* transition-colors */
-  transition-timing-function: ease-in-out; /* transition-colors */
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  padding: 4px;
+  color: #9ca3af;
+  transition-property: color;
+  transition-duration: 150ms;
+  transition-timing-function: ease-in-out;
 }
 
 .rbc-add-reservation-button:hover {
-  color: #4f46e5; /* hover:text-indigo-600 */
+  color: #4f46e5;
 }
 
 .rbc-add-reservation-icon {
-  height: 20px; /* h-5 */
-  width: 20px; /* w-5 */
+  height: 20px;
+  width: 20px;
 }
 
-/* Modal overlay */
 .rbc-modal-overlay {
-  position: fixed; /* fixed */
-  inset: 0; /* inset-0 */
-  background-color: rgba(0, 0, 0, 0.5); /* bg-black bg-opacity-50 */
-  backdrop-filter: blur(8px); /* backdrop-blur-sm */
-  display: flex; /* flex */
-  justify-content: center; /* justify-center */
-  align-items: center; /* items-center */
-  z-index: 50; /* z-50 */
-  padding: 16px; /* p-4 */
-  display: none; /* hidden by default */
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+  padding: 16px;
+  display: none;
 }
 
 .rbc-modal-overlay-visible {
-  display: flex; /* block when visible */
+  display: flex;
 }
 
-/* Event modal content */
 .rbc-event-modal-content,
 .rbc-edit-modal-content {
-  background-color: #ffffff; /* bg-white */
-  border-radius: 8px; /* rounded-lg */
+  background-color: #ffffff;
+  border-radius: 8px;
   box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 8px 10px -6px rgba(0, 0, 0, 0.1); /* shadow-xl */
-  width: 100%; /* w-full */
-  max-width: 448px; /* max-w-md */
-  max-height: 90vh; /* max-h-[90vh] */
-  overflow-y: auto; /* overflow-y-auto */
-  position: relative; /* relative */
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 448px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
 }
 
-/* Modal close button */
 .rbc-modal-close-button {
-  position: absolute; /* absolute */
-  top: 8px; /* top-2 */
-  right: 8px; /* right-2 */
-  padding: 4px; /* p-1 */
-  color: #6b7280; /* text-gray-500 */
-  transition-property: color; /* transition-colors */
-  transition-duration: 150ms; /* transition-colors */
-  transition-timing-function: ease-in-out; /* transition-colors */
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px;
+  color: #6b7280;
+  transition-property: color;
+  transition-duration: 150ms;
+  transition-timing-function: ease-in-out;
 }
 
 .rbc-modal-close-button:hover {
-  color: #374151; /* hover:text-gray-700 */
+  color: #374151;
 }
 
 .rbc-modal-close-icon {
-  height: 24px; /* h-6 */
-  width: 24px; /* w-6 */
+  height: 24px;
+  width: 24px;
 }
 
-/* Modal body padding */
 .rbc-modal-body {
-  padding: 24px; /* p-6 */
-  padding-top: 40px; /* pt-10 */
+  padding: 24px;
+  padding-top: 40px;
 }
 
-/* Modal title */
 .rbc-modal-title {
-  font-size: 1.25rem; /* text-xl */
-  font-weight: 700; /* font-bold */
-  color: #374151; /* text-gray-800 */
-  margin-bottom: 16px; /* mb-4 */
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 16px;
 }
 
-/* Modal details spacing */
 .rbc-modal-details-grid {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* space-y-3 */
+  gap: 12px;
 }
 
-/* Modal detail label */
 .rbc-modal-detail-label {
-  font-weight: 600; /* font-semibold */
+  font-weight: 600;
 }
 
-/* Modal actions container */
 .rbc-modal-actions {
-  margin-top: 24px; /* mt-6 */
-  padding-top: 16px; /* pt-4 */
-  border-top: 1px solid #e5e7eb; /* border-t border-gray-200 */
-  display: flex; /* flex */
-  justify-content: flex-end; /* justify-end */
-  gap: 12px; /* space-x-3 */
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
-/* Modal edit button */
 .rbc-modal-edit-button {
-  padding: 8px 16px; /* px-4 py-2 */
-  border-radius: 6px; /* rounded-md */
-  background-color: #2563eb; /* bg-blue-600 */
-  color: #ffffff; /* text-white */
-  font-weight: 600; /* font-semibold */
-  transition-property: background-color; /* transition-colors */
-  transition-duration: 150ms; /* transition-colors */
-  transition-timing-function: ease-in-out; /* transition-colors */
+  padding: 8px 16px;
+  border-radius: 6px;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  transition-property: background-color;
+  transition-duration: 150ms;
+  transition-timing-function: ease-in-out;
 }
 
 .rbc-modal-edit-button:hover {
-  background-color: #1d4ed8; /* hover:bg-blue-700 */
+  background-color: #1d4ed8;
 }
 
-/* Modal delete button */
 .rbc-modal-delete-button {
-  padding: 8px 16px; /* px-4 py-2 */
-  border-radius: 6px; /* rounded-md */
-  background-color: #dc2626; /* bg-red-600 */
-  color: #ffffff; /* text-white */
-  font-weight: 600; /* font-semibold */
-  transition-property: background-color; /* transition-colors */
-  transition-duration: 150ms; /* transition-colors */
-  transition-timing-function: ease-in-out; /* transition-colors */
+  padding: 8px 16px;
+  border-radius: 6px;
+  background-color: #dc2626;
+  color: #ffffff;
+  font-weight: 600;
+  transition-property: background-color;
+  transition-duration: 150ms;
+  transition-timing-function: ease-in-out;
 }
 
 .rbc-modal-delete-button:hover {
-  background-color: #b91c1c; /* hover:bg-red-700 */
+  background-color: #b91c1c;
 }
 
-/* Toolbar Styling (navigation, views) */
 .rbc-toolbar {
   display: flex;
   justify-content: space-between;
@@ -221,7 +202,7 @@
 }
 
 .rbc-toolbar button {
-  background-color: #007bff; /* Primary blue for buttons */
+  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
@@ -244,7 +225,7 @@
 }
 
 .rbc-toolbar button.rbc-active {
-  background-color: #0056b3; /* Darker blue for active view */
+  background-color: #0056b3;
 }
 
 .rbc-toolbar-label {
@@ -253,9 +234,8 @@
   color: #333;
 }
 
-/* Day and Date Cell Styling */
 .rbc-header {
-  background-color: #f1f3f5; /* Light grey for headers */
+  background-color: #f1f3f5;
   color: #555;
   font-weight: 600;
   padding: 10px 0;
@@ -270,19 +250,17 @@
 }
 
 .rbc-today {
-  background-color: #e6f2ff; /* Light blue for today's date */
+  background-color: #e6f2ff;
 }
 
 .rbc-off-range-bg {
-  background-color: #fafafa; /* Lighter background for days outside current month */
+  background-color: #fafafa;
 }
 
-/* Event Styling */
-/* Default event style - adjust as needed or use propGetter */
 .rbc-event {
-  background-color: #96cadb; /* Azul claro para eventos por defecto, NO BLANCO */
+  background-color: #96cadb;
   border-color: #87ceeb;
-  color: #000080; /* Texto azul oscuro para legibilidad */
+  color: #000080;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease-in-out;
 }
@@ -294,79 +272,65 @@
 
 .rbc-event-content {
   width: 100%;
-  /* No necesitas estilos de padding, border, etc. aquí, ya los tiene .rbc-event */
 }
 
 .rbc-modal-expand-button {
   background: none;
   border: none;
-  color: #007bff; /* Un color de enlace, puedes ajustarlo */
+  color: #007bff;
   cursor: pointer;
-  font-size: 0.95em; /* Un poco más grande para visibilidad */
+  font-size: 0.95em;
   padding: 8px 0;
   display: flex;
   align-items: center;
-  gap: 8px; /* Espacio entre el texto y la flecha */
-  width: fit-content; /* Ajusta el ancho al contenido */
+  gap: 8px;
+  width: fit-content;
   transition: color 0.2s ease-in-out;
 }
 
 .rbc-modal-expand-button:hover {
-  color: #0056b3; /* Color de hover */
+  color: #0056b3;
   text-decoration: underline;
 }
 
-/* Estilos para la flecha indicadora */
 .rbc-modal-arrow {
   display: inline-block;
   width: 0;
   height: 0;
-  border-left: 6px solid transparent; /* Ajusta el tamaño de la flecha */
+  border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  transition: transform 0.3s ease-in-out; /* Transición suave para la rotación */
-  margin-left: 5px; /* Espacio entre el texto del botón y la flecha */
+  transition: transform 0.3s ease-in-out;
+  margin-left: 5px;
 }
 
 .rbc-modal-arrow-down {
-  border-top: 6px solid #007bff; /* Color de la flecha, a juego con el texto del botón */
+  border-top: 6px solid #007bff;
 }
 
 .rbc-modal-arrow-up {
   border-bottom: 6px solid #007bff;
-  transform: rotate(
-    180deg
-  ); /* Voltear la flecha para que apunte hacia arriba */
+  transform: rotate(180deg);
 }
 
-/* Estilos para el contenido colapsable */
 .rbc-modal-collapsible-content {
-  /* Estas propiedades se manejan por React (isExpanded && ...) */
-  /* Si quieres una animación suave de "altura", podrías usar: */
-  /* max-height: 500px;  // Un valor suficientemente grande */
-  /* transition: max-height 0.5s ease-in-out; */
-  /* overflow: hidden; */
-  /* Y cuando isExpanded es false, establece max-height: 0; */
-  /* Pero eso requiere más lógica JavaScript que el simple `isExpanded &&` */
-  /* Para una simple visibilidad, el `isExpanded &&` es suficiente. */
   margin-top: 5px;
   padding-left: 10px;
-  border-left: 2px solid #e0e0e0; /* Una línea para separar visualmente */
+  border-left: 2px solid #e0e0e0;
 }
 
 .rbc-modal-collapsible-content p {
-  margin-bottom: 5px; /* Espaciado entre los párrafos internos */
+  margin-bottom: 5px;
 }
 .rbc-pre-wrap-text {
-  white-space: pre-wrap; /* Mantiene espacios y saltos de línea */
+  white-space: pre-wrap;
 }
-/* Agenda View Specific Styling */
 .agenda-event-card {
-  background-color: #ffffff; /* Fondo blanco para la tarjeta */
+  background-color: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 1px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin-bottom: 10px; /* Espacio entre tarjetas */
-  overflow: hidden; /* Asegura que el border-radius se aplique correctamente */
+  margin-bottom: 10px;
+  overflow: hidden;
   transition:
     transform 0.2s ease-in-out,
     box-shadow 0.2s ease-in-out;
@@ -379,7 +343,7 @@
 }
 
 .agenda-event-date {
-  background-color: #007bff; /* Encabezado azul principal */
+  background-color: #007bff;
   color: white;
   padding: 10px 15px;
   font-size: 1.1em;
@@ -392,20 +356,17 @@
   background-color: #e9e9e9;
   padding: 2px;
   display: grid;
-  grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+  grid-template-columns: 1fr;
 }
 
 @media (min-width: 600px) {
   .agenda-event-details {
-    grid-template-columns: repeat(
-      2,
-      1fr
-    ); /* Dos columnas en pantallas más anchas */
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 .detail-item {
-  background-color: #f8f9fa; /* Fondo claro para cada elemento de detalle */
+  background-color: #f8f9fa;
   border: 1px solid #c2c2c2;
   padding: 6px;
 }
@@ -421,7 +382,6 @@
   font-size: 1em;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .rbc-toolbar {
     flex-direction: column;
@@ -476,7 +436,6 @@
   }
 }
 
-/* Agenda View Specific Styling */
 .rbc-agenda-table {
   width: 100%;
   border-collapse: collapse;
@@ -489,13 +448,11 @@
   text-align: left;
 }
 
-/* Ocultar la columna de la fecha en la vista de agenda (incluyendo el encabezado) */
 .rbc-agenda-table th:nth-child(1),
 .rbc-agenda-table td.rbc-agenda-date-cell {
   display: none;
 }
 
-/* Ocultar la columna de la hora en la vista de agenda (incluyendo el encabezado) */
 .rbc-agenda-table th:nth-child(2),
 .rbc-agenda-table td.rbc-agenda-time-cell {
   display: none;

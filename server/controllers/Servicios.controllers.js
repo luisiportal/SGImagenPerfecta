@@ -1,11 +1,9 @@
-// controllers/Servicios.controllers.js
-import { Servicio } from "../models/Servicio.model.js"; // Importa tu modelo Servicio
+import { Servicio } from "../models/Servicio.model.js";
 
-// Listar todos los servicios
 export const listarServicios = async (req, res) => {
   try {
     const response = await Servicio.findAll({
-      order: [["created_at", "DESC"]], // Ordenar por fecha de creación descendente
+      order: [["created_at", "DESC"]],
     });
     res.json(response);
   } catch (error) {
@@ -14,21 +12,21 @@ export const listarServicios = async (req, res) => {
   }
 };
 
-// Crear un nuevo servicio
 export const crearServicio = async (req, res) => {
   try {
-    const { nombre_servicio, descripcion_servicio, precio_servicio } = req.body; // Desestructura los campos del cuerpo de la petición
+    const { nombre_servicio, descripcion_servicio, precio_servicio } = req.body;
+    const descripcionFinal =
+      descripcion_servicio === "" ? null : descripcion_servicio;
 
     const newServicio = await Servicio.create({
       nombre_servicio,
-      descripcion_servicio,
+      descripcion_servicio: descripcionFinal,
       precio_servicio,
-    }); // Crea un nuevo registro de servicio
+    });
 
-    res.status(201).json(newServicio); // Devuelve el servicio creado con un status 201 (Created)
+    res.status(201).json(newServicio);
   } catch (error) {
     console.error("Error al crear servicio:", error);
-    // Puedes añadir manejo de errores más específico para, por ejemplo, UNIQUE constraint (nombre_servicio)
     if (error.name === "SequelizeUniqueConstraintError") {
       return res
         .status(409)
@@ -38,11 +36,10 @@ export const crearServicio = async (req, res) => {
   }
 };
 
-// Listar un servicio por ID
 export const listarUnServicio = async (req, res) => {
   try {
-    const { id } = req.params; // Desestructura el ID de los parámetros de la URL
-    const response = await Servicio.findByPk(id); // Busca un servicio por su clave primaria
+    const { id } = req.params;
+    const response = await Servicio.findByPk(id);
 
     if (!response) {
       return res.status(404).json({ message: "Servicio no encontrado." });
@@ -54,13 +51,12 @@ export const listarUnServicio = async (req, res) => {
   }
 };
 
-// Actualizar un servicio
 export const actualizarServicio = async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre_servicio, descripcion_servicio, precio_servicio } = req.body;
 
-    const servicioToUpdate = await Servicio.findByPk(id); // Encuentra el servicio por ID
+    const servicioToUpdate = await Servicio.findByPk(id);
 
     if (!servicioToUpdate) {
       return res
@@ -68,17 +64,22 @@ export const actualizarServicio = async (req, res) => {
         .json({ message: "Servicio no encontrado para actualizar." });
     }
 
-    // Actualiza los campos del servicio
     servicioToUpdate.nombre_servicio =
-      nombre_servicio || servicioToUpdate.nombre_servicio;
+      nombre_servicio !== undefined
+        ? nombre_servicio
+        : servicioToUpdate.nombre_servicio;
     servicioToUpdate.descripcion_servicio =
-      descripcion_servicio || servicioToUpdate.descripcion_servicio;
+      descripcion_servicio !== undefined
+        ? descripcion_servicio
+        : servicioToUpdate.descripcion_servicio;
     servicioToUpdate.precio_servicio =
-      precio_servicio || servicioToUpdate.precio_servicio;
+      precio_servicio !== undefined
+        ? precio_servicio
+        : servicioToUpdate.precio_servicio;
 
-    await servicioToUpdate.save(); // Guarda los cambios en la base de datos
+    await servicioToUpdate.save();
 
-    res.json(servicioToUpdate); // Devuelve el servicio actualizado
+    res.json(servicioToUpdate);
   } catch (error) {
     console.error("Error al actualizar servicio:", error);
     if (error.name === "SequelizeUniqueConstraintError") {
@@ -90,7 +91,6 @@ export const actualizarServicio = async (req, res) => {
   }
 };
 
-// Eliminar un servicio
 export const eliminarServicio = async (req, res) => {
   try {
     const response = await Servicio.destroy({
@@ -100,15 +100,13 @@ export const eliminarServicio = async (req, res) => {
     });
 
     if (response === 0) {
-      // Verifica si se eliminó algo (0 filas afectadas)
       return res
         .status(404)
         .json({ message: "Servicio no encontrado para eliminar." });
     }
-    res.sendStatus(204); // No Content - éxito sin devolver contenido
+    res.sendStatus(204);
   } catch (error) {
     console.error("Error al eliminar servicio:", error);
-    // Puedes añadir manejo de errores específicos si un servicio tiene dependencias (e.g., está asociado a una oferta)
     return res.status(500).json({ message: error.message });
   }
 };

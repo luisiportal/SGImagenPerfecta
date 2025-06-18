@@ -3,7 +3,7 @@ import ElementoNavbar from "./ElementoNavbar.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
 
 const Navbar = () => {
-  const { isAuthenticated } = useAuth(); // 'user' ya no es necesario si no se usa
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="font-semibold">

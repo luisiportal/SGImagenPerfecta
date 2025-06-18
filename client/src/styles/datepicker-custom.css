@@ -1,106 +1,169 @@
-/* Custom styles for react-datepicker to better fit Tailwind CSS */
-
+/* Contenedor principal del datepicker, asegurando que se muestre como un bloque */
 .react-datepicker-wrapper {
-  display: block; /* Make the wrapper block-level to take full width */
+  display: block;
 }
 
+/* Contenedor del campo de entrada dentro del datepicker */
 .react-datepicker__input-container {
-  display: block; /* Make the input container block-level */
+  display: block;
 }
 
-/* Base styles for the datepicker input */
+/* Estilos para el campo de entrada del datepicker */
 .react-datepicker__input-container input {
-  /* Tailwind classes mirrored for the input */
   display: block;
   width: 100%;
-  padding: 0.5rem 0.75rem; /* py-2 px-3 */
-  line-height: 1.25; /* leading-tight */
-  color: #4a5568; /* text-gray-700 */
-  background-color: #fff; /* bg-white */
+  padding: 0.75rem 1rem; /* Relleno vertical ligeramente mayor */
+  line-height: 1.5; /* Altura de línea ajustada para una mejor legibilidad */
+  color: #333; /* Color de texto más oscuro */
+  background-color: #fff;
   background-clip: padding-box;
-  border: 1px solid #e2e8f0; /* border */
-  border-radius: 0.375rem; /* rounded-md */
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow */
+  border: 1px solid #ccc; /* Color de borde más suave */
+  border-radius: 0.5rem; /* Esquinas más redondeadas */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* Sombra más pronunciada pero suave */
   transition:
-    border-color 0.15s ease-in-out,
-    box-shadow 0.15s ease-in-out;
+    border-color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out; /* Transición suave para los estados de enfoque */
+  font-size: 1rem; /* Tamaño de fuente estándar */
 }
 
-/* Focus styles */
+/* Estado de enfoque para el campo de entrada del datepicker */
 .react-datepicker__input-container input:focus {
   outline: 0;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* focus:shadow-outline with a blue ring */
-  border-color: #63b3ed; /* focus:border-blue-400 */
+  box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.4); /* Anillo de enfoque verdoso para un aspecto profesional */
+  border-color: #4caf50; /* Color de borde a juego con el enfoque */
 }
 
-/* Styles for the calendar itself */
+/* Estilo del contenedor principal del datepicker */
 .react-datepicker {
-  font-family: "Inter", sans-serif; /* Puedes ajustar la fuente */
-  border-radius: 0.5rem; /* rounded-lg */
-  border: 1px solid #cbd5e0; /* border-gray-300 */
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
+  font-family:
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* Pila de fuentes profesionales */
+  border-radius: 0.625rem; /* Ligeramente más redondeado */
+  border: 1px solid #b0b0b0; /* Borde más sutil */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Sombra mejorada para profundidad */
+  background-color: #fff;
+  color: #333;
 }
 
+/* Sección de la cabecera del datepicker (navegación mes/año) */
 .react-datepicker__header {
-  background-color: #edf2f7; /* bg-gray-200 */
-  border-bottom: 1px solid #cbd5e0; /* border-gray-300 */
-  padding-top: 0.75rem; /* pt-3 */
-  padding-bottom: 0.75rem; /* pb-3 */
+  background-color: #f5f5f5; /* Fondo gris claro para la cabecera */
+  border-bottom: 1px solid #ddd; /* Borde inferior sutil */
+  padding: 1rem 0.75rem; /* Relleno aumentado */
+  text-align: center;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
 }
 
+/* Botones de navegación (mes anterior/siguiente) */
 .react-datepicker__navigation--previous,
 .react-datepicker__navigation--next {
-  top: 10px; /* Ajusta la posición de las flechas */
+  top: 12px; /* Centrado verticalmente */
+  line-height: 1.7; /* Ajustar altura de línea para la alineación del icono */
+  border: none; /* Eliminar borde predeterminado */
 }
 
+.react-datepicker__navigation--previous {
+  left: 10px;
+}
+
+.react-datepicker__navigation--next {
+  right: 10px;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #555; /* Flechas más oscuras */
+  border-width: 1.5px 1.5px 0 0; /* Flechas más gruesas */
+}
+
+/* Visualización del mes actual */
 .react-datepicker__current-month {
-  font-size: 1rem; /* text-base */
-  font-weight: 600; /* font-semibold */
-  color: #2d3748; /* text-gray-800 */
+  font-size: 1.15rem; /* Fuente ligeramente más grande */
+  font-weight: 600;
+  color: #333;
 }
 
+/* Nombres de los días (Lun, Mar, etc.) y días individuales */
 .react-datepicker__day-name,
 .react-datepicker__day {
-  width: 2.2rem; /* Ajusta el tamaño de los días */
-  line-height: 2.2rem;
-  margin: 0.166rem; /* Espacio entre días */
+  width: 2.8rem; /* Ancho aumentado para mejor espaciado */
+  line-height: 2.5rem; /* Altura de línea igual para apariencia cuadrada */
+  margin: 0.125rem; /* Margen reducido para una cuadrícula más compacta */
+  border-radius: 0.375rem; /* Ligeramente redondeado para días individuales */
+  color: #555;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
+/* Día seleccionado y seleccionado por teclado */
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
-  background-color: #4c51bf; /* bg-indigo-700 (puedes usar tu color principal) */
+  background-color: #4caf50; /* Verde profesional */
   color: white;
-  border-radius: 0.25rem; /* rounded */
+  border-radius: 0.375rem;
+  font-weight: 600;
+}
+.react-datepicker__day--keyboard-selected:not([aria-disabled="true"]):hover {
+  background-color: #f0f0f0; /* Verde profesional */
+  color: #555;
+}
+.react-datepicker__day--keyboard-selected:not([aria-disabled="true"]) {
+  background-color: transparent; /* Verde profesional */
+  color: #555;
 }
 
+.react-datepicker__day--selected:not([aria-disabled="true"]) {
+  color: white;
+}
+.react-datepicker__day--selected:not([aria-disabled="true"]):hover {
+  background-color: #3b8a3d; /* Verde profesional */
+  color: white;
+  border-radius: 0.375rem;
+  font-weight: 600;
+}
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #4caf50; /* Verde profesional */
+  color: white;
+  border-radius: 0.375rem;
+  font-weight: 600;
+}
+
+/* Días fuera del mes actual */
 .react-datepicker__day--outside-month {
-  color: #a0aec0; /* text-gray-500 */
+  color: #b0b0b0; /* Tono más claro para días fuera del mes */
 }
 
+/* Días deshabilitados */
 .react-datepicker__day--disabled {
-  color: #cbd5e0 !important; /* text-gray-400 */
+  color: #ccc !important; /* Gris más claro para días deshabilitados */
   cursor: not-allowed !important;
-  background-color: #f7fafc !important; /* bg-gray-100 */
-  text-decoration: line-through; /* Opcional: para indicar visualmente que está deshabilitado */
+  background-color: #f9f9f9 !important; /* Fondo muy claro */
 }
 
+/* Días resaltados (por ejemplo, eventos específicos) */
 .react-datepicker__day--highlighted {
-  background-color: #f6ad55; /* bg-orange-400 */
+  background-color: #ffc107; /* Ámbar para resaltar */
   color: white;
+  font-weight: 600;
 }
 
-/* Estilos para los días de fin de semana deshabilitados si filterDate los usa */
+/* Días de fin de semana deshabilitados */
 .react-datepicker__day--weekend.react-datepicker__day--disabled {
-  color: #ef4444 !important; /* Color rojo para fines de semana deshabilitados */
-  background-color: #fbd38d !important; /* Un fondo más suave */
+  color: #e66565 !important; /* Ligeramente rojizo para fines de semana deshabilitados */
+  background-color: #f5ecde !important; /* Fondo naranja claro */
 }
 
-/* Asegúrate de que los días reservados se vean claramente deshabilitados */
+/* Días excluidos (por ejemplo, fechas no disponibles) */
 .react-datepicker__day--excluded {
-  background-color: #fca5a5 !important; /* Un rojo claro para fechas excluidas */
-  color: #b91c1c !important; /* Texto rojo más oscuro */
+  background-color: #ffebee !important; /* Fondo rojo claro */
+  color: #d32f2f !important; /* Texto rojo más oscuro */
   cursor: not-allowed !important;
   text-decoration: line-through;
+}
+
+/* Ajustes para el espaciado de los días en la semana */
+.react-datepicker__week {
+  display: flex;
+  justify-content: center; /* Centrar los días en la semana */
 }

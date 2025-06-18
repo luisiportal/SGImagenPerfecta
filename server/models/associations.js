@@ -18,12 +18,12 @@ export const associations = () => {
   Reserva.belongsTo(Oferta_Personalizada, {
     foreignKey: "id_oferta_personalizada",
     allowNull: true,
-    onDelete: "CASCADE", // Añadido para eliminación en cascada
+    onDelete: "CASCADE",
   });
 
   Oferta_Personalizada.hasMany(Oferta_Servicio, {
     foreignKey: "id_oferta_personalizada",
-    onDelete: "CASCADE", // Cambiado de RESTRICT a CASCADE
+    onDelete: "CASCADE",
     onUpdate: "CASCADE",
   });
 

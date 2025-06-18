@@ -1,4 +1,3 @@
-// src/controllers/Trabajadores.controllers.js
 import { Trabajador } from "../models/Trabajador.model.js";
 import bcrypt from "bcryptjs";
 import { saveImage } from "./upload.multer.js";
@@ -77,7 +76,6 @@ export const actualizarTrabajador = async (req, res) => {
       return res.status(404).json({ message: "Trabajador no encontrado" });
     }
 
-    // Actualizar campos básicos
     response.usuario = usuario;
     response.nombre = nombre;
     response.apellidos = apellidos;
@@ -87,12 +85,10 @@ export const actualizarTrabajador = async (req, res) => {
     response.direccion = direccion;
     response.salario = salario;
 
-    // Actualizar contraseña solo si se proporcionó una nueva
     if (password) {
       response.passwordHash = await bcrypt.hash(password, 10);
     }
 
-    // Actualizar imagen si se envió una nueva
     if (req.file) {
       response.foto_perfil = req.file.originalname;
       saveImage(req.file, "trabajadores/perfil");

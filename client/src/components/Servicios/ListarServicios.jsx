@@ -1,36 +1,33 @@
-// ListarServicios.jsx
-
-import { useNavigate } from "react-router-dom";
+// src/components/Servicios/ListarServicios.jsx
 import { useOfertaStore } from "../../Store/Oferta_personalizada.store";
-import {  useEffect } from "react"; // Asegúrate de importar useEffect
+import { useEffect } from "react";
 import { listarServiciosRequest } from "../../api/servicios.api";
 import { useServiciosStore } from "../../Store/Servicios.store";
 import CantidadButtons from "./CantidadButtons";
 
-const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
+const ListarServicios = ({
+  isOpen,
+  message,
+  setShowServicios,
+  onOpenReservaModal,
+}) => {
   const { oferta_personalizada, setOferta_personalizada } = useOfertaStore();
-  // Asumimos que useServiciosStore tiene un setter, por ejemplo, setServiciosStore
-  const { serviciosStore, setServiciosStore } = useServiciosStore(); // <-- Añadir setServiciosStore
+  const { serviciosStore, setServiciosStore } = useServiciosStore();
 
-  const navigate = useNavigate();
-
-  // EFECTO PARA CARGAR LOS SERVICIOS CUANDO EL COMPONENTE SE MONTA
   useEffect(() => {
     const fetchServicios = async () => {
       try {
         const res = await listarServiciosRequest();
-        setServiciosStore(res.data); // Asume que la respuesta de la API tiene los datos en 'data'
+        setServiciosStore(res.data || []);
       } catch (error) {
         console.error("Error al cargar los servicios:", error);
       }
     };
 
-    // Solo cargar si serviciosStore está vacío o si necesitas recargar por alguna razón
     if (serviciosStore.length === 0) {
-      // O alguna otra condición para evitar recargas excesivas
       fetchServicios();
     }
-  }, [setServiciosStore, serviciosStore.length]); // Dependencias del useEffect
+  }, [setServiciosStore, serviciosStore.length]);
 
   const quitarServicio = (servicio) => {
     const restantes = oferta_personalizada.filter(
@@ -40,39 +37,35 @@ const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
   };
 
   const agregarServicio = (servicio) => {
-    // Verificar si el servicio ya está en la oferta_personalizada
     const servicioExistente = oferta_personalizada.find(
       (s) => s.id_servicio === servicio.id_servicio
     );
 
     if (!servicioExistente) {
-      // Si el servicio no existe, agrégalo
       setOferta_personalizada([
         ...oferta_personalizada,
         { ...servicio, cantidad: 1 },
       ]);
     } else {
-      // Si el servicio ya existe, podrías manejarlo (por ejemplo, mostrar un mensaje o no hacer nada)
       console.log("Este servicio ya ha sido agregado.");
     }
   };
 
-  // Función para calcular el precio total de la oferta personalizada
   const calcularPrecioOfertaPersonalizada = (servicios) => {
     const total = servicios.reduce(
       (total, servicio) =>
         total + (Number(servicio.precio_servicio * servicio.cantidad) || 0),
       0
     );
-
     return total;
   };
 
   const handleAccept = () => {
-    // Pasar el array de servicios seleccionados a la ruta
-    navigate(`/cliente/reservar/personalizada`, {
-      state: { serviciosSeleccionados: oferta_personalizada },
-    });
+    if (oferta_personalizada.length === 0) {
+      alert("Por favor, selecciona al menos un servicio.");
+      return;
+    }
+    onOpenReservaModal(oferta_personalizada);
     setShowServicios(false);
   };
 
@@ -92,7 +85,6 @@ const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Columna de Servicios Disponibles */}
           <div>
             <h3 className="text-xl font-semibold text-gray-800 mb-4">
               Servicios Disponibles
@@ -126,7 +118,6 @@ const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
             )}
           </div>
 
-          {/* Columna de Servicios Seleccionados */}
           <div>
             <h3 className="text-xl font-semibold text-gray-800 mb-4">
               Servicios Seleccionados ({oferta_personalizada.length})
@@ -134,20 +125,20 @@ const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
             {oferta_personalizada.length > 0 ? (
               <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2">
                 {oferta_personalizada.map((servicio) => (
-                  <section className="flex items-center gap-2">
-                    {" "}
-                    <section
-                      key={servicio.id_servicio}
-                      className="flex w-full justify-between items-center bg-blue-50 p-3 rounded-lg shadow-sm hover:bg-blue-100 transition-colors cursor-pointer"
-                    >
+                  <section
+                    key={servicio.id_servicio}
+                    className="flex items-center gap-2"
+                  >
+                    <section className="flex w-full justify-between items-center bg-blue-50 p-3 rounded-lg shadow-sm hover:bg-blue-100 transition-colors cursor-pointer">
                       <CantidadButtons
                         setOferta_personalizada={setOferta_personalizada}
                         oferta_personalizada={oferta_personalizada}
                         servicio={servicio}
                       />
-                      <h3 className="text-base font-medium text-blue-700 flex-shrink-0">
-                        {servicio.cantidad} x {servicio.nombre_servicio}
+                      <h3 className="text-base font-bold text-blue-700 flex-shrink-0 px-2">
+                        {servicio.cantidad} x{" "}
                       </h3>
+                      <h3>{servicio.nombre_servicio}</h3>
                       <span className="flex-grow border-b-2 border-dotted border-gray-300 mx-0 min-w-[20px]"></span>
                       <div className="text-base font-bold text-gray-600 sm:ml-4 mt-1 sm:mt-0 flex-shrink-0">
                         ${Number(servicio.precio_servicio).toFixed(2)}
@@ -155,9 +146,24 @@ const ListarServicios = ({ isOpen, message, onConfirm, setShowServicios }) => {
                     </section>
                     <button
                       onClick={() => quitarServicio(servicio)}
-                      className="bg-red-500 p-2 w-8 h-8 flex justify-center items-center rounded-full aspect-square"
+                      title="Quitar servicio"
+                      className="bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-full flex justify-center items-center flex-shrink-0
+                                 w-7 h-7 text-sm font-bold shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75"
                     >
-                      x
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2.5}
+                        stroke="currentColor"
+                        className="w-4 h-4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
                     </button>
                   </section>
                 ))}

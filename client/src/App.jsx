@@ -1,4 +1,3 @@
-// App.jsx
 import { Route, Routes } from "react-router-dom";
 import NotFound from "./pages/NotFound";
 import NavbarComponent from "./components/NavbarComponent";
@@ -13,11 +12,11 @@ import { OfertaContextProvider } from "./context/OfertaProvider";
 import Servicios from "./pages/Servicios";
 import Galeria from "./pages/Galeria";
 import { TrabajadorContextProvider } from "./context/TrabajadorContext";
-import VentasRoutes from "./routes/VentasRoutes";
 
 import AgregarTrabajadorPage from "./components/Trabajador/AgregarTrabajadorPage";
 import EditarTrabajadorPage from "./components/Trabajador/EditarTrabajadorPage";
 import ListadoTrabajadores from "./components/Trabajador/ListadoTrabajadores";
+import ServiciosRoutes from "./routes/ServiciosRoutes.jsx";
 
 const App = () => {
   return (
@@ -37,7 +36,7 @@ const App = () => {
                 <Route path="/cliente/*" element={<ClienteRoutes />} />
                 <Route element={<ProtectedRoutes />}>
                   <Route path="/ofertas/*" element={<OfertasRoutes />} />
-                  <Route path="/ventas/*" element={<VentasRoutes />} />
+                  <Route path="/servicios/*" element={<ServiciosRoutes />} />
                   <Route
                     path="/trabajador/plantilla"
                     element={<ListadoTrabajadores />}

@@ -17,21 +17,20 @@ export const Oferta = sequelize.define("ofertas", {
   descripcion: {
     type: DataTypes.TEXT,
   },
-  // Nuevos campos
   cantidad_fotos: {
-    type: DataTypes.INTEGER, // Número de fotos, puedes ajustar a DECIMAL si son fracciones
-    allowNull: false, // O false si es obligatorio
+    type: DataTypes.INTEGER,
+    allowNull: false,
   },
   locacion: {
-    type: DataTypes.STRING, // Por ejemplo, 'estudio', 'exterior', 'ambas'
+    type: DataTypes.STRING,
     allowNull: true,
   },
   transportacion: {
-    type: DataTypes.BOOLEAN, // true si incluye transporte, false si no
+    type: DataTypes.BOOLEAN,
     allowNull: true,
   },
   cambios_ropa: {
-    type: DataTypes.INTEGER, // Número de cambios de ropa permitidos
+    type: DataTypes.INTEGER,
     allowNull: true,
   },
 });

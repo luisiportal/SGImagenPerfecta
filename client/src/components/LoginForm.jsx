@@ -13,7 +13,7 @@ const Login = () => {
 
   return (
     <div className="h-screen">
-      <h1 className=" text-3xl text-slate-500 font-bold mx-auto p-5 grid place-items-center">
+      <h1 className=" text-3xl text-slate-500 font-bold mx-auto p-8 grid place-items-center">
         Acceso Trabajadores
       </h1>
 
@@ -37,9 +37,9 @@ const Login = () => {
       >
         {({ isSubmitting, errors }) => (
           <Form>
-            <div className="w-80 grid grid-cols-1 gap-2  p-4 min-h-80 m-auto mt-16 shadow-xl rounded-md text-gray-900 bg-neutral-200">
+            <div className="w-80 grid grid-cols-1 gap-2  p-4 min-h-80 m-auto shadow-xl rounded-md text-gray-900 bg-neutral-200">
               <label className="text-gray-900" htmlFor="usuario">
-                Usuario :
+                Usuario:
               </label>
               <Field
                 className=" border-b-st_color"
@@ -48,7 +48,7 @@ const Login = () => {
               />
               <MostrarError campo={"usuario"} errors={errors} />
               <label className="text-gray-900" htmlFor="password">
-                Contraseña :
+                Contraseña:
               </label>
               <Field
                 className=" border-b-st_color"

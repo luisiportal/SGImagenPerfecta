@@ -15,6 +15,7 @@ const TrabajadorForm = ({
   const [file, setFile] = useState(null);
   const [notificacion_msg, setNotificacion_msg] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleCancelClick = () => {
     setShowConfirmModal(true);
@@ -38,10 +39,9 @@ const TrabajadorForm = ({
         initialValues={initialValues}
         enableReinitialize={true}
         validationSchema={schemaTrabajadores()}
-        context={{ $isEditing: isEditing }} // Pasar isEditing como contexto
+        context={{ $isEditing: isEditing }}
         onSubmit={(values, formikBag) => {
           const submitValues = { ...values };
-          // No enviar password ni confirmPassword si están vacíos
           if (!submitValues.password) {
             delete submitValues.password;
             delete submitValues.confirmPassword;
@@ -52,7 +52,6 @@ const TrabajadorForm = ({
         {({ handleChange, values, errors, isSubmitting, setFieldValue }) => (
           <Form className="max-w-md mx-auto mt-8">
             <div className="p-6 shadow-xl rounded-lg bg-neutral-200">
-              {/* Contenedor de la imagen */}
               <div className="flex justify-center mb-6">
                 <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-100">
                   {file ? (
@@ -74,8 +73,6 @@ const TrabajadorForm = ({
                   )}
                 </div>
               </div>
-
-              {/* Campos del formulario */}
               <div className="space-y-4">
                 <Input
                   name="usuario"
@@ -90,23 +87,32 @@ const TrabajadorForm = ({
                   label="Contraseña"
                   type="password"
                   value={values.password}
-                  handleChange={handleChange}
-                  errors={errors}
-                  placeholder={"Cambiar contraseña (opcional)"}
-                />
-                <Input
-                  name="confirmPassword"
-                  label="Confirmar Contraseña"
-                  type="password"
-                  value={values.confirmPassword}
-                  handleChange={handleChange}
+                  handleChange={(e) => {
+                    handleChange(e);
+                    setShowConfirmPassword(!!e.target.value);
+                  }}
                   errors={errors}
                   placeholder={
                     isEditing
                       ? "Cambiar contraseña (opcional)"
-                      : "Confirma la contraseña"
+                      : "Introduce la contraseña"
                   }
                 />
+                {showConfirmPassword && (
+                  <Input
+                    name="confirmPassword"
+                    label="Confirmar Contraseña"
+                    type="password"
+                    value={values.confirmPassword}
+                    handleChange={handleChange}
+                    errors={errors}
+                    placeholder={
+                      isEditing
+                        ? "Cambiar contraseña (opcional)"
+                        : "Introduce la contraseña"
+                    }
+                  />
+                )}
                 <Input
                   name="nombre"
                   label="Nombre"

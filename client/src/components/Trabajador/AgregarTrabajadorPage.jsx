@@ -1,4 +1,3 @@
-// src/components/Trabajador/AgregarTrabajadorPage.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import TrabajadorForm from "./TrabajadorForm";
@@ -71,7 +70,7 @@ const AgregarTrabajadorPage = () => {
       initialValues={initialValues}
       onSubmit={handleSubmit}
       onCancel={handleCancel}
-      isEditing={false} // Pasar la prop isEditing
+      isEditing={false}
     />
   );
 };

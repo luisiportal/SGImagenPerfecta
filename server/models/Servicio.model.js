@@ -11,24 +11,24 @@ export const Servicio = sequelize.define(
       allowNull: false,
     },
     nombre_servicio: {
-      type: DataTypes.STRING(255), // VARCHAR(255) para el nombre del servicio
+      type: DataTypes.STRING(255),
       allowNull: false,
-      unique: true, // Asume que cada servicio tendrá un nombre único
+      unique: true,
     },
     descripcion_servicio: {
-      type: DataTypes.TEXT, // TEXT para descripciones más largas
-      allowNull: true, // La descripción puede ser opcional
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     precio_servicio: {
-      type: DataTypes.DECIMAL(10, 2), // DECIMAL(10, 2) para el precio (ej: 12345678.99)
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      defaultValue: 0.0, // Un valor por defecto si no se especifica
+      defaultValue: 0.0,
     },
   },
   {
-    tableName: "servicios", // Define el nombre de la tabla en la base de datos
-    timestamps: true, // Habilita las columnas `createdAt` y `updatedAt`
-    createdAt: "created_at", // Mapea `createdAt` a `created_at` en la DB
-    updatedAt: "updated_at", // Mapea `updatedAt` a `updated_at` en la DB
+    tableName: "servicios",
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
   }
 );

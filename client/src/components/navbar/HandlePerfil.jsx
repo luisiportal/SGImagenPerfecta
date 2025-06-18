@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useTrabajadores } from "../../context/TrabajadorContext";
 
 const HandlePerfil = ({ isAuthenticated }) => {
-  const { perfilUsuario } = useTrabajadores(); // Usar perfilUsuario
+  const { perfilUsuario } = useTrabajadores();
 
   const imageSrc = perfilUsuario?.foto_perfil
     ? `/images/trabajadores/perfil/${perfilUsuario.foto_perfil}`

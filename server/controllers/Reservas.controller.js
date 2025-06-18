@@ -1,5 +1,3 @@
-// Reservas.controller.js
-
 import { Reserva } from "../models/Reserva.model.js";
 import { Oferta } from "../models/Oferta.model.js";
 import { Oferta_Personalizada } from "../models/Oferta_Personalizada.js";
@@ -33,7 +31,7 @@ export const ListarReservas = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-// Obtener Fechas de Reservas Existentes
+
 export const obtenerFechasReservadas = async (req, res) => {
   try {
     const reservas = await Reserva.findAll({
@@ -62,7 +60,48 @@ export const crearReserva = async (req, res) => {
       oferta_personalizada,
     } = req.body;
 
-    // Validación básica
+    if (
+      !nombre_cliente ||
+      !apellidos ||
+      !ci ||
+      !fecha_sesion ||
+      !correo_electronico
+    ) {
+      await transaction.rollback();
+      return res.status(400).json({ message: "Faltan campos obligatorios." });
+    }
+    // Verificar si ya existe una reserva con el mismo CI
+    const reservaExistentePorCI = await Reserva.findOne({
+      where: { ci },
+      transaction,
+    });
+
+    if (reservaExistentePorCI) {
+      await transaction.rollback();
+      return res.status(400).json({
+        message:
+          "Ya existe una reserva con este número de Carnet de Identidad.",
+        field: "ci",
+      });
+    }
+
+    // Verificar si ya existe una reserva con el mismo nombre y apellidos
+    const reservaExistentePorNombre = await Reserva.findOne({
+      where: {
+        nombre_cliente,
+        apellidos,
+      },
+      transaction,
+    });
+
+    if (reservaExistentePorNombre) {
+      await transaction.rollback();
+      return res.status(400).json({
+        message: "Ya existe una reserva con este nombre y apellidos.",
+        fields: ["nombre_cliente", "apellidos"],
+      });
+    }
+
     if (id_oferta && oferta_personalizada?.length > 0) {
       await transaction.rollback();
       return res.status(400).json({
@@ -71,51 +110,78 @@ export const crearReserva = async (req, res) => {
       });
     }
 
+    if (
+      !id_oferta &&
+      (!oferta_personalizada || oferta_personalizada.length === 0)
+    ) {
+      await transaction.rollback();
+      return res.status(400).json({
+        message: "Debe proporcionar una oferta estándar o personalizada.",
+      });
+    }
+
     let id_oferta_personalizada_db = null;
     let descripcion = null;
     let precio_venta = null;
 
-    // Lógica para oferta personalizada
     if (oferta_personalizada && oferta_personalizada.length > 0) {
+      for (const servicio of oferta_personalizada) {
+        if (!servicio.id_servicio || typeof servicio.cantidad !== "number") {
+          await transaction.rollback();
+          return res.status(400).json({
+            message: "Datos incompletos o inválidos en oferta_personalizada.",
+          });
+        }
+      }
+
+      const serviciosIds = oferta_personalizada.map((s) => s.id_servicio);
+      const servicios = await Servicio.findAll({
+        where: { id_servicio: serviciosIds },
+        attributes: ["id_servicio", "nombre_servicio", "precio_servicio"],
+        transaction,
+      });
+
+      if (servicios.length !== serviciosIds.length) {
+        await transaction.rollback();
+        return res
+          .status(400)
+          .json({ message: "Uno o más servicios no existen." });
+      }
+
       const nuevaOfertaPersonalizada = await Oferta_Personalizada.create(
         {},
         { transaction }
       );
       id_oferta_personalizada_db = nuevaOfertaPersonalizada.id;
 
-      // Crear relaciones con servicios
       await Promise.all(
-        oferta_personalizada.map((servicio) =>
-          Oferta_Servicio.create(
+        oferta_personalizada.map((servicio) => {
+          const servicioDb = servicios.find(
+            (s) => s.id_servicio === servicio.id_servicio
+          );
+          return Oferta_Servicio.create(
             {
               id_servicio: servicio.id_servicio,
               id_oferta_personalizada: id_oferta_personalizada_db,
               cantidad: servicio.cantidad || 1,
-              totalServicio: servicio.cantidad * servicio.precio_servicio
+              totalServicio:
+                (servicio.cantidad || 1) * servicioDb.precio_servicio,
             },
             { transaction }
-          )
-        )
+          );
+        })
       );
-
-      // Obtener detalles de los servicios para la descripción y precio
-      const servicios = await Servicio.findAll({
-        where: {
-          id_servicio: oferta_personalizada.map((s) => s.id_servicio),
-        },
-        transaction,
-      });
 
       descripcion = `Oferta Personalizada: ${servicios
         .map((s) => s.nombre_servicio)
         .join(", ")}`;
-      precio_venta = servicios.reduce(
-        (total, servicio) => total + (Number(servicio.precio_servicio) || 0),
-        0
-      );
-    }
-    // Lógica para oferta estándar
-    else if (id_oferta) {
+      precio_venta = oferta_personalizada.reduce((total, servicio) => {
+        const servicioDb = servicios.find(
+          (s) => s.id_servicio === servicio.id_servicio
+        );
+        return total + servicioDb.precio_servicio * (servicio.cantidad || 1);
+      }, 0);
+    } else if (id_oferta) {
       const ofertaEstandar = await Oferta.findByPk(id_oferta, { transaction });
       if (!ofertaEstandar) {
         await transaction.rollback();
@@ -125,14 +191,8 @@ export const crearReserva = async (req, res) => {
       }
       descripcion = ofertaEstandar.descripcion;
       precio_venta = ofertaEstandar.precio_venta;
-    } else {
-      await transaction.rollback();
-      return res.status(400).json({
-        message: "Debe proporcionar una oferta estándar o personalizada.",
-      });
     }
 
-    // Crear la reserva
     const reserva = await Reserva.create(
       {
         nombre_cliente,
@@ -171,8 +231,27 @@ export const actualizarReserva = async (req, res) => {
       telefono,
       correo_electronico,
       id_oferta,
-      oferta_personalizada, // Este array contendrá los servicios seleccionados (si se actualiza a personalizada)
+      oferta_personalizada,
     } = req.body;
+
+    if (
+      !nombre_cliente ||
+      !apellidos ||
+      !ci ||
+      !fecha_sesion ||
+      !correo_electronico
+    ) {
+      await transaction.rollback();
+      return res.status(400).json({ message: "Faltan campos obligatorios." });
+    }
+
+    if (id_oferta && oferta_personalizada?.length > 0) {
+      await transaction.rollback();
+      return res.status(400).json({
+        message:
+          "No se puede asignar tanto una oferta estándar como personalizada.",
+      });
+    }
 
     const reserva = await Reserva.findByPk(id_reserva, { transaction });
     if (!reserva) {
@@ -180,7 +259,6 @@ export const actualizarReserva = async (req, res) => {
       return res.status(404).json({ message: "Reserva no encontrada." });
     }
 
-    // Actualizar campos básicos
     reserva.nombre_cliente = nombre_cliente;
     reserva.apellidos = apellidos;
     reserva.ci = ci;
@@ -188,21 +266,23 @@ export const actualizarReserva = async (req, res) => {
     reserva.telefono = telefono;
     reserva.correo_electronico = correo_electronico;
 
-    // Reiniciar los campos de oferta por si se cambia el tipo de oferta
     reserva.id_oferta = null;
     reserva.id_oferta_personalizada = null;
     reserva.descripcion_oferta = null;
     reserva.precio_venta_oferta = null;
 
-    // Manejo de ofertas
     if (id_oferta) {
-      reserva.id_oferta = id_oferta;
       const oferta = await Oferta.findByPk(id_oferta, { transaction });
-      if (oferta) {
-        reserva.descripcion_oferta = oferta.descripcion;
-        reserva.precio_venta_oferta = oferta.precio_venta;
+      if (!oferta) {
+        await transaction.rollback();
+        return res
+          .status(404)
+          .json({ message: "Oferta estándar no encontrada." });
       }
-      // Si se cambia a una oferta estándar, asegurarse de limpiar la oferta personalizada existente
+      reserva.id_oferta = id_oferta;
+      reserva.descripcion_oferta = oferta.descripcion;
+      reserva.precio_venta_oferta = oferta.precio_venta;
+
       if (reserva.id_oferta_personalizada) {
         await Oferta_Servicio.destroy({
           where: { id_oferta_personalizada: reserva.id_oferta_personalizada },
@@ -215,54 +295,75 @@ export const actualizarReserva = async (req, res) => {
         reserva.id_oferta_personalizada = null;
       }
     } else if (oferta_personalizada && oferta_personalizada.length > 0) {
-      // Manejo de ofertas personalizadas
-      let id_oferta_personalizada_actual = reserva.id_oferta_personalizada;
+      for (const servicio of oferta_personalizada) {
+        if (!servicio.id_servicio || typeof servicio.cantidad !== "number") {
+          await transaction.rollback();
+          return res.status(400).json({
+            message: "Datos incompletos o inválidos en oferta_personalizada.",
+          });
+        }
+      }
 
+      const serviciosIds = oferta_personalizada.map((s) => s.id_servicio);
+      const servicios = await Servicio.findAll({
+        where: { id_servicio: serviciosIds },
+        attributes: ["id_servicio", "nombre_servicio", "precio_servicio"],
+        transaction,
+      });
+
+      if (servicios.length !== serviciosIds.length) {
+        await transaction.rollback();
+        return res
+          .status(400)
+          .json({ message: "Uno o más servicios no existen." });
+      }
+
+      let id_oferta_personalizada_actual = reserva.id_oferta_personalizada;
       if (!id_oferta_personalizada_actual) {
-        // Si no existe una oferta personalizada asociada, crear una nueva
         const nuevaPersonalizada = await Oferta_Personalizada.create(
           {},
           { transaction }
         );
         id_oferta_personalizada_actual = nuevaPersonalizada.id;
       }
-      reserva.id_oferta_personalizada = id_oferta_personalizada_actual; // Asignar el ID (nuevo o existente)
+      reserva.id_oferta_personalizada = id_oferta_personalizada_actual;
 
-      // Eliminar servicios existentes asociados a esta oferta personalizada antes de añadir los nuevos
       await Oferta_Servicio.destroy({
         where: { id_oferta_personalizada: id_oferta_personalizada_actual },
         transaction,
       });
 
-      // Agregar nuevos servicios
       await Promise.all(
-        oferta_personalizada.map((servicio) =>
-          Oferta_Servicio.create(
+        oferta_personalizada.map((servicio) => {
+          const servicioDb = servicios.find(
+            (s) => s.id_servicio === servicio.id_servicio
+          );
+          return Oferta_Servicio.create(
             {
               id_servicio: servicio.id_servicio,
               id_oferta_personalizada: id_oferta_personalizada_actual,
               cantidad: servicio.cantidad || 1,
+              totalServicio:
+                (servicio.cantidad || 1) * servicioDb.precio_servicio,
             },
             { transaction }
-          )
-        )
+          );
+        })
       );
 
-      // Calcular y asignar la descripción y el precio para la oferta personalizada
-      const nombresServicios = oferta_personalizada.map(
-        (s) => s.nombre_servicio
+      reserva.descripcion_oferta = `Oferta Personalizada: ${servicios
+        .map((s) => s.nombre_servicio)
+        .join(", ")}`;
+      reserva.precio_venta_oferta = oferta_personalizada.reduce(
+        (total, servicio) => {
+          const servicioDb = servicios.find(
+            (s) => s.id_servicio === servicio.id_servicio
+          );
+          return total + servicioDb.precio_servicio * (servicio.cantidad || 1);
+        },
+        0
       );
-      reserva.descripcion_oferta = `Oferta Personalizada: ${nombresServicios.join(
-        ", "
-      )}`;
-
-      const precioTotal = oferta_personalizada.reduce((total, servicio) => {
-        return total + (Number(servicio.precio_servicio) || 0); // Corrected: Use precio_servicio
-      }, 0);
-      reserva.precio_venta_oferta = precioTotal;
     } else {
-      // Si no hay id_oferta ni oferta_personalizada (ej. se está desvinculando de ambos)
-      // Asegurarse de limpiar cualquier referencia a oferta personalizada si existía
       if (reserva.id_oferta_personalizada) {
         await Oferta_Servicio.destroy({
           where: { id_oferta_personalizada: reserva.id_oferta_personalizada },
@@ -278,7 +379,6 @@ export const actualizarReserva = async (req, res) => {
 
     await reserva.save({ transaction });
     await transaction.commit();
-
     res.json(reserva);
   } catch (error) {
     await transaction.rollback();
@@ -292,18 +392,21 @@ export const eliminarReserva = async (req, res) => {
   try {
     const id_reserva = req.params.id;
 
-    // Buscar la reserva para obtener su id_oferta_personalizada
     const reserva = await Reserva.findByPk(id_reserva, { transaction });
     if (!reserva) {
       await transaction.rollback();
       return res.status(404).json({ message: "Reserva no encontrada." });
     }
 
-    // Finalmente eliminar la reserva
+    if (reserva.id_oferta_personalizada) {
+      await Oferta_Personalizada.destroy({
+        where: { id: reserva.id_oferta_personalizada },
+        transaction,
+      });
+    }
+
     await Reserva.destroy({
-      where: {
-        id_reserva,
-      },
+      where: { id_reserva },
       transaction,
     });
 
@@ -318,23 +421,22 @@ export const eliminarReserva = async (req, res) => {
 
 export const listarUnaReserva = async (req, res) => {
   try {
-    const id_reserva = req.params.id; // Este es el CI que viene del frontend
+    const id_reserva = req.params.id;
 
     const response = await Reserva.findAll({
-      // Cambiado de findByPk a findAll para usar 'where' con CI
       where: { ci: id_reserva },
       include: [
         {
           model: Oferta,
-          required: false, // No es obligatoria si es personalizada
+          required: false,
         },
         {
-          model: Oferta_Personalizada, // <-- ¡Asegúrate de incluir esto!
-          required: false, // No es obligatoria si es oferta estándar
+          model: Oferta_Personalizada,
+          required: false,
           include: [
             {
-              model: Oferta_Servicio, // <-- ¡Y esto!
-              include: [{ model: Servicio }], // <-- ¡Y esto para los detalles del servicio!
+              model: Oferta_Servicio,
+              include: [{ model: Servicio }],
             },
           ],
         },
@@ -345,9 +447,6 @@ export const listarUnaReserva = async (req, res) => {
       return res.status(404).json({ message: "Reserva no encontrada." });
     }
 
-    // Devuelve el array completo si puede haber múltiples reservas por CI,
-    // o response[0] si siempre esperas una única. Tu frontend ComprobarReservaForm
-    // espera un array (usa .map).
     res.json(response);
   } catch (error) {
     console.error("Error al listar una reserva por CI:", error);
@@ -357,14 +456,13 @@ export const listarUnaReserva = async (req, res) => {
 
 export const buscarReservasPorFecha = async (req, res) => {
   try {
-    const { fecha } = req.query; // Obtener la fecha de los parámetros de consulta
+    const { fecha } = req.query;
     if (!fecha) {
       return res
         .status(400)
         .json({ message: "La fecha es requerida para la búsqueda." });
     }
 
-    // Buscar reservas que coincidan con la fecha (ignorando la hora)
     const reservas = await Reserva.findAll({
       where: sequelize.where(
         sequelize.fn("date", sequelize.col("fecha_sesion")),
@@ -387,7 +485,7 @@ export const buscarReservasPorFecha = async (req, res) => {
           ],
         },
       ],
-      order: [["fecha_sesion", "ASC"]], // Opcional: ordenar por hora
+      order: [["fecha_sesion", "ASC"]],
     });
 
     if (reservas.length === 0) {

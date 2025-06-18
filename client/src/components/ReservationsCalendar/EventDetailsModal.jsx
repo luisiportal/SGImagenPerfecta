@@ -1,9 +1,7 @@
-// src/components/ReservationsCalendar/EventDetailsModal.jsx
-
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import format from "date-fns/format";
 import { es } from "date-fns/locale";
-import { parseDateForCalendar } from "../../utils/dateUtils"; // ¡Importa la utilidad!
+import { parseDateForCalendar } from "../../utils/dateUtils";
 
 const EventDetailsModal = ({
   isOpen,
@@ -20,11 +18,6 @@ const EventDetailsModal = ({
   }, []);
 
   if (!isOpen || !reserva) return null;
-
-  // Determinar el nombre de la oferta a mostrar inicialmente
-  // Si existe reserva.oferta.nombre_oferta, lo usamos.
-  // Si no, verificamos si existe reserva.ofertas_personalizada.nombre_oferta, y lo usamos.
-  // Si ninguno existe, mostramos "Oferta no disponible" o un texto por defecto.
   const offerDisplayName =
     reserva.oferta?.nombre_oferta ||
     reserva.ofertas_personalizada?.nombre_oferta ||
@@ -69,7 +62,6 @@ const EventDetailsModal = ({
                 onClick={toggleExpand}
                 className="rbc-offer-expand-button"
               >
-                {/* Muestra el nombre de la oferta estándar o personalizada */}
                 {offerDisplayName}
                 <span
                   className={`rbc-modal-arrow ${isExpanded ? "rbc-modal-arrow-up" : "rbc-modal-arrow-down"}`}
@@ -79,7 +71,6 @@ const EventDetailsModal = ({
 
             {isExpanded && (
               <div className="rbc-modal-collapsible-content">
-                {/* Si es una oferta personalizada y tiene servicios, los lista */}
                 {reserva.ofertas_personalizada?.ofertas_servicios &&
                 reserva.ofertas_personalizada.ofertas_servicios.length > 0 ? (
                   <>
@@ -97,7 +88,6 @@ const EventDetailsModal = ({
                     </ul>
                   </>
                 ) : (
-                  // Si no es una oferta personalizada con servicios, muestra la descripción general
                   <p className="rbc-pre-wrap-text">
                     {reserva.descripcion_oferta || "Descripción no disponible"}
                   </p>

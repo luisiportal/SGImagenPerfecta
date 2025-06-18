@@ -1,21 +1,17 @@
-// src/components/Cliente/ListarReservas.jsx
-
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   listarReservasRequest,
   actualizarReservaRequest,
   eliminarReservaRequest,
 } from "../../api/reservas.api";
-import Notificacion from "../validacionForm/Notificacion";
 import ReservationsCalendar from "../ReservationsCalendar/ReservationsCalendar";
 import { useAuth } from "../../context/AuthContext";
-import ReservationsPdfExport from "../ReservationsPdfExport"; // Asegúrate de que esta ruta sea correcta
+import ReservationsPdfExport from "../ReservationsPdfExport";
 
 const ListarReservas = () => {
   const [reservas, setReservas] = useState([]);
   const [notificacion_msg, setNotificacion_msg] = useState(null);
   const { isAuthenticated } = useAuth();
-  // NUEVO: Estado para la fecha actual del calendario
   const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
 
   const loadReservas = useCallback(async () => {
@@ -79,10 +75,8 @@ const ListarReservas = () => {
     }
   };
 
-  // NUEVO: Función para recibir la fecha del calendario y actualizar el estado
   const handleCalendarNavigation = useCallback((date) => {
     setCurrentCalendarDate(date);
-    // NUEVO: Log para verificar la fecha recibida del calendario
     console.log("ListarReservas: Fecha actual del calendario:", date);
     console.log("ListarReservas: Mes (0-indexado):", date.getMonth());
     console.log("ListarReservas: Año:", date.getFullYear());
@@ -91,7 +85,6 @@ const ListarReservas = () => {
   return (
     <section className="items-center justify-end px-4 py-8 ">
       <h2 className="rbc-calendar-title">Calendario de Reservaciones</h2>
-      {/* ... (resto del JSX) */}
 
       {isAuthenticated && (
         <ReservationsPdfExport

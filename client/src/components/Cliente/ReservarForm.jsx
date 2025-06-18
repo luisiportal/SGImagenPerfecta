@@ -1,23 +1,20 @@
 import { Form, Formik } from "formik";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../../styles/datepicker-custom.css";
 import { registerLocale, setDefaultLocale } from "react-datepicker";
 import es from "date-fns/locale/es";
-
-// Importa el nuevo schema de validación
-import { reservaSchema } from "../validacionForm/schemaForm"; //
-
+import { reservaSchema } from "../validacionForm/schemaForm"; // Asegúrate de que este archivo también esté actualizado
 import Input from "../formulario/Input";
 import {
   crearReservaRequest,
   actualizarReservaRequest,
   obtenerFechasReservadasRequest,
 } from "../../api/reservas.api";
-import { useOfertas } from "../../context/OfertaProvider";
 import { useOfertaStore } from "../../Store/Oferta_personalizada.store";
+import ConfirmModal from "../ConfirmModal";
 
 registerLocale("es", es);
 
@@ -28,23 +25,37 @@ const ReservarForm = ({
   isEditing = false,
   onSuccess,
   onError,
+  isModal = false,
+  onCloseModal,
 }) => {
   const params = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { oferta_personalizada, setOferta_personalizada } = useOfertaStore();
+
+  const [showGenericModal, setShowGenericModal] = useState(false);
+  const [genericModalMessage, setGenericModalMessage] = useState("");
+  const [genericModalType, setGenericModalType] = useState("confirm");
+  const [genericModalTitle, setGenericModalTitle] = useState("");
 
   const [formInitialValues, setFormInitialValues] = useState({
     nombre_cliente: "",
     apellidos: "",
     ci: "",
     telefono: "",
-    correo_electronico: "", // Agrega el nuevo campo de correo electrónico
-    fecha_sesion: null,
-    id_oferta: params.id_oferta,
-    oferta_personalizada: [], // Añade esto
+    correo_electronico: "",
+    fecha_sesion: null, // Esto es crucial que sea null inicialmente
+    id_oferta: params.id_oferta || null,
+    oferta_personalizada:
+      location.state?.serviciosSeleccionados || oferta_personalizada || [],
   });
 
   const [reservedDates, setReservedDates] = useState([]);
-  const { oferta_personalizada, setOferta_personalizada } = useOfertaStore();
+
+  // Calcular la fecha mínima permitida: hoy + 3 días
+  const minDateAllowed = new Date();
+  minDateAllowed.setDate(minDateAllowed.getDate() + 3);
+  minDateAllowed.setHours(0, 0, 0, 0); // Para asegurarse de que la comparación sea solo por día
 
   useEffect(() => {
     setDefaultLocale("es");
@@ -73,10 +84,19 @@ const ReservarForm = ({
         fecha_sesion: formattedDate,
         oferta_personalizada: initialValues.oferta_personalizada || [],
       });
+    } else if (location.state?.serviciosSeleccionados) {
+      setFormInitialValues((prev) => ({
+        ...prev,
+        oferta_personalizada: location.state.serviciosSeleccionados,
+      }));
+      setOferta_personalizada(location.state.serviciosSeleccionados);
     }
-  }, [initialValues]);
+  }, [initialValues, location.state, setOferta_personalizada]);
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = async (
+    values,
+    { setSubmitting, resetForm, setErrors }
+  ) => {
     setSubmitting(true);
     try {
       const fechaCompleta = values.fecha_sesion
@@ -91,7 +111,7 @@ const ReservarForm = ({
       const dataToSend = {
         ...values,
         fecha_sesion: fechaCompleta,
-        id_oferta: values.id_oferta || null, // Asegurar que sea null si no hay oferta
+        id_oferta: values.id_oferta || null,
         oferta_personalizada: values.id_oferta
           ? []
           : oferta_personalizada.map((s) => ({
@@ -101,51 +121,161 @@ const ReservarForm = ({
               cantidad: s.cantidad || 1,
             })),
       };
-      console.log("Fecha enviada:", fechaCompleta);
+
       if (isEditing) {
         await onSubmit(dataToSend);
       } else {
         const res = await crearReservaRequest(dataToSend);
-        if (onSuccess) {
-          onSuccess(res?.message || "Reserva creada con éxito!");
+        setGenericModalMessage(res?.message || "La reserva ha sido creada!");
+        setGenericModalType("success");
+        setGenericModalTitle("¡Reserva Confirmada!");
+        setShowGenericModal(true);
+
+        resetForm();
+        if (values.id_oferta !== null) {
+          setOferta_personalizada([]);
         }
-        navigate("/");
       }
-      setOferta_personalizada([]);
     } catch (error) {
       console.error(
         "Error al procesar reserva:",
         error.response?.data || error.message
       );
-      if (onError) {
-        onError(error.response?.data?.message || "Error al crear la reserva.");
+
+      if (error.response?.data?.field === "ci") {
+        setErrors({
+          ci: "Ya existe una reserva con este CI. Por favor verifica tus datos.",
+        });
+      } else if (error.response?.data?.fields?.includes("nombre_cliente")) {
+        setErrors({
+          nombre_cliente: "Ya existe una reserva con este nombre y apellidos.",
+          apellidos: "Ya existe una reserva con este nombre y apellidos.",
+        });
+      } else {
+        setGenericModalMessage(
+          error.response?.data?.message ||
+            "Error al crear la reserva. Por favor intenta nuevamente."
+        );
+        setGenericModalType("error");
+        setGenericModalTitle("Error");
+        setShowGenericModal(true);
       }
     } finally {
       setSubmitting(false);
     }
   };
 
-  return (
-    <div className={isEditing ? "" : "mx-2 bg-neutral-200 rounded-md p-4"}>
+  const handleCancel = () => {
+    setGenericModalMessage(
+      "¿Estás seguro de que quieres cancelar? Los datos ingresados se perderán."
+    );
+    setGenericModalType("confirm");
+    setGenericModalTitle("Confirmar Cancelación");
+    setShowGenericModal(true);
+  };
+
+  const handleGenericModalConfirm = () => {
+    if (genericModalType === "confirm") {
+      setOferta_personalizada([]);
+      if (isModal && onCloseModal) {
+        onCloseModal();
+      } else {
+        navigate("/");
+      }
+    } else if (genericModalType === "success") {
+      if (isModal && onCloseModal) {
+        onCloseModal();
+      } else {
+        navigate("/");
+      }
+    }
+    setShowGenericModal(false);
+  };
+
+  const handleGenericModalCancel = () => {
+    setShowGenericModal(false);
+  };
+
+  const calcularPrecioOfertaPersonalizada = (servicios) => {
+    const total = servicios.reduce(
+      (total, servicio) =>
+        total + (Number(servicio.precio_servicio * servicio.cantidad) || 0),
+      0
+    );
+    return total;
+  };
+
+  const content = (
+    <div
+      className={
+        isEditing || isModal ? "" : "mx-2 bg-neutral-200 rounded-md p-4"
+      }
+    >
       <h1 className="hidden">{isEditing ? "Editar Reserva" : "Reserva"}</h1>
       <div className="mt-2">
         <Formik
           initialValues={formInitialValues}
           onSubmit={handleSubmit}
-          validationSchema={reservaSchema} // Aplica el schema de validación
+          validationSchema={reservaSchema}
           enableReinitialize={true}
         >
-          {(
-            {
-              handleChange,
-              values,
-              errors,
-              setFieldValue,
-              isSubmitting,
-              touched,
-            } // Agrega 'touched' para mostrar errores solo después de interactuar con el campo
-          ) => (
+          {({
+            handleChange,
+            values,
+            errors,
+            setFieldValue,
+            isSubmitting,
+            touched,
+            resetForm,
+            validateForm,
+            setFieldTouched,
+          }) => (
             <Form className="bg-neutral-200 max-w-md rounded-md p-4 mx-auto">
+              {values.id_oferta === null && oferta_personalizada.length > 0 && (
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    Servicios Seleccionados
+                  </h3>
+                  <div className="space-y-2">
+                    {oferta_personalizada.map((servicio) => (
+                      <div
+                        key={servicio.id_servicio}
+                        className="flex justify-between items-center bg-gray-100 p-2 rounded-md"
+                      >
+                        <div className="flex-1 flex justify-between items-center pr-2">
+                          <span className="flex-grow ">
+                            {" "}
+                            <h3 className=" font-bold text-red-500 inline">
+                              {servicio.cantidad} x{" "}
+                            </h3>
+                            {servicio.nombre_servicio}
+                          </span>
+                          <span className="w-20 text-right text-red-400 ">
+                            (${Number(servicio.precio_servicio).toFixed(2)})
+                          </span>
+                        </div>
+                        <span className="w-24 text-right font-bold text-red-500">
+                          $
+                          {(
+                            Number(servicio.precio_servicio) * servicio.cantidad
+                          ).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 pt-2 border-t border-gray-300 flex justify-between items-baseline">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      Precio Total:
+                    </h2>
+                    <div className="text-2xl font-extrabold text-red-600">
+                      $
+                      {calcularPrecioOfertaPersonalizada(
+                        oferta_personalizada
+                      ).toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+              )}
               <Input
                 name={"nombre_cliente"}
                 label={"Nombre"}
@@ -153,7 +283,7 @@ const ReservarForm = ({
                 value={values.nombre_cliente}
                 handleChange={handleChange}
                 errors={errors}
-                touched={touched} // Pasa 'touched' al Input
+                touched={touched}
               />
               <Input
                 name={"apellidos"}
@@ -162,7 +292,7 @@ const ReservarForm = ({
                 value={values.apellidos}
                 handleChange={handleChange}
                 errors={errors}
-                touched={touched} //
+                touched={touched}
               />
               <Input
                 name={"ci"}
@@ -171,9 +301,8 @@ const ReservarForm = ({
                 value={values.ci}
                 handleChange={handleChange}
                 errors={errors}
-                touched={touched} //
+                touched={touched}
               />
-
               <Input
                 name={"telefono"}
                 label={"Teléfono Contacto"}
@@ -181,20 +310,17 @@ const ReservarForm = ({
                 value={values.telefono}
                 handleChange={handleChange}
                 errors={errors}
-                touched={touched} //
+                touched={touched}
               />
-
-              {/* Nuevo campo para el correo electrónico */}
               <Input
                 name={"correo_electronico"}
                 label={"Correo Electrónico"}
-                type={"email"} // Utiliza type="email" para validación básica del navegador
+                type={"email"}
                 value={values.correo_electronico}
                 handleChange={handleChange}
                 errors={errors}
-                touched={touched} //
+                touched={touched}
               />
-
               <div className="mb-4">
                 <label
                   htmlFor="fecha_sesion"
@@ -202,34 +328,66 @@ const ReservarForm = ({
                 >
                   Fecha de la Sesión
                 </label>
-                <DatePicker
-                  id="fecha_sesion"
-                  name="fecha_sesion"
-                  selected={values.fecha_sesion}
-                  onChange={(date) => setFieldValue("fecha_sesion", date)}
-                  dateFormat="dd/MM/yyyy"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  minDate={new Date()}
-                  excludeDates={reservedDates}
-                  filterDate={(date) => {
-                    const day = date.getDay();
-                    return day !== 0; // Deshabilita domingos
-                  }}
-                  placeholderText="Selecciona una fecha"
-                  locale="es"
-                />
-                {errors.fecha_sesion &&
-                  touched.fecha_sesion && ( // Muestra el error solo si el campo ha sido tocado
-                    <div className="text-red-500 text-xs italic mt-1">
-                      {errors.fecha_sesion}
-                    </div>
-                  )}
+                <div className="flex justify-center">
+                  <DatePicker
+                    id="fecha_sesion"
+                    name="fecha_sesion"
+                    selected={values.fecha_sesion}
+                    onChange={(date) => {
+                      setFieldValue("fecha_sesion", date);
+                      setFieldTouched("fecha_sesion", true, false);
+                    }}
+                    dateFormat="dd/MM/yyyy"
+                    minDate={minDateAllowed}
+                    excludeDates={reservedDates}
+                    filterDate={(date) => {
+                      const day = date.getDay();
+                      return day !== 0;
+                    }}
+                    placeholderText="Selecciona una fecha"
+                    locale="es"
+                    inline
+                    onMonthChange={() => {
+                      document.activeElement && document.activeElement.blur();
+                    }}
+                  />
+                </div>
+                {values.fecha_sesion && (
+                  <div className="text-center mt-2">
+                    <span
+                      className="px-3 py-1 rounded-md text-white font-medium"
+                      style={{ backgroundColor: "#4caf50" }}
+                    >
+                      Fecha seleccionada:{" "}
+                      {values.fecha_sesion.toLocaleDateString("es-ES", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+                )}
+                {errors.fecha_sesion && touched.fecha_sesion && (
+                  <div className="bg-red-500 p-1 m-1 rounded">
+                    {errors.fecha_sesion}
+                  </div>
+                )}
               </div>
-
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-st_color w-full text-2md text-black font-bold block p-2 rounded-md mt-4"
+                onClick={async () => {
+                  await setFieldTouched("fecha_sesion", true, true);
+                  const currentErrors = await validateForm();
+                  if (currentErrors.fecha_sesion) {
+                    console.log(
+                      "Error de validación en fecha_sesion:",
+                      currentErrors.fecha_sesion
+                    );
+                  }
+                }}
+                className="bg-st_color w-full text-2md text-black font-bold block p-2 rounded-md mt-4 hover:bg-amber-600 transition-all duration-500 ease-in-out"
               >
                 {isSubmitting
                   ? isEditing
@@ -239,22 +397,48 @@ const ReservarForm = ({
                     ? "Guardar Cambios"
                     : "Reservar"}
               </button>
-              {isEditing && (
-                <button
-                  type="button"
-                  onClick={onCancel}
-                  className="mt-2 bg-gray-500 hover:bg-gray-700 text-white font-bold w-full p-2 rounded-md"
-                >
-                  Cancelar
-                </button>
-              )}
-              <br />
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="mt-2 bg-gray-500 hover:bg-gray-700 text-white font-bold w-full p-2 rounded-md"
+              >
+                Cancelar
+              </button>
             </Form>
           )}
         </Formik>
       </div>
+      <ConfirmModal
+        isOpen={showGenericModal}
+        message={genericModalMessage}
+        onConfirm={handleGenericModalConfirm}
+        onCancel={handleGenericModalCancel}
+        type={genericModalType}
+        title={genericModalTitle}
+      />
     </div>
   );
+
+  if (isModal) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4 my-8 max-h-[90vh] overflow-y-auto">
+          <button
+            onClick={handleCancel}
+            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold"
+          >
+            ×
+          </button>
+          <h2 className="text-2xl font-semibold mb-4 text-center">
+            Crear Reserva Personalizada
+          </h2>
+          {content}
+        </div>
+      </div>
+    );
+  }
+
+  return content;
 };
 
 export default ReservarForm;

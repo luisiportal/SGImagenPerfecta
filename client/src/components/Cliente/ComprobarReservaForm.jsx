@@ -11,7 +11,7 @@ import ListarReservasCard from "./ListarReservasCard";
 import ReservarForm from "./ReservarForm";
 import Notificacion from "../validacionForm/Notificacion";
 import { useAuth } from "../../context/AuthContext";
-import ConfirmModal from "../ConfirmModal"; // <-- Importa tu ConfirmModal
+import ConfirmModal from "../ConfirmModal";
 import Footer from "../../pages/Footer";
 
 const schema = Yup.object().shape({
@@ -28,7 +28,6 @@ const ComprobarReservaForm = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [notificacion_msg, setNotificacion_msg] = useState(null);
 
-  // ESTADOS PARA LA CONFIRMACIÓN DE ELIMINACIÓN (MANTENIDOS)
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [reservaToDeleteId, setReservaToDeleteId] = useState(null);
 
@@ -58,15 +57,13 @@ const ComprobarReservaForm = () => {
     setShowEditModal(true);
   };
 
-  // Función para manejar la eliminación (ABRE EL MODAL DE CONFIRMACIÓN)
   const handleDelete = (id_reserva) => {
     setReservaToDeleteId(id_reserva);
     setShowConfirmDeleteModal(true);
   };
 
-  // Función para confirmar la eliminación (SE EJECUTA AL ACEPTAR EN EL MODAL)
   const handleConfirmDelete = async () => {
-    setShowConfirmDeleteModal(false); // Cierra el modal de confirmación
+    setShowConfirmDeleteModal(false);
     if (!reservaToDeleteId) return;
 
     try {
@@ -75,10 +72,9 @@ const ComprobarReservaForm = () => {
         mensaje: "Reserva eliminada con éxito!",
         errorColor: false,
       });
-      // Después de eliminar, limpia la reserva mostrada y el error si lo hay
       setReservas(
         reservas.filter((reserva) => reserva.id_reserva !== reservaToDeleteId)
-      ); // Actualiza la lista de reservas
+      );
       setError(null);
     } catch (error) {
       console.error("Error al eliminar reserva:", error);
@@ -86,11 +82,10 @@ const ComprobarReservaForm = () => {
         error.response?.data?.message || "Error al eliminar la reserva.";
       setNotificacion_msg({ mensaje: errorMessage, errorColor: true });
     } finally {
-      setReservaToDeleteId(null); // Limpia el ID de la reserva a eliminar
+      setReservaToDeleteId(null);
     }
   };
 
-  // Función para cancelar la eliminación (CIERRA EL MODAL DE CONFIRMACIÓN)
   const handleCancelDelete = () => {
     setShowConfirmDeleteModal(false);
     setReservaToDeleteId(null);
@@ -103,7 +98,6 @@ const ComprobarReservaForm = () => {
         oferta_personalizada: selectedReserva.oferta_personalizada || [],
       });
 
-      // Vuelve a usar setNotificacion_msg para el éxito de la actualización (como estaba antes)
       setNotificacion_msg({
         mensaje: "Reserva actualizada con éxito!",
         errorColor: false,
@@ -111,7 +105,6 @@ const ComprobarReservaForm = () => {
 
       setShowEditModal(false);
       setSelectedReserva(null);
-      // Vuelve a buscar la reserva por CI para asegurar que los datos mostrados estén actualizados
       const responseData = await listarunReservaRequest(values.ci);
       responseData && setReservas(responseData);
     } catch (error) {
@@ -141,18 +134,15 @@ const ComprobarReservaForm = () => {
           Comprobar Reserva
         </h1>
       </header>
-      <main className="flex-grow">
+      <main className="flex-grow flex flex-col items-center max-w-lg">
         <Formik
           initialValues={{ ci: "" }}
           onSubmit={handleSubmit}
           validationSchema={schema}
         >
           {({ handleChange, handleSubmit, errors, values, isSubmitting }) => (
-            <Form
-              onSubmit={handleSubmit}
-              className="max-w-lg rounded-md p-4 mx-auto"
-            >
-              <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300 my-3 mx-auto max-w-md w-full p-6">
+            <Form onSubmit={handleSubmit} className="rounded-md p-4">
+              <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300 mb-9 w-full mx-auto p-8">
                 <Input
                   name={"ci"}
                   label={"Carnet Identidad"}
@@ -170,7 +160,7 @@ const ComprobarReservaForm = () => {
                   {isSubmitting ? "Buscando..." : "Comprobar"}
                 </button>
               </div>
-              <br />
+
               {error && <p className="text-red-500 text-center">{error}</p>}
               {reservas && reservas.length > 0
                 ? reservas.map((reserva) => (
@@ -186,7 +176,6 @@ const ComprobarReservaForm = () => {
           )}
         </Formik>
 
-        {/* Modal de Edición */}
         {selectedReserva && showEditModal && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -199,7 +188,6 @@ const ComprobarReservaForm = () => {
               <button
                 onClick={handleCloseEditModal}
                 className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                // type="submit" // Remueve este 'type="submit"' si no es un botón de envío
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -229,7 +217,6 @@ const ComprobarReservaForm = () => {
           </div>
         )}
 
-        {/* Modal de Confirmación de Eliminación */}
         <ConfirmModal
           isOpen={showConfirmDeleteModal}
           message="¿Estás seguro de que quieres eliminar esta reserva? Esta acción no se puede deshacer."

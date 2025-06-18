@@ -28,13 +28,20 @@ export const AuthProvider = ({ children }) => {
       const { data } = await loginRequest(user);
       setIsAuthenticated(true);
       setUser({
-        id_trabajador: data.id_trabajador, // Asegúrate de que la API devuelva esto
+        id_trabajador: data.id_trabajador,
         usuario: data.usuario,
-        foto_perfil: data.foto_perfil, // Incluir si está disponible
+        foto_perfil: data.foto_perfil,
       });
+      return data;
     } catch (error) {
       return error;
     }
+  };
+  const updateUserProfile = (newProfileData) => {
+    setUser((prev) => ({
+      ...prev,
+      ...newProfileData,
+    }));
   };
 
   const logout = async (user) => {
@@ -69,6 +76,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         setIsAuthenticated,
         user,
+        updateUserProfile,
       }}
     >
       {children}

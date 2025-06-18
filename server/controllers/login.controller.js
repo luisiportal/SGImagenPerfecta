@@ -7,8 +7,6 @@ import jwt from "jsonwebtoken";
 export const login = async (req, res) => {
   const { usuario, password } = req.body;
   try {
-    // buscar si existe el ususario
-
     const respuestaUserExist = await Trabajador.findOne({
       where: { usuario: usuario },
     });
@@ -16,7 +14,7 @@ export const login = async (req, res) => {
     const userFound = respuestaUserExist || "";
 
     if (userFound.length === 0) {
-      return res.status(400).json({ message: "Usuario no encontrado" });
+      return res.status(400).json({ message: "Credencial inválida" });
     }
 
     const isMatch = await bcrypt.compare(password, userFound.passwordHash);
@@ -43,8 +41,6 @@ export const logout = (req, res) => {
   return res.sendStatus(200);
 };
 
-// verifivar token
-
 export const verifyToken = (req, res) => {
   const { token } = req.cookies;
 
@@ -53,7 +49,6 @@ export const verifyToken = (req, res) => {
   jwt.verify(token, TOKEN_SECRET, async (err, user) => {
     if (err) return res.status(401).json("No autorizado");
 
-    // buscar si existe el ususario
     const respuestaUserExist = await Trabajador.findOne({
       where: { id_trabajador: user.id },
     });

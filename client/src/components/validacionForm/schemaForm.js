@@ -1,5 +1,10 @@
 import * as Yup from "yup";
 
+// Calcular la fecha mínima permitida para la validación (7 días desde ahora)
+const sevenDaysFromNow = new Date();
+sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 3);
+sevenDaysFromNow.setHours(0, 0, 0, 0); // Opcional: para comparar solo la fecha, sin la hora exacta
+
 export const reservaSchema = Yup.object().shape({
   nombre_cliente: Yup.string()
     .required("El nombre es requerido")
@@ -22,7 +27,10 @@ export const reservaSchema = Yup.object().shape({
     .required("El correo electrónico es requerido"), // Hacemos el correo electrónico obligatorio
   fecha_sesion: Yup.date()
     .required("La fecha de la sesión es requerida")
-    .nullable()
-    .min(new Date(), "La fecha de la sesión no puede ser en el pasado"),
-  
+    // .nullable()
+    // Esta validación ahora también aplica la regla de 7 días de antelación
+    .min(
+      sevenDaysFromNow,
+      "La reserva debe ser al menos con 3 días de antelación"
+    ),
 });

@@ -1,18 +1,13 @@
-// src/components/ReservationsCalendar/ReservationsCalendar.jsx
-
-import React, { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import ConfirmModal from "../ConfirmModal";
-import ReservarForm from "../Cliente/ReservarForm"; // Asume que este formulario ya está en un archivo separado
+import ReservarForm from "../Cliente/ReservarForm";
 import EventDetailsModal from "./EventDetailsModal";
 import "../../styles/calendar-styles.css";
 import { Calendar } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import format from "date-fns/format"; // Todavía necesitamos format para el ConfirmModal
-import { es } from "date-fns/locale"; // Todavía necesitamos es para el ConfirmModal
-
-
-// Importar utilidades y componentes de presentación
+import format from "date-fns/format";
+import { es } from "date-fns/locale";
 import { localizer, parseDateForCalendar } from "../../utils/dateUtils";
 import { CalendarEvent, AgendaEvent } from "./CalendarEvent";
 
@@ -28,9 +23,8 @@ const ReservationsCalendar = ({
   const [showEditModal, setShowEditModal] = useState(false);
   const [showEventDetailsModal, setShowEventDetailsModal] = useState(false);
   const [selectedReserva, setSelectedReserva] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null); // Para cuando se selecciona una fecha para añadir una reserva
+  const [selectedDate, setSelectedDate] = useState(null);
 
-  // Mapear las reservas a eventos del calendario
   const events = useMemo(() => {
     return reservations
       .map((reserva) => {
@@ -42,13 +36,12 @@ const ReservationsCalendar = ({
           start: sessionDate,
           end: sessionDate,
           allDay: true,
-          reservaData: reserva, // Guarda la reserva completa en el evento
+          reservaData: reserva,
         };
       })
       .filter(Boolean);
   }, [reservations]);
 
-  // Manejadores para los modales
   const handleConfirmEliminar = useCallback(async () => {
     if (selectedReserva) {
       setShowConfirmModal(false);
@@ -108,7 +101,6 @@ const ReservationsCalendar = ({
     (slotInfo) => {
       if (isAuthenticated) {
         setSelectedDate(slotInfo.start);
-        // Podrías añadir lógica aquí para abrir un modal de "nueva reserva"
       }
     },
     [isAuthenticated]
@@ -121,26 +113,25 @@ const ReservationsCalendar = ({
     [onNavigateCalendar]
   );
 
-  // Componentes personalizados para BigCalendar
   const components = useMemo(
     () => ({
-      event: CalendarEvent, // Usa el componente CalendarEvent
+      event: CalendarEvent,
       day: {
-        event: ({ event }) => <CalendarEvent event={event} />, // Reusa CalendarEvent para la vista de día
+        event: ({ event }) => <CalendarEvent event={event} />,
         header: ({ label }) => <div className="rbc-header-label">{label}</div>,
       },
       agenda: {
-        event: AgendaEvent, // Usa el componente AgendaEvent
+        event: AgendaEvent,
       },
     }),
-    [] // Estas referencias son estables, por lo que el array de dependencias puede estar vacío
+    []
   );
 
   return (
     <div className="rbc-calendar-container min-w-[500px]">
       <div style={{ height: "800px" }}>
         <Calendar
-          localizer={localizer} // Importado de dateUtils
+          localizer={localizer}
           events={events}
           startAccessor="start"
           endAccessor="end"
@@ -202,7 +193,6 @@ const ReservationsCalendar = ({
         />
       </div>
 
-      {/* Modal de Confirmación de Eliminación */}
       <ConfirmModal
         isOpen={showConfirmModal}
         message={
@@ -214,7 +204,6 @@ const ReservationsCalendar = ({
         onCancel={handleCancelEliminar}
       />
 
-      {/* Modal de Detalles del Evento */}
       {selectedReserva && (
         <EventDetailsModal
           isOpen={showEventDetailsModal}
@@ -226,7 +215,6 @@ const ReservationsCalendar = ({
         />
       )}
 
-      {/* Modal de Edición de Reserva */}
       {selectedReserva && showEditModal && (
         <div
           className="rbc-modal-overlay rbc-modal-overlay-visible"

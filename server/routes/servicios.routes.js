@@ -6,11 +6,10 @@ import {
   actualizarServicio,
   eliminarServicio,
 } from "../controllers/Servicios.controllers.js";
-import { authRequired } from "../middlewares/validateToken.js"; // Asumo que necesitas autenticación
+import { authRequired } from "../middlewares/validateToken.js";
 
 const router = Router();
 
-// Rutas para servicios
 router.get("/servicios", listarServicios);
 router.post("/servicios", crearServicio);
 router.get("/servicios/:id", authRequired, listarUnServicio);

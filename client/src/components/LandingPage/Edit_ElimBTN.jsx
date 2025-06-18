@@ -16,8 +16,6 @@ const Edit_ElimBTN = ({ id_oferta }) => {
   const handleConfirmDelete = async () => {
     setShowConfirmModal(false);
     await deleteOferta(id_oferta);
-    // Nota: La navegación después de eliminar podría ser manejada por el contexto
-    // o el componente padre que lista las ofertas, para asegurar una actualización consistente.
   };
 
   const handleCancelDelete = () => {
@@ -26,20 +24,15 @@ const Edit_ElimBTN = ({ id_oferta }) => {
 
   return (
     <>
-      {/* Condición para mostrar los botones solo en la página /ofertas */}
       {window.location.pathname === "/ofertas" && (
         <section className="flex gap-x-2">
-          {" "}
-          {/* Usamos flex y gap-x-2 para espaciar los iconos */}
-          {/* Botón de Eliminar (SVG) */}
           <button
             onClick={handleDeleteClick}
             className="p-2 rounded-full bg-red-500 text-white shadow-md
                        hover:bg-red-600 hover:scale-110 transition-all duration-200 ease-in-out
                        focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75"
-            aria-label="Eliminar oferta" // Accesibilidad
+            aria-label="Eliminar oferta"
           >
-            {/* Icono SVG de Papelera/Eliminar (ej. de Heroicons) */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -55,15 +48,13 @@ const Edit_ElimBTN = ({ id_oferta }) => {
               />
             </svg>
           </button>
-          {/* Botón de Editar (SVG) */}
           <button
             onClick={() => navigate(`edit/${id_oferta}`)}
             className="p-2 rounded-full bg-blue-500 text-white shadow-md
                        hover:bg-blue-600 hover:scale-110 transition-all duration-200 ease-in-out
                        focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-            aria-label="Editar oferta" // Accesibilidad
+            aria-label="Editar oferta"
           >
-            {/* Icono SVG de Lápiz/Editar (ej. de Heroicons) */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -81,8 +72,6 @@ const Edit_ElimBTN = ({ id_oferta }) => {
           </button>
         </section>
       )}
-
-      {/* Modal de confirmación para eliminar */}
       <ConfirmModal
         isOpen={showConfirmModal}
         message="¿Estás seguro de que quieres eliminar esta oferta? Esta acción no se puede deshacer."

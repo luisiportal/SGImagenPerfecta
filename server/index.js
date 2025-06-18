@@ -9,9 +9,7 @@ import { sequelize } from "./db.js";
 import routerReservas from "./routes/reserva.routes.js";
 import routerTrabajadores from "./routes/trabajadores.routes.js";
 import serviciosRoutes from "./routes/servicios.routes.js";
-// import routerVentas from "./routes/ventas.routes.js";
 import { associations } from "./models/associations.js";
-// import routerRegistroVentas from "./routes/registro_ventas.routes.js";
 
 export const app = express();
 app.use(
@@ -26,8 +24,6 @@ app.use(indexRoutes);
 app.use(ofertaRoutes);
 app.use(routerReservas);
 app.use(serviciosRoutes);
-// app.use(routerVentas);
-// app.use(routerRegistroVentas);
 app.use(routerTrabajadores);
 app.use("/api", loginRouter);
            

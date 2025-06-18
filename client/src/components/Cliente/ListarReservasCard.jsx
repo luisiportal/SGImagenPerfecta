@@ -29,9 +29,7 @@ const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
 
   const formatFechaSesion = (dateString) => {
     if (!dateString) return "Fecha no disponible";
-
-    // Asumir que dateString es YYYY-MM-DD
-    const date = new Date(`${dateString}T00:00:00`); // Agregar hora para evitar desfases
+    const date = new Date(`${dateString}T00:00:00`);
 
     if (isNaN(date.getTime())) {
       console.error("Error: Fecha inválida. Cadena original:", dateString);
@@ -59,7 +57,6 @@ const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
 
         <div className="flex justify-between items-start">
           <h1 className="whitespace-pre-line text-gray-900">
-            {/* Mostrar la descripción de la oferta o la lista de servicios */}
             {reserva.descripcion_oferta || "Oferta no especificada"}
           </h1>
         </div>
@@ -75,7 +72,6 @@ const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
           <p>
             <span className="font-semibold">Teléfono:</span> {reserva.telefono}
           </p>
-          {/* Mostrar el precio de venta de la oferta (estándar o personalizada) */}
           <p>
             <span className="font-semibold">Precio de Venta:</span>{" "}
             {reserva.precio_venta_oferta
