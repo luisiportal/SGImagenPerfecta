@@ -1,7 +1,7 @@
 import { Trabajador } from "../models/Trabajador.model.js";
 import bcrypt from "bcryptjs";
 import { saveImage } from "./upload.multer.js";
-import { Usuario } from "./Usuario.model.js";
+import { Usuario } from "../models/Usuario.model.js";
 
 export const listarUsuarios = async (req, res) => {
   try {
@@ -24,7 +24,6 @@ export const crearUsuario = async (req, res) => {
       await Usuario.create({
         usuario,
         passwordHash,
-        
       });
       res.status(201).json({ message: "Usuario creado correctamente" });
     } else {
@@ -38,10 +37,7 @@ export const crearUsuario = async (req, res) => {
 export const actualizarUsuario = async (req, res) => {
   try {
     const id_usuario = req.params.id;
-    const {
-      usuario,
-      password,
-    } = req.body;
+    const { usuario, password } = req.body;
 
     const response = await Usuario.findByPk(id_usuario);
     if (!response) {

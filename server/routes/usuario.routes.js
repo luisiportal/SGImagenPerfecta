@@ -7,7 +7,7 @@ import {
   eliminarUsuario,
   listarUnUsuario,
   listarUsuarios,
-} from "../models/UsuarioControlller.js";
+} from "../controllers/UsuarioController.js";
 
 const routerUsuario = Router();
 

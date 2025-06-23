@@ -4,8 +4,18 @@ import { Oferta_Servicio } from "./Oferta_Servicio.js";
 import { Reserva } from "./Reserva.model.js";
 import { Servicio } from "./Servicio.model.js";
 import { Notificacion } from "./Notification.model.js";
+import { Usuario } from "./Usuario.model.js";
+import { Trabajador } from "./Trabajador.model.js";
 
 export const associations = () => {
+  Trabajador.belongsTo(Usuario, {
+    foreignKey: "id_usuario",
+    allowNull: false,
+  });
+
+  Usuario.hasOne(Trabajador, {
+    foreignKey: "id_usuario",
+  });
   Reserva.belongsTo(Oferta, {
     foreignKey: "id_oferta",
     allowNull: true,

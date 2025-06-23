@@ -38,6 +38,13 @@ const NotificacionCard = ({ notificacion, onUpdate }) => {
     }
   };
 
+  // Formatear fecha_sesion de Reserva
+  const formatFechaSesion = (dateString) => {
+    if (!dateString) return "Fecha no disponible";
+    const date = new Date(dateString);
+    return format(date, "dd MMMM yyyy", { locale: es });
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
       {showEditForm ? (
@@ -51,11 +58,17 @@ const NotificacionCard = ({ notificacion, onUpdate }) => {
         />
       ) : (
         <>
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-xl font-semibold text-gray-800">
-              Notificación para: {notificacion.Reserva?.nombre_cliente} (
-              {notificacion.Reserva?.ci})
-            </h3>
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h3 className="text-xl font-semibold text-gray-800">
+                {notificacion.Reserva?.nombre_cliente} (
+                {notificacion.Reserva?.ci})
+              </h3>
+              <p className="text-lg font-medium text-gray-700">
+                Fecha de Reserva:{" "}
+                {formatFechaSesion(notificacion.Reserva?.fecha_sesion)}
+              </p>
+            </div>
             <span
               className={`px-2 py-1 rounded-full text-xs font-medium ${
                 notificacion.enviado
@@ -69,24 +82,26 @@ const NotificacionCard = ({ notificacion, onUpdate }) => {
           </div>
 
           <div className="mb-4">
-            <p className="text-gray-600 mb-1">
-              <span className="font-medium">Fecha envío:</span>{" "}
+            <p className="text-gray-800 font-semibold text-base">
+              Asunto: {notificacion.asunto || "Sin asunto"}
+            </p>
+            <p className="text-gray-800 text-base">
+              Mensaje: {notificacion.mensaje}
+            </p>
+          </div>
+
+          <div className="text-sm text-gray-500">
+            <p>
+              Fecha de Envío:{" "}
               {format(
                 new Date(notificacion.fecha_envio),
                 "dd MMMM yyyy HH:mm",
                 { locale: es }
               )}
             </p>
-            <p className="text-gray-600 mb-1">
-              <span className="font-medium">Asunto:</span> {notificacion.asunto}
-            </p>
-            <p className="text-gray-600">
-              <span className="font-medium">Mensaje:</span>{" "}
-              {notificacion.mensaje}
-            </p>
             {notificacion.fecha_eliminacion && (
-              <p className="text-gray-600 mt-2">
-                <span className="font-medium">Eliminación programada:</span>{" "}
+              <p>
+                Eliminación Programada:{" "}
                 {format(
                   new Date(notificacion.fecha_eliminacion),
                   "dd MMMM yyyy",

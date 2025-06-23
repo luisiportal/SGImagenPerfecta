@@ -10,8 +10,9 @@ export const Trabajador = sequelize.define("trabajadores", {
   id_usuario: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    unique: true, // Un usuario solo puede tener un perfil de trabajador
   },
- 
+
   nombre: {
     type: DataTypes.STRING,
     allowNull: false,
