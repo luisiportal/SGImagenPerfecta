@@ -17,6 +17,7 @@ import AgregarTrabajadorPage from "./components/Trabajador/AgregarTrabajadorPage
 import EditarTrabajadorPage from "./components/Trabajador/EditarTrabajadorPage";
 import ListadoTrabajadores from "./components/Trabajador/ListadoTrabajadores";
 import ServiciosRoutes from "./routes/ServiciosRoutes.jsx";
+import NotificacionesPage from "./pages/NotificacionesPage";
 
 const App = () => {
   return (
@@ -34,6 +35,10 @@ const App = () => {
                 <Route path="/trabajador/login" element={<Trabajador />} />{" "}
                 <Route path="*" element={<NotFound />} />{" "}
                 <Route path="/cliente/*" element={<ClienteRoutes />} />
+                <Route
+                  path="/notificaciones"
+                  element={<NotificacionesPage />}
+                />
                 <Route element={<ProtectedRoutes />}>
                   <Route path="/ofertas/*" element={<OfertasRoutes />} />
                   <Route path="/servicios/*" element={<ServiciosRoutes />} />

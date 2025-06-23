@@ -62,6 +62,17 @@ export const listarunReservaRequest = async (ci) => {
   }
 };
 
+export const actualizarEstadoPagoRequest = async (id_reserva, pagado) => {
+  try {
+    const res = await axios.put(`/reservas/${id_reserva}/estado-pago`, {
+      pagado,
+    });
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const obtenerFechasReservadasRequest = async () => {
   try {
     const { data } = await axios.get(`/reservas/fechas-reservadas`);

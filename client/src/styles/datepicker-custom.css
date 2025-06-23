@@ -1,6 +1,7 @@
 /* Contenedor principal del datepicker, asegurando que se muestre como un bloque */
 .react-datepicker-wrapper {
   display: block;
+  width: 100%;
 }
 
 /* Contenedor del campo de entrada dentro del datepicker */

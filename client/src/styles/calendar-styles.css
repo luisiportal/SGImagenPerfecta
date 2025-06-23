@@ -7,6 +7,7 @@
   margin: 0;
   padding: 0 8px;
 }
+
 .rbc-agenda-event-cell {
   background-color: #ffffff;
 }
@@ -263,15 +264,12 @@
   color: #000080;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease-in-out;
+  height: 70px;
 }
 
 .rbc-event:hover {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
-}
-
-.rbc-event-content {
-  width: 100%;
 }
 
 .rbc-modal-expand-button {

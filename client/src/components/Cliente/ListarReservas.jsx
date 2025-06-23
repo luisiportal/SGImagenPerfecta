@@ -17,13 +17,14 @@ const ListarReservas = () => {
   const loadReservas = useCallback(async () => {
     try {
       const response = await listarReservasRequest();
-      setReservas(response);
+      setReservas(response || []);
     } catch (error) {
       console.error("Error al cargar reservas:", error);
       setNotificacion_msg({
         mensaje: "Error al cargar las reservas.",
         errorColor: true,
       });
+      setReservas([]);
     }
   }, []);
 
@@ -48,6 +49,7 @@ const ListarReservas = () => {
         mensaje: "Reserva actualizada con éxito!",
         errorColor: false,
       });
+      await loadReservas(); //revisar
     } catch (error) {
       console.error("Error al actualizar reserva en handleUpdate:", error);
       setNotificacion_msg({
@@ -61,7 +63,9 @@ const ListarReservas = () => {
   const handleDelete = async (id_reserva) => {
     try {
       await eliminarReservaRequest(id_reserva);
+      console.log("Reserva eliminada en el backend. Recargando reservas...");
       await loadReservas();
+      console.log("Reservas recargadas:", reservas); // Verifica el estado 'reservas' aquís
       setNotificacion_msg({
         mensaje: "Reserva eliminada con éxito!",
         errorColor: false,
@@ -87,10 +91,14 @@ const ListarReservas = () => {
       <h2 className="rbc-calendar-title">Calendario de Reservaciones</h2>
 
       {isAuthenticated && (
-        <ReservationsPdfExport
-          month={currentCalendarDate.getMonth()}
-          year={currentCalendarDate.getFullYear()}
-        />
+        <div className="flex flex-wrap justify-end items-end">
+          <ReservationsPdfExport
+            reservations={reservas}
+            month={currentCalendarDate.getMonth()}
+            year={currentCalendarDate.getFullYear()}
+            refreshReservations={loadReservas}
+          />
+        </div>
       )}
 
       <ReservationsCalendar

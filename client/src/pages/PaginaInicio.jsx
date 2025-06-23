@@ -58,9 +58,13 @@ const PaginaInicio = () => {
             <h1 className="text-white text-center sm:text-8xl lg:text-9xl mb-2 sm:mb-4 font-greatVibes text-6xl">
               Otra Dimensión
             </h1>
-            <button className="transition scale-125 hover:scale-150 bg-st_color font-bold text-white rounded-full px-6 py-2 text-sm sm:text-base">
-              <Link to={"/cliente"}>¡Reserva Ahora!</Link>
-            </button>
+
+            <Link
+              className="transition scale-125 hover:scale-150 bg-st_color font-bold text-white rounded-full px-6 py-2 text-sm sm:text-base"
+              to={"/cliente"}
+            >
+              ¡Reserva Ahora!
+            </Link>
           </div>
         </div>
       </article>

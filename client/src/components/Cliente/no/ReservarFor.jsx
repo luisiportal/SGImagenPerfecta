@@ -6,27 +6,24 @@ import "react-datepicker/dist/react-datepicker.css";
 import "../../styles/datepicker-custom.css";
 import { registerLocale, setDefaultLocale } from "react-datepicker";
 import es from "date-fns/locale/es";
-import { reservaSchema } from "../validacionForm/schemaForm"; // Asegúrate de que este archivo también esté actualizado
+import { reservaSchema } from "../validacionForm/schemaForm";
 import Input from "../formulario/Input";
 import {
   crearReservaRequest,
-  actualizarReservaRequest,
   obtenerFechasReservadasRequest,
 } from "../../api/reservas.api";
 import { useOfertaStore } from "../../Store/Oferta_personalizada.store";
-import ConfirmModal from "../ConfirmModal";
+import ConfirmModal from "../Modal/ConfirmModal";
 
 registerLocale("es", es);
 
 const ReservarForm = ({
   initialValues,
   onSubmit,
-  onCancel,
   isEditing = false,
-  onSuccess,
-  onError,
   isModal = false,
   onCloseModal,
+  onGoBackToServicios,
 }) => {
   const params = useParams();
   const navigate = useNavigate();
@@ -35,7 +32,7 @@ const ReservarForm = ({
 
   const [showGenericModal, setShowGenericModal] = useState(false);
   const [genericModalMessage, setGenericModalMessage] = useState("");
-  const [genericModalType, setGenericModalType] = useState("confirm");
+  const [genericModalType, setGenericModalType] = useState("confirm"); // Puede ser 'confirm' o 'success' o 'error'
   const [genericModalTitle, setGenericModalTitle] = useState("");
 
   const [formInitialValues, setFormInitialValues] = useState({
@@ -44,7 +41,7 @@ const ReservarForm = ({
     ci: "",
     telefono: "",
     correo_electronico: "",
-    fecha_sesion: null, // Esto es crucial que sea null inicialmente
+    fecha_sesion: null,
     id_oferta: params.id_oferta || null,
     oferta_personalizada:
       location.state?.serviciosSeleccionados || oferta_personalizada || [],
@@ -52,10 +49,9 @@ const ReservarForm = ({
 
   const [reservedDates, setReservedDates] = useState([]);
 
-  // Calcular la fecha mínima permitida: hoy + 3 días
   const minDateAllowed = new Date();
   minDateAllowed.setDate(minDateAllowed.getDate() + 3);
-  minDateAllowed.setHours(0, 0, 0, 0); // Para asegurarse de que la comparación sea solo por día
+  minDateAllowed.setHours(0, 0, 0, 0);
 
   useEffect(() => {
     setDefaultLocale("es");
@@ -132,7 +128,7 @@ const ReservarForm = ({
         setShowGenericModal(true);
 
         resetForm();
-        if (values.id_oferta !== null) {
+        if (values.id_oferta === null) {
           setOferta_personalizada([]);
         }
       }
@@ -165,28 +161,36 @@ const ReservarForm = ({
     }
   };
 
-  const handleCancel = () => {
-    setGenericModalMessage(
-      "¿Estás seguro de que quieres cancelar? Los datos ingresados se perderán."
-    );
-    setGenericModalType("confirm");
-    setGenericModalTitle("Confirmar Cancelación");
-    setShowGenericModal(true);
+  const handleCancelAction = () => {
+    if (isModal && !isEditing && oferta_personalizada.length > 0) {
+      if (onGoBackToServicios) {
+        onGoBackToServicios();
+      } else if (onCloseModal) {
+        onCloseModal();
+      }
+    } else {
+      setGenericModalMessage(
+        "¿Estás seguro de que quieres cancelar? Los datos ingresados se perderán."
+      );
+      setGenericModalType("confirm");
+      setGenericModalTitle("Confirmar Cancelación");
+      setShowGenericModal(true);
+    }
   };
 
   const handleGenericModalConfirm = () => {
     if (genericModalType === "confirm") {
+      if (isModal && onCloseModal) {
+        onCloseModal();
+      } else {
+        // navigate(-1);
+      }
+    } else if (genericModalType === "success") {
       setOferta_personalizada([]);
       if (isModal && onCloseModal) {
         onCloseModal();
       } else {
-        navigate("/");
-      }
-    } else if (genericModalType === "success") {
-      if (isModal && onCloseModal) {
-        onCloseModal();
-      } else {
-        navigate("/");
+        // navigate(-1);
       }
     }
     setShowGenericModal(false);
@@ -233,9 +237,11 @@ const ReservarForm = ({
             <Form className="bg-neutral-200 max-w-md rounded-md p-4 mx-auto">
               {values.id_oferta === null && oferta_personalizada.length > 0 && (
                 <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Servicios Seleccionados
-                  </h3>
+                  <div className="flex justify-between items-baseline mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      Servicios Seleccionados:
+                    </h3>
+                  </div>
                   <div className="space-y-2">
                     {oferta_personalizada.map((servicio) => (
                       <div
@@ -328,7 +334,7 @@ const ReservarForm = ({
                 >
                   Fecha de la Sesión
                 </label>
-                <div className="flex justify-center">
+                <div className="flex justify-center w-full">
                   <DatePicker
                     id="fecha_sesion"
                     name="fecha_sesion"
@@ -339,14 +345,18 @@ const ReservarForm = ({
                     }}
                     dateFormat="dd/MM/yyyy"
                     minDate={minDateAllowed}
-                    excludeDates={reservedDates}
+                    excludeDates={reservedDates.filter(
+                      (date) =>
+                        !values.fecha_sesion ||
+                        date.toISOString().split("T")[0] !==
+                          values.fecha_sesion.toISOString().split("T")[0]
+                    )}
                     filterDate={(date) => {
                       const day = date.getDay();
                       return day !== 0;
                     }}
                     placeholderText="Selecciona una fecha"
                     locale="es"
-                    inline
                     onMonthChange={() => {
                       document.activeElement && document.activeElement.blur();
                     }}
@@ -399,7 +409,7 @@ const ReservarForm = ({
               </button>
               <button
                 type="button"
-                onClick={handleCancel}
+                onClick={handleCancelAction}
                 className="mt-2 bg-gray-500 hover:bg-gray-700 text-white font-bold w-full p-2 rounded-md"
               >
                 Cancelar
@@ -424,7 +434,7 @@ const ReservarForm = ({
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4 my-8 max-h-[90vh] overflow-y-auto">
           <button
-            onClick={handleCancel}
+            onClick={handleCancelAction}
             className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold"
           >
             ×

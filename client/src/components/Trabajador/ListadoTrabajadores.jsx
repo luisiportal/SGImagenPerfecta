@@ -4,7 +4,7 @@ import { useTrabajadores } from "../../context/TrabajadorContext";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 import AgregarSVG from "../SVG/AgregarSVG";
-import ConfirmModal from "../ConfirmModal";
+import ConfirmModal from "../Modal/ConfirmModal";
 
 const ListadoTrabajadores = () => {
   const { trabajadores, loadTrabajadoresContext, deleteTrabajador } =

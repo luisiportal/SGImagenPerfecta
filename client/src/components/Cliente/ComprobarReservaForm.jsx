@@ -8,10 +8,10 @@ import {
 } from "../../api/reservas.api";
 import { useState, useEffect } from "react";
 import ListarReservasCard from "./ListarReservasCard";
-import ReservarForm from "./ReservarForm";
+import ReservarForm from "../Reserva/ReservarForm";
 import Notificacion from "../validacionForm/Notificacion";
 import { useAuth } from "../../context/AuthContext";
-import ConfirmModal from "../ConfirmModal";
+import ConfirmModal from "../Modal/ConfirmModal";
 import Footer from "../../pages/Footer";
 
 const schema = Yup.object().shape({

@@ -6,7 +6,7 @@ import {
   actualizarServicioRequest,
 } from "../../api/servicios.api";
 import Input from "../formulario/Input";
-import ConfirmModal from "../ConfirmModal";
+import ConfirmModal from "../Modal/ConfirmModal";
 import Notificacion from "../validacionForm/Notificacion";
 import { servicioSchema } from "../validacionForm/servicioSchema";
 

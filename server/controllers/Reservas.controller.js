@@ -70,38 +70,6 @@ export const crearReserva = async (req, res) => {
       await transaction.rollback();
       return res.status(400).json({ message: "Faltan campos obligatorios." });
     }
-    // Verificar si ya existe una reserva con el mismo CI
-    const reservaExistentePorCI = await Reserva.findOne({
-      where: { ci },
-      transaction,
-    });
-
-    if (reservaExistentePorCI) {
-      await transaction.rollback();
-      return res.status(400).json({
-        message:
-          "Ya existe una reserva con este número de Carnet de Identidad.",
-        field: "ci",
-      });
-    }
-
-    // Verificar si ya existe una reserva con el mismo nombre y apellidos
-    const reservaExistentePorNombre = await Reserva.findOne({
-      where: {
-        nombre_cliente,
-        apellidos,
-      },
-      transaction,
-    });
-
-    if (reservaExistentePorNombre) {
-      await transaction.rollback();
-      return res.status(400).json({
-        message: "Ya existe una reserva con este nombre y apellidos.",
-        fields: ["nombre_cliente", "apellidos"],
-      });
-    }
-
     if (id_oferta && oferta_personalizada?.length > 0) {
       await transaction.rollback();
       return res.status(400).json({
@@ -220,7 +188,6 @@ export const crearReserva = async (req, res) => {
 
 export const actualizarReserva = async (req, res) => {
   const transaction = await sequelize.transaction();
-
   try {
     const id_reserva = req.params.id;
     const {
@@ -230,10 +197,10 @@ export const actualizarReserva = async (req, res) => {
       fecha_sesion,
       telefono,
       correo_electronico,
-      id_oferta,
-      oferta_personalizada,
+      pagado,
     } = req.body;
 
+    // 1. Validación básica de campos obligatorios
     if (
       !nombre_cliente ||
       !apellidos ||
@@ -245,19 +212,25 @@ export const actualizarReserva = async (req, res) => {
       return res.status(400).json({ message: "Faltan campos obligatorios." });
     }
 
-    if (id_oferta && oferta_personalizada?.length > 0) {
-      await transaction.rollback();
-      return res.status(400).json({
-        message:
-          "No se puede asignar tanto una oferta estándar como personalizada.",
-      });
-    }
+    // 2. Obtener reserva existente CON SUS RELACIONES
+    const reserva = await Reserva.findByPk(id_reserva, {
+      include: [
+        { model: Oferta, required: false },
+        {
+          model: Oferta_Personalizada,
+          required: false,
+          include: [{ model: Oferta_Servicio, include: [Servicio] }],
+        },
+      ],
+      transaction,
+    });
 
-    const reserva = await Reserva.findByPk(id_reserva, { transaction });
     if (!reserva) {
       await transaction.rollback();
       return res.status(404).json({ message: "Reserva no encontrada." });
     }
+
+    const tipoOferta = reserva.id_oferta ? "estandar" : "personalizada";
 
     reserva.nombre_cliente = nombre_cliente;
     reserva.apellidos = apellidos;
@@ -265,125 +238,32 @@ export const actualizarReserva = async (req, res) => {
     reserva.fecha_sesion = fecha_sesion;
     reserva.telefono = telefono;
     reserva.correo_electronico = correo_electronico;
-
-    reserva.id_oferta = null;
-    reserva.id_oferta_personalizada = null;
-    reserva.descripcion_oferta = null;
-    reserva.precio_venta_oferta = null;
-
-    if (id_oferta) {
-      const oferta = await Oferta.findByPk(id_oferta, { transaction });
-      if (!oferta) {
-        await transaction.rollback();
-        return res
-          .status(404)
-          .json({ message: "Oferta estándar no encontrada." });
-      }
-      reserva.id_oferta = id_oferta;
-      reserva.descripcion_oferta = oferta.descripcion;
-      reserva.precio_venta_oferta = oferta.precio_venta;
-
-      if (reserva.id_oferta_personalizada) {
-        await Oferta_Servicio.destroy({
-          where: { id_oferta_personalizada: reserva.id_oferta_personalizada },
-          transaction,
-        });
-        await Oferta_Personalizada.destroy({
-          where: { id: reserva.id_oferta_personalizada },
-          transaction,
-        });
-        reserva.id_oferta_personalizada = null;
-      }
-    } else if (oferta_personalizada && oferta_personalizada.length > 0) {
-      for (const servicio of oferta_personalizada) {
-        if (!servicio.id_servicio || typeof servicio.cantidad !== "number") {
-          await transaction.rollback();
-          return res.status(400).json({
-            message: "Datos incompletos o inválidos en oferta_personalizada.",
-          });
-        }
-      }
-
-      const serviciosIds = oferta_personalizada.map((s) => s.id_servicio);
-      const servicios = await Servicio.findAll({
-        where: { id_servicio: serviciosIds },
-        attributes: ["id_servicio", "nombre_servicio", "precio_servicio"],
-        transaction,
-      });
-
-      if (servicios.length !== serviciosIds.length) {
-        await transaction.rollback();
-        return res
-          .status(400)
-          .json({ message: "Uno o más servicios no existen." });
-      }
-
-      let id_oferta_personalizada_actual = reserva.id_oferta_personalizada;
-      if (!id_oferta_personalizada_actual) {
-        const nuevaPersonalizada = await Oferta_Personalizada.create(
-          {},
-          { transaction }
-        );
-        id_oferta_personalizada_actual = nuevaPersonalizada.id;
-      }
-      reserva.id_oferta_personalizada = id_oferta_personalizada_actual;
-
-      await Oferta_Servicio.destroy({
-        where: { id_oferta_personalizada: id_oferta_personalizada_actual },
-        transaction,
-      });
-
-      await Promise.all(
-        oferta_personalizada.map((servicio) => {
-          const servicioDb = servicios.find(
-            (s) => s.id_servicio === servicio.id_servicio
-          );
-          return Oferta_Servicio.create(
-            {
-              id_servicio: servicio.id_servicio,
-              id_oferta_personalizada: id_oferta_personalizada_actual,
-              cantidad: servicio.cantidad || 1,
-              totalServicio:
-                (servicio.cantidad || 1) * servicioDb.precio_servicio,
-            },
-            { transaction }
-          );
-        })
-      );
-
-      reserva.descripcion_oferta = `Oferta Personalizada: ${servicios
-        .map((s) => s.nombre_servicio)
-        .join(", ")}`;
-      reserva.precio_venta_oferta = oferta_personalizada.reduce(
-        (total, servicio) => {
-          const servicioDb = servicios.find(
-            (s) => s.id_servicio === servicio.id_servicio
-          );
-          return total + servicioDb.precio_servicio * (servicio.cantidad || 1);
-        },
-        0
-      );
-    } else {
-      if (reserva.id_oferta_personalizada) {
-        await Oferta_Servicio.destroy({
-          where: { id_oferta_personalizada: reserva.id_oferta_personalizada },
-          transaction,
-        });
-        await Oferta_Personalizada.destroy({
-          where: { id: reserva.id_oferta_personalizada },
-          transaction,
-        });
-        reserva.id_oferta_personalizada = null;
-      }
-    }
+    reserva.pagado = pagado || false;
 
     await reserva.save({ transaction });
     await transaction.commit();
-    res.json(reserva);
+
+    const reservaActualizada = await Reserva.findByPk(id_reserva, {
+      include: [
+        { model: Oferta, required: false },
+        {
+          model: Oferta_Personalizada,
+          required: false,
+          include: [{ model: Oferta_Servicio, include: [Servicio] }],
+        },
+      ],
+    });
+
+    res.json({
+      ...reservaActualizada.toJSON(),
+      tipo_oferta: tipoOferta,
+    });
   } catch (error) {
     await transaction.rollback();
     console.error("Error al actualizar reserva:", error);
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message || "Error al actualizar la reserva",
+    });
   }
 };
 
@@ -497,6 +377,30 @@ export const buscarReservasPorFecha = async (req, res) => {
     res.json(reservas);
   } catch (error) {
     console.error("Error al buscar reservas por fecha:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const actualizarEstadoPago = async (req, res) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const { id } = req.params;
+    const { pagado } = req.body;
+
+    const reserva = await Reserva.findByPk(id, { transaction });
+    if (!reserva) {
+      await transaction.rollback();
+      return res.status(404).json({ message: "Reserva no encontrada." });
+    }
+
+    reserva.pagado = pagado;
+    console.log(reserva.pagado);
+    await reserva.save({ transaction });
+    await transaction.commit();
+    res.json({ success: true, message: "Estado de pago actualizado" });
+  } catch (error) {
+    await transaction.rollback();
+    console.error("Error al actualizar estado de pago:", error);
     return res.status(500).json({ message: error.message });
   }
 };

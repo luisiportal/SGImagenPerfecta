@@ -28,3 +28,12 @@ export const parseDateForCalendar = (dateString) => {
   }
   return null;
 };
+export const formatDate = (date) => {
+  if (!date || !isDate(date) || isNaN(date.getTime())) return null;
+  try {
+    return format(date, "yyyy-MM-dd");
+  } catch (error) {
+    console.error("Error al formatear la fecha:", date, error);
+    return null;
+  }
+};

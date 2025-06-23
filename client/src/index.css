@@ -33,3 +33,34 @@
 .carousel-item.active {
   opacity: 1;
 }
+/* Estilos para el estado de pago */
+.rbc-event-paid-badge {
+  background-color: #4caf50;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.7em;
+}
+
+.rbc-payment-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.rbc-payment-status {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.rbc-payment-status.paid {
+  background-color: #4caf50;
+  color: white;
+}
+
+.rbc-payment-status.unpaid {
+  background-color: #f44336;
+  color: white;
+}

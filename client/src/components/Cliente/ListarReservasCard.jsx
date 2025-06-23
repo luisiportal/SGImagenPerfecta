@@ -1,10 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import ConfirmModal from "../ConfirmModal";
+import ConfirmModal from "../Modal/ConfirmModal";
+import { actualizarEstadoPagoRequest } from "../../api/reservas.api";
 
-const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
+const ListarReservasCard = ({
+  reserva,
+  onEdit,
+  onDelete,
+  onReservationUpdate,
+}) => {
   const { isAuthenticated } = useAuth();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [localReserva, setLocalReserva] = useState(reserva); // Estado local para la reserva
+  const [isUpdating, setIsUpdating] = useState(false); // Estado para indicar si se está actualizando el pago
+
+  // Sincroniza el estado local con la prop 'reserva' cuando cambie
+  useEffect(() => {
+    setLocalReserva(reserva);
+  }, [reserva]);
 
   const handleEliminarClick = () => {
     setShowConfirmModal(true);
@@ -24,6 +37,26 @@ const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
   const handleEditarClick = () => {
     if (onEdit) {
       onEdit(reserva);
+    }
+  };
+
+  const handlePaymentToggle = async (e) => {
+    const newPaidStatus = e.target.checked;
+    setIsUpdating(true); // Indica que la actualización está en progreso
+    try {
+      // Llama a la API para actualizar el estado de pago
+      await actualizarEstadoPagoRequest(localReserva.id_reserva, newPaidStatus);
+      // Actualiza el estado local de la reserva
+      setLocalReserva({ ...localReserva, pagado: newPaidStatus });
+      // Si hay una función para actualizar la reserva en el componente padre, llámala
+      if (onReservationUpdate) {
+        onReservationUpdate();
+      }
+    } catch (error) {
+      console.error("Error al actualizar estado de pago:", error);
+      // Aquí podrías añadir una notificación al usuario si la actualización falla
+    } finally {
+      setIsUpdating(false); // La actualización ha terminado
     }
   };
 
@@ -49,12 +82,37 @@ const ListarReservasCard = ({ reserva, onEdit, onDelete }) => {
     <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300 my-3 mx-auto w-full max-w-md">
       <div className="p-6">
         <div className="uppercase tracking-wide text-sm text-indigo-600 font-bold mb-2 border-b border-indigo-100 pb-2 flex justify-between items-center">
-          <span>Detalle de la Reserva</span>
+          <span>Detalles de la Reserva</span>
           <span className="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
             {formatFechaSesion(reserva.fecha_sesion)}
           </span>
         </div>
-
+        <p className="flex w-full">
+          <span className="rbc-modal-detail-label">Estado de Pago:</span>
+          {isAuthenticated ? (
+            <label className="rbc-payment-toggle px-2">
+              <input
+                type="checkbox"
+                id="paid-toggle"
+                checked={localReserva.pagado}
+                onChange={handlePaymentToggle}
+                disabled={isUpdating}
+              />
+              <span
+                className={`rbc-payment-status ${localReserva.pagado ? "paid" : "unpaid"}`}
+              >
+                {localReserva.pagado ? "Pagado" : "Pendiente"}
+                {isUpdating && " (Actualizando...)"}
+              </span>
+            </label>
+          ) : (
+            <span
+              className={`rbc-payment-status ${localReserva.pagado ? "paid" : "unpaid"}`}
+            >
+              {localReserva.pagado ? "Pagado" : "Pendiente"}
+            </span>
+          )}
+        </p>
         <div className="flex justify-between items-start">
           <h1 className="whitespace-pre-line text-gray-900">
             {reserva.descripcion_oferta || "Oferta no especificada"}

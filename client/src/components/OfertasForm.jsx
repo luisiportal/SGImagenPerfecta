@@ -1,5 +1,4 @@
 import { Form, Formik } from "formik";
-import { useOfertas } from "../context/OfertaProvider";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
@@ -8,8 +7,9 @@ import {
   listarunOfertaRequest,
 } from "../api/ofertas.api";
 import Entradas from "./formulario/Entradas";
-import ConfirmModal from "./ConfirmModal";
+import ConfirmModal from "./Modal/ConfirmModal";
 import Notificacion from "./validacionForm/Notificacion";
+import { ofertaSchema } from "./validacionForm/ofertaSchema";
 
 const OfertaForm = () => {
   const [file, setFile] = useState(null);
@@ -126,6 +126,7 @@ const OfertaForm = () => {
           initialValues={oferta}
           enableReinitialize={true}
           onSubmit={handleSubmit}
+          validationSchema={ofertaSchema}
         >
           {({ handleChange, handleSubmit, errors, values, isSubmitting }) => (
             <Form onSubmit={handleSubmit} className="space-y-6">
@@ -160,7 +161,7 @@ const OfertaForm = () => {
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
                 {errors.cantidad_fotos && (
-                  <p className="mt-2 text-sm text-red-600">
+                  <p className="bg-red-500 max-w-max p-1 m-1 rounded">
                     {errors.cantidad_fotos}
                   </p>
                 )}
@@ -186,7 +187,9 @@ const OfertaForm = () => {
                   <option value="Ambas">Ambas</option>
                 </select>
                 {errors.locacion && (
-                  <p className="mt-2 text-sm text-red-600">{errors.locacion}</p>
+                  <p className="bg-red-500 max-w-max p-1 m-1 rounded">
+                    {errors.locacion}
+                  </p>
                 )}
               </div>
 
@@ -206,7 +209,7 @@ const OfertaForm = () => {
                   Incluye Transportación
                 </label>
                 {errors.transportacion && (
-                  <p className="mt-2 text-sm text-red-600">
+                  <p className="bg-red-500 max-w-max p-1 m-1 rounded">
                     {errors.transportacion}
                   </p>
                 )}
@@ -228,7 +231,7 @@ const OfertaForm = () => {
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
                 {errors.cambios_ropa && (
-                  <p className="mt-2 text-sm text-red-600">
+                  <p className="bg-red-500 max-w-max p-1 m-1 rounded">
                     {errors.cambios_ropa}
                   </p>
                 )}

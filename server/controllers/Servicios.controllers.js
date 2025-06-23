@@ -1,9 +1,11 @@
+// Servicios.controllers.js
 import { Servicio } from "../models/Servicio.model.js";
 
 export const listarServicios = async (req, res) => {
   try {
     const response = await Servicio.findAll({
-      order: [["created_at", "DESC"]],
+      // Cambiamos el orden de 'created_at' a 'precio_servicio' y de 'DESC' a 'ASC'
+      order: [["precio_servicio", "ASC"]], //
     });
     res.json(response);
   } catch (error) {
@@ -107,6 +109,15 @@ export const eliminarServicio = async (req, res) => {
     res.sendStatus(204);
   } catch (error) {
     console.error("Error al eliminar servicio:", error);
+    // Detecta el error específico de llave foránea
+    if (error.name === "SequelizeForeignKeyConstraintError") {
+      return res
+        .status(409) // Conflict
+        .json({
+          message:
+            "El servicio está siendo usado en una reserva personalizada y no puede ser eliminado.",
+        }); //
+    }
     return res.status(500).json({ message: error.message });
   }
 };

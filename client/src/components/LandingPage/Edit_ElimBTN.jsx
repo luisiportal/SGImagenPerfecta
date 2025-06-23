@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useOfertas } from "../../context/OfertaProvider.jsx";
-import ConfirmModal from "../ConfirmModal";
+import ConfirmModal from "../Modal/ConfirmModal";
 
 const Edit_ElimBTN = ({ id_oferta }) => {
   const { deleteOferta } = useOfertas();

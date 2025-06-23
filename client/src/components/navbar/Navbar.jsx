@@ -1,4 +1,3 @@
-import React from "react";
 import ElementoNavbar from "./ElementoNavbar.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
 
@@ -30,10 +29,13 @@ const Navbar = () => {
               href={"/trabajador/plantilla"}
               isAuthenticated={isAuthenticated}
             />
+            <ElementoNavbar
+              nombre={"Notificaciones"}
+              href={"/notificaciones"}
+              isAuthenticated={isAuthenticated}
+            />
           </>
-        ) : (
-          ""
-        )}
+        ) : null}
       </section>
     </div>
   );

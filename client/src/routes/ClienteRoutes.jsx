@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Cliente from "../pages/Cliente";
-import ReservarForm from "../components/Cliente/ReservarForm";
+import ReservarForm from "../components/Reserva/ReservarForm";
 import ListarReservas from "../components/Cliente/ListarReservas";
 import { OfertaContextProvider } from "../context/OfertaProvider";
 import ListarReservaCliente from "../components/Cliente/ListarReservaCliente";

@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
-import ConfirmModal from "../ConfirmModal";
-import ReservarForm from "../Cliente/ReservarForm";
+import ConfirmModal from "../Modal/ConfirmModal";
+import ReservarForm from "../Reserva/ReservarForm";
 import EventDetailsModal from "./EventDetailsModal";
 import "../../styles/calendar-styles.css";
 import { Calendar } from "react-big-calendar";
@@ -10,6 +10,7 @@ import format from "date-fns/format";
 import { es } from "date-fns/locale";
 import { localizer, parseDateForCalendar } from "../../utils/dateUtils";
 import { CalendarEvent, AgendaEvent } from "./CalendarEvent";
+import { startOfMonth, endOfMonth, differenceInDays } from "date-fns";
 
 const ReservationsCalendar = ({
   reservations,
@@ -24,6 +25,8 @@ const ReservationsCalendar = ({
   const [showEventDetailsModal, setShowEventDetailsModal] = useState(false);
   const [selectedReserva, setSelectedReserva] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [currentDate, setCurrentDate] = useState(new Date()); // Estado para la fecha actual del calendario
+  const [currentView, setCurrentView] = useState("month");
 
   const events = useMemo(() => {
     return reservations
@@ -42,18 +45,27 @@ const ReservationsCalendar = ({
       .filter(Boolean);
   }, [reservations]);
 
+  const getMonthRange = useCallback((date) => {
+    const start = startOfMonth(date);
+    const end = endOfMonth(date);
+    const length = differenceInDays(end, start) + 1;
+    return { start, end, length };
+  }, []);
+
   const handleConfirmEliminar = useCallback(async () => {
     if (selectedReserva) {
       setShowConfirmModal(false);
       await onDelete(selectedReserva.id_reserva);
       setSelectedReserva(null);
+      setShowEditModal(false);
       fetchReservations();
     }
   }, [selectedReserva, onDelete, fetchReservations]);
 
   const handleCancelEliminar = useCallback(() => {
     setShowConfirmModal(false);
-    setSelectedReserva(null);
+    setShowEditModal(false);
+    setShowEventDetailsModal(true);
   }, []);
 
   const handleDeleteClick = useCallback((reserva) => {
@@ -68,14 +80,25 @@ const ReservationsCalendar = ({
     setShowEventDetailsModal(false);
   }, []);
 
-  const handleCloseEditModal = useCallback(() => {
-    setShowEditModal(false);
-    setSelectedReserva(null);
-    fetchReservations();
-  }, [fetchReservations]);
+  const handleCloseEditModal = useCallback(
+    (returnToDetails = false) => {
+      setShowEditModal(false);
+      setShowConfirmModal(false);
+      if (returnToDetails) {
+        setShowEventDetailsModal(true);
+      } else {
+        setShowEventDetailsModal(false);
+        setSelectedReserva(null);
+      }
+      fetchReservations();
+    },
+    [fetchReservations]
+  );
 
   const handleCloseEventDetailsModal = useCallback(() => {
     setShowEventDetailsModal(false);
+    setShowEditModal(false);
+    setShowConfirmModal(false);
     setSelectedReserva(null);
   }, []);
 
@@ -84,6 +107,8 @@ const ReservationsCalendar = ({
       try {
         await onEdit(values);
         setShowEditModal(false);
+        setShowConfirmModal(false);
+        setSelectedReserva(null);
         fetchReservations();
       } catch (error) {
         console.error("Error al editar reserva:", error);
@@ -107,7 +132,9 @@ const ReservationsCalendar = ({
   );
 
   const handleCalendarNavigate = useCallback(
-    (newDate) => {
+    (newDate, view) => {
+      setCurrentDate(newDate);
+      if (view) setCurrentView(view);
       onNavigateCalendar && onNavigateCalendar(newDate);
     },
     [onNavigateCalendar]
@@ -127,8 +154,15 @@ const ReservationsCalendar = ({
     []
   );
 
+  // Obtener el rango del mes para la vista de agenda
+  // Actualizar el rango de la agenda para restringir fechas
+  const agendaRange = useMemo(() => {
+    const { start, end } = getMonthRange(currentDate);
+    return { start, end };
+  }, [currentDate, getMonthRange]);
+
   return (
-    <div className="rbc-calendar-container min-w-[500px]">
+    <div className="rbc-calendar-container min-w-[500px] uppercase">
       <div style={{ height: "800px" }}>
         <Calendar
           localizer={localizer}
@@ -190,6 +224,11 @@ const ReservationsCalendar = ({
             </div>
           )}
           onNavigate={handleCalendarNavigate}
+          date={currentDate}
+          {...(currentView === "agenda" && {
+            min: agendaRange.start,
+            max: agendaRange.end,
+          })}
         />
       </div>
 
@@ -211,6 +250,7 @@ const ReservationsCalendar = ({
           reserva={selectedReserva}
           onEditClick={handleEditClick}
           onDeleteClick={handleDeleteClick}
+          onReservationUpdate={fetchReservations}
           isAuthenticated={isAuthenticated}
         />
       )}
@@ -218,14 +258,14 @@ const ReservationsCalendar = ({
       {selectedReserva && showEditModal && (
         <div
           className="rbc-modal-overlay rbc-modal-overlay-visible"
-          onClick={handleCloseEditModal}
+          onClick={() => handleCloseEditModal(true)}
         >
           <div
             className="rbc-edit-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              onClick={handleCloseEditModal}
+              onClick={() => handleCloseEditModal(true)}
               className="rbc-modal-close-button"
             >
               <svg
@@ -249,8 +289,9 @@ const ReservationsCalendar = ({
               <ReservarForm
                 initialValues={selectedReserva}
                 onSubmit={handleGuardarEdicion}
-                onCancel={handleCloseEditModal}
+                onCancel={() => handleCloseEditModal(true)}
                 isEditing={true}
+                returnToDetails={true}
               />
             </div>
           </div>

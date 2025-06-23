@@ -1,77 +1,103 @@
-import { useState, useEffect } from "react";
-import { listarServiciosRequest } from "../../api/servicios.api";
-import Edit_ElimBTN_Servicio from "./Edit_ElimBTN_Servicio";
-import ListarServicios from "./ListarServicios";
-import ServicioForm from "./ServicioForm";
-import ReservarForm from "../Cliente/ReservarForm";
+import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import AgregarSVG from "../SVG/AgregarSVG";
+import Modal from "../Modal/Modal";
+import ServicioForm from "./ServicioForm";
+import ReservarForm from "../Reserva/ReservarForm";
+import ListarServicios from "./ListarServicios";
+import ServicioCard from "./ServicioCard";
+import { useServicios } from "../../hooks/useServicios";
+import { useServiciosModals } from "../../hooks/useServiciosModals";
+import ConfirmModal from "../Modal/ConfirmModal";
+import { eliminarServicioRequest } from "../../api/servicios.api";
 
 const ServiciosList = () => {
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showReservaModal, setShowReservaModal] = useState(false);
-  const [servicioToEditId, setServicioToEditId] = useState(null);
-  const [servicios, setServicios] = useState([]);
-  const [showServiciosModal, setShowServiciosModal] = useState(false);
-  const [hoveredServicioId, setHoveredServicioId] = useState(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
   const { isAuthenticated } = useAuth();
+  const { servicios, loading, error, fetchServicios, handleDeleteSuccess } =
+    useServicios();
+  const {
+    showEditModal,
+    showCreateModal,
+    showReservaModal,
+    servicioToEditId,
+    showServiciosModal,
+    handleOpenEditModal,
+    handleCloseEditModal,
+    handleOpenCreateModal,
+    handleCloseCreateModal,
+    handleOpenReservaModal,
+    handleCloseReservaModal,
+    handleCloseServiciosModal,
+    handleOpenServiciosModal,
+    handleOpenServiciosModalFromReserva,
+  } = useServiciosModals();
 
-  const fetchServicios = async () => {
+  // Estado para el modal de información (éxito/error)
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [infoMessage, setInfoMessage] = useState("");
+  const [infoType, setInfoType] = useState("success");
+
+  // Estado para el modal de confirmación de eliminación
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [servicioToDeleteId, setServicioToDeleteId] = useState(null);
+
+  // Maneja la apertura del modal de confirmación
+  const handleOpenDeleteModal = (id_servicio) => {
+    setServicioToDeleteId(id_servicio);
+    setShowDeleteModal(true);
+  };
+
+  // Maneja la confirmación de eliminación
+  const handleConfirmDelete = async () => {
     try {
-      setLoading(true);
-      const response = await listarServiciosRequest();
-      const sortedServicios = response.sort(
-        (a, b) => parseFloat(a.precio_servicio) - parseFloat(b.precio_servicio)
-      );
-      setServicios(sortedServicios || []);
-      setError("");
+      await eliminarServicioRequest(servicioToDeleteId);
+      handleDeleteSuccess(servicioToDeleteId);
+      setInfoMessage("Servicio eliminado exitosamente.");
+      setInfoType("success");
+      setShowInfoModal(true);
+      setShowDeleteModal(false);
+      setServicioToDeleteId(null);
     } catch (error) {
-      setError(error.message || "Error al cargar servicios");
-      console.error("Error al cargar servicios:", error);
-    } finally {
-      setLoading(false);
+      console.error("Error al eliminar servicio:", error);
+      setInfoMessage(error || "Error desconocido al eliminar el servicio.");
+      setInfoType("error");
+      setShowInfoModal(true);
+      setShowDeleteModal(false);
+      setServicioToDeleteId(null);
     }
   };
 
-  useEffect(() => {
-    fetchServicios();
-  }, []);
-
-  const handleDeleteSuccess = (id_servicio) => {
-    setServicios(
-      servicios.filter((servicio) => servicio.id_servicio !== id_servicio)
-    );
+  // Maneja la cancelación del modal de confirmación
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setServicioToDeleteId(null);
   };
 
-  const handleEditClick = (id) => {
-    setServicioToEditId(id);
-    setShowEditModal(true);
+  // Maneja el cierre del modal de información
+  const handleCloseInfoModal = () => {
+    setShowInfoModal(false);
+    setInfoMessage("");
+    setInfoType("success");
   };
 
-  const handleCloseEditModal = () => {
-    setShowEditModal(false);
-    setServicioToEditId(null);
+  const handleCloseEditModalAndRefresh = () => {
+    handleCloseEditModal();
     fetchServicios();
   };
 
-  const handleCloseCreateModal = () => {
-    setShowCreateModal(false);
+  const handleCloseCreateModalAndRefresh = () => {
+    handleCloseCreateModal();
     fetchServicios();
-  };
-
-  const handleOpenReservaModal = (serviciosSeleccionados) => {
-    setShowReservaModal(true);
-  };
-
-  const handleCloseReservaModal = () => {
-    setShowReservaModal(false);
   };
 
   if (loading) {
     return <p className="text-center text-gray-600">Cargando servicios...</p>;
+  }
+
+  if (!error && servicios.length === 0) {
+    return (
+      <p className="text-center text-gray-600">No hay servicios disponibles.</p>
+    );
   }
 
   return (
@@ -84,7 +110,7 @@ const ServiciosList = () => {
         {isAuthenticated && (
           <div className="flex items-center justify-center m-6">
             <button
-              onClick={() => setShowCreateModal(true)}
+              onClick={handleOpenCreateModal}
               className="flex px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               <AgregarSVG />
@@ -96,60 +122,22 @@ const ServiciosList = () => {
       <div className="bg-sect_gray">
         <div className="max-w-7xl mx-auto pt-4 px-4 sm:px-6 lg:px-8 m-2">
           {servicios.length > 0 ? (
-            <div className="max-w-7xl mx-auto pt-4 px-4 sm:px-6 lg:px-8 m-2">
-              {servicios.length > 0 ? (
-                <div className="bg-white rounded-lg shadow-md p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8">
-                  {servicios.map((servicio) => (
-                    <div
-                      key={servicio.id_servicio}
-                      className="relative flex flex-row justify-between items-baseline py-3 border-b last:border-b-0 border-gray-200"
-                      onMouseEnter={() =>
-                        setHoveredServicioId(servicio.id_servicio)
-                      }
-                      onMouseLeave={() => setHoveredServicioId(null)}
-                    >
-                      {isAuthenticated && (
-                        <div
-                          className={`absolute top-2 right-2 z-10 transition-opacity duration-300 ${
-                            hoveredServicioId === servicio.id_servicio
-                              ? "opacity-100"
-                              : "opacity-0 pointer-events-none"
-                          }`}
-                        >
-                          <Edit_ElimBTN_Servicio
-                            id_servicio={servicio.id_servicio}
-                            onDeleteSuccess={handleDeleteSuccess}
-                            onEditClick={handleEditClick}
-                          />
-                        </div>
-                      )}
-                      <div className="flex flex-grow flex-col">
-                        <div className="flex flex-grow items-baseline min-w-0">
-                          <h3 className="font-semibold text-lg text-slate-800 flex-shrink-0">
-                            {servicio.nombre_servicio}
-                          </h3>
-                          <div className="flex-grow border-b-2 border-dotted border-st_color mx-2"></div>
-                        </div>
-                        {servicio.descripcion_servicio && (
-                          <p className="text-sm text-gray-500 pl-1">
-                            {servicio.descripcion_servicio}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="flex-shrink-0 text-lg font-bold text-st_color">
-                        ${Number(servicio.precio_servicio).toFixed(2)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p>No hay servicios disponibles.</p>
-              )}
+            <div className="bg-white rounded-lg shadow-md p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8">
+              {servicios.map((servicio) => (
+                <ServicioCard
+                  key={servicio.id_servicio}
+                  servicio={servicio}
+                  isAuthenticated={isAuthenticated}
+                  onDeleteSuccess={handleDeleteSuccess}
+                  onEditClick={handleOpenEditModal}
+                  onDeleteResult={handleCloseInfoModal} // No se usa directamente, pero se mantiene por compatibilidad
+                  onOpenDeleteModal={handleOpenDeleteModal} // Pasa el nuevo callback
+                />
+              ))}
             </div>
           ) : (
             <p className="text-center text-gray-600">
-              No hay servicios disponibles
+              No hay servicios disponibles.
             </p>
           )}
         </div>
@@ -167,55 +155,59 @@ const ServiciosList = () => {
             Crea tu Oferta de forma Personalizada
           </h2>
           <button
-            onClick={() => setShowServiciosModal(true)}
+            onClick={handleOpenServiciosModal}
             className="hover:scale-125 inline-block bg-white text-st_color hover:bg-gray-100 font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-md"
           >
             ¡Crear AHORA!
           </button>
         </div>
       </div>
+
+      {/* Modal de confirmación para eliminar */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        message="¿Estás seguro de que quieres eliminar este servicio? Esta acción no se puede deshacer."
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        type="confirm"
+      />
+
+      {/* Modal de información para éxito/error */}
+      <ConfirmModal
+        isOpen={showInfoModal}
+        message={infoMessage}
+        onConfirm={handleCloseInfoModal}
+        type={infoType}
+      />
+
+      {/* Modales existentes */}
       {showServiciosModal && (
         <ListarServicios
           isOpen={showServiciosModal}
-          setShowServicios={setShowServiciosModal}
+          setShowServicios={handleCloseServiciosModal}
           onOpenReservaModal={handleOpenReservaModal}
         />
       )}
-      {showEditModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-xl w-full mx-4 my-8 max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={handleCloseEditModal}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold"
-            >
-              ×
-            </button>
-            <h2 className="text-2xl font-semibold mb-4 text-center">
-              Editar Servicio
-            </h2>
-            <ServicioForm
-              id={servicioToEditId}
-              onClose={handleCloseEditModal}
-            />
-          </div>
-        </div>
-      )}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-xl w-full mx-4 my-8 max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={handleCloseCreateModal}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold"
-            >
-              ×
-            </button>
-            <h2 className="text-2xl font-semibold mb-4 text-center">
-              Crear Nuevo Servicio
-            </h2>
-            <ServicioForm onClose={handleCloseCreateModal} />
-          </div>
-        </div>
-      )}
+
+      <Modal
+        isOpen={showEditModal}
+        onClose={handleCloseEditModalAndRefresh}
+        title="Editar Servicio"
+      >
+        <ServicioForm
+          id={servicioToEditId}
+          onClose={handleCloseEditModalAndRefresh}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={showCreateModal}
+        onClose={handleCloseCreateModalAndRefresh}
+        title="Crear Nuevo Servicio"
+      >
+        <ServicioForm onClose={handleCloseCreateModalAndRefresh} />
+      </Modal>
+
       {showReservaModal && (
         <ReservarForm
           isModal={true}
@@ -225,6 +217,7 @@ const ServiciosList = () => {
             handleCloseReservaModal();
           }}
           onError={(error) => alert(error)}
+          onGoBackToServicios={handleOpenServiciosModalFromReserva}
         />
       )}
     </section>

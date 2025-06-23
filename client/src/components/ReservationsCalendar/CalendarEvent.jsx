@@ -7,7 +7,12 @@ export const CalendarEvent = ({ event }) => {
   const primerApellido = reserva.apellidos.split(" ")[0];
 
   return (
-    <div className="rbc-event-content">
+    <div className="flex flex-col">
+      {reserva.pagado && (
+        <div className="flex justify-end font-bold">
+          <div className="rbc-event-paid-badge">Pagado</div>
+        </div>
+      )}
       <div className="rbc-event-title">
         {reserva.nombre_cliente} {primerApellido}
       </div>
@@ -19,8 +24,14 @@ export const CalendarEvent = ({ event }) => {
 };
 
 export const AgendaEvent = ({ event }) => {
+  const reserva = event.reservaData;
   return (
     <div className="agenda-event-card">
+      {reserva.pagado && (
+        <div className="flex justify-center font-bold rbc-event-paid-badge">
+          Pagado
+        </div>
+      )}
       <div className="agenda-event-date">
         {format(
           parseDateForCalendar(event.reservaData.fecha_sesion),

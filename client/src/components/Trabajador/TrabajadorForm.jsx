@@ -3,7 +3,7 @@ import { useState } from "react";
 import Input from "../formulario/Input";
 import schemaTrabajadores from "../validacionForm/schemaTrabajadores";
 import Notificacion from "../validacionForm/Notificacion";
-import ConfirmModal from "../ConfirmModal";
+import ConfirmModal from "../Modal/ConfirmModal";
 
 const TrabajadorForm = ({
   initialValues,

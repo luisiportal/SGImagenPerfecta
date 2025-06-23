@@ -3,6 +3,7 @@ import { Oferta_Personalizada } from "./Oferta_Personalizada.js";
 import { Oferta_Servicio } from "./Oferta_Servicio.js";
 import { Reserva } from "./Reserva.model.js";
 import { Servicio } from "./Servicio.model.js";
+import { Notificacion } from "./Notification.model.js";
 
 export const associations = () => {
   Reserva.belongsTo(Oferta, {
@@ -33,3 +34,11 @@ export const associations = () => {
 
   Servicio.hasOne(Oferta_Servicio, { foreignKey: "id_servicio" });
 };
+
+Notificacion.belongsTo(Reserva, {
+  foreignKey: "id_reserva",
+});
+
+Reserva.hasMany(Notificacion, {
+  foreignKey: "id_reserva",
+});
