@@ -3,7 +3,7 @@ import {
   useContext,
   useState,
   useEffect,
-  useCallback,
+  useCallback, // ¡Importa useCallback!
 } from "react";
 import {
   eliminarTrabajadorRequest,
@@ -27,9 +27,11 @@ export const useTrabajadores = () => {
 export const TrabajadorContextProvider = ({ children }) => {
   const [trabajadores, setTrabajadores] = useState([]);
   const [perfil, setPerfil] = useState({
+    // Este `perfil` parece ser un perfil por defecto/inicial.
+    // Asegúrate de que `perfilUsuario` es el que realmente usas para los datos cargados.
     id_trabajador: "",
     usuario: "",
-    password: "",
+    password: "", // ¡Cuidado con almacenar contraseñas en el estado del frontend!
     nombre: "",
     apellidos: "",
     ci: "",
@@ -39,144 +41,97 @@ export const TrabajadorContextProvider = ({ children }) => {
     salario: "",
     foto_perfil: "",
   });
-  const [perfilUsuario, setPerfilUsuario] = useState(null);
+  const [perfilUsuario, setPerfilUsuario] = useState(null); // Este debe ser el perfil real cargado
 
   const { isAuthenticated, user } = useAuth();
 
-  const loadTrabajadoresContext = async () => {
+  // Envuelve loadTrabajadoresContext en useCallback
+  const loadTrabajadoresContext = useCallback(async () => {
     try {
       const response = await listarTrabajadoresRequest();
-      setTrabajadores(response);
-    } catch (error) {
-      console.error("Error cargando trabajadores en el contexto:", error);
-      setTrabajadores([]);
-    }
-  };
-
-  const loadTrabajador = useCallback(async (id_trabajador) => {
-    if (!id_trabajador) {
-      setPerfil({
-        id_trabajador: "",
-        usuario: "",
-        password: "",
-        nombre: "",
-        apellidos: "",
-        ci: "",
-        telefono: "",
-        puesto: "",
-        direccion: "",
-        salario: "",
-        foto_perfil: "",
-      });
-      return;
-    }
-
-    try {
-      const trabajador = await listarunTrabajadorRequest(id_trabajador);
-      if (trabajador) {
-        setPerfil({
-          id_trabajador: trabajador.id_trabajador,
-          usuario: trabajador.usuario,
-          password: "",
-          nombre: trabajador.nombre,
-          apellidos: trabajador.apellidos,
-          ci: trabajador.ci,
-          telefono: trabajador.telefono,
-          puesto: trabajador.puesto,
-          direccion: trabajador.direccion,
-          salario: trabajador.salario,
-          foto_perfil: trabajador.foto_perfil,
-        });
+      // Verifica la estructura de response
+      console.log("Respuesta de API (Trabajadores):", response); // Log para depuración
+      if (Array.isArray(response)) {
+        setTrabajadores(response);
       } else {
-        console.warn(
-          `Trabajador con ID ${id_trabajador} no encontrado o error en la API.`
-        );
-        setPerfil({
-          id_trabajador: "",
-          usuario: "",
-          password: "",
-          nombre: "",
-          apellidos: "",
-          ci: "",
-          telefono: "",
-          puesto: "",
-          direccion: "",
-          salario: "",
-          foto_perfil: "",
-        });
+        console.error("La respuesta no es un array:", response);
+        setTrabajadores([]); // Asegúrate de que siempre sea un array
       }
     } catch (error) {
-      console.error("Error al cargar un trabajador específico:", error);
-      setPerfil({
-        id_trabajador: "",
-        usuario: "",
-        password: "",
-        nombre: "",
-        apellidos: "",
-        ci: "",
-        telefono: "",
-        puesto: "",
-        direccion: "",
-        salario: "",
-        foto_perfil: "",
-      });
+      console.error("Error al cargar trabajadores en el contexto:", error);
+      setTrabajadores([]); // Limpia en caso de error
     }
-  }, []);
+  }, []); // Dependencias vacías: esta función solo se crea una vez
 
+  // Envuelve loadPerfilUsuario en useCallback
   const loadPerfilUsuario = useCallback(async (id_trabajador) => {
     try {
       const trabajador = await listarunTrabajadorRequest(id_trabajador);
+      console.log("Datos recibidos del backend:", trabajador);
+
       if (trabajador) {
         const newProfile = {
-          id_trabajador: trabajador.id_trabajador,
-          usuario: trabajador.usuario,
-          nombre: trabajador.nombre,
-          apellidos: trabajador.apellidos,
-          ci: trabajador.ci,
-          telefono: trabajador.telefono,
-          puesto: trabajador.puesto,
-          direccion: trabajador.direccion,
-          salario: trabajador.salario,
-          foto_perfil: trabajador.foto_perfil,
+          id_trabajador: trabajador.id_trabajador || "",
+          usuario: trabajador.usuario?.usuario || "", // Accede al usuario a través de la relación
+          nombre: trabajador.nombre || "",
+          apellidos: trabajador.apellidos || "",
+          ci: trabajador.ci || "",
+          telefono: trabajador.telefono || "",
+          puesto: trabajador.puesto || "",
+          direccion: trabajador.direccion || "",
+          salario: trabajador.salario || "",
+          foto_perfil: trabajador.foto_perfil || "default.jpg",
         };
         setPerfilUsuario(newProfile);
         return newProfile;
       }
+      setPerfilUsuario(null);
       return null;
     } catch (error) {
-      console.error(
-        "Error al cargar el perfil del usuario autenticado:",
-        error
-      );
+      console.error("Error al cargar perfil:", error);
       setPerfilUsuario(null);
       return null;
     }
   }, []);
 
-  const deleteTrabajador = async (id_trabajador) => {
+  // Envuelve deleteTrabajador en useCallback también, si es necesario
+  const deleteTrabajador = useCallback(async (id_trabajador) => {
     try {
       await eliminarTrabajadorRequest(id_trabajador);
-      setTrabajadores(
-        trabajadores.filter(
+      setTrabajadores((prevTrabajadores) =>
+        prevTrabajadores.filter(
           (trabajador) => trabajador.id_trabajador !== id_trabajador
         )
       );
     } catch (error) {
       console.error("Error al eliminar trabajador:", error);
     }
-  };
+  }, []); // Dependencias vacías: esta función solo se crea una vez (o depende de otras funciones estables)
 
+  // Consolidar los useEffect de carga inicial
   useEffect(() => {
-    loadTrabajadoresContext();
-  }, []);
+    const loadInitialData = async () => {
+      // Cargar trabajadores siempre al montar el componente
+      await loadTrabajadoresContext();
 
-  useEffect(() => {
-    if (isAuthenticated && user && user.id_trabajador) {
-      loadPerfilUsuario(user.id_trabajador);
-    } else {
-      setPerfilUsuario(null);
-    }
-  }, [isAuthenticated, user, loadPerfilUsuario]);
+      // Cargar perfil de usuario si está autenticado
+      if (isAuthenticated && user?.id_trabajador) {
+        await loadPerfilUsuario(user.id_trabajador);
+      }
+    };
+
+    loadInitialData();
+  }, [
+    isAuthenticated,
+    user?.id_trabajador,
+    loadTrabajadoresContext,
+    loadPerfilUsuario,
+  ]);
+  // Asegúrate de incluir loadTrabajadoresContext y loadPerfilUsuario en las dependencias
+  // porque son funciones que (ahora) son estables gracias a useCallback.
+  // Sin embargo, si otras dependencias de estas funciones (internas a useCallback) cambian,
+  // useCallback las recrearía, y este useEffect se volvería a ejecutar.
+  // Como actualmente tienen dependencias vacías en useCallback, esto funcionará bien.
 
   return (
     <TrabajadorContext.Provider
@@ -184,10 +139,9 @@ export const TrabajadorContextProvider = ({ children }) => {
         deleteTrabajador,
         loadTrabajadoresContext,
         trabajadores,
-        perfil,
-        loadTrabajador,
-        perfilUsuario,
+        perfil: perfilUsuario, // Asegúrate de exportar `perfilUsuario` para el perfil real
         loadPerfilUsuario,
+        // ... otras funciones o estados que necesites
       }}
     >
       {children}

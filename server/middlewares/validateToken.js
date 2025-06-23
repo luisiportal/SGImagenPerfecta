@@ -1,15 +1,19 @@
-import Jwt from "jsonwebtoken";
-import { TOKEN_SECRET } from "../libs/jwt.js";
+import { verifyToken } from "../libs/jwt.js";
 
-export const authRequired = (req, res, next) => {
-  const { token } = req.cookies;
+export const authRequired = async (req, res, next) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res
+        .status(401)
+        .json({ message: "No autorizado - Token no proporcionado" });
+    }
 
-  if (!token)
-    return res.status(401).json({ mesagge: "No tiene permitido el acceso" });
-
-  Jwt.verify(token, TOKEN_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ mesagge: "token invalido" });
-    req.user = user;
+    const decoded = await verifyToken(token);
+    req.user = decoded;
     next();
-  });
+  } catch (error) {
+    console.error("Error en authRequired:", error);
+    return res.status(403).json({ message: "Token inválido o expirado" });
+  }
 };

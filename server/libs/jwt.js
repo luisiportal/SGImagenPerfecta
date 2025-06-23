@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
-// Definición directa del secreto (en producción usa variables de entorno del sistema)
-export const TOKEN_SECRET = "Ichbin";
+// Usar variable de entorno en producción
+export const TOKEN_SECRET = process.env.TOKEN_SECRET || "Ichbin";
 
 export function createAccessToken(payload) {
   return new Promise((resolve, reject) => {

@@ -8,14 +8,13 @@ import { Usuario } from "./Usuario.model.js";
 import { Trabajador } from "./Trabajador.model.js";
 
 export const associations = () => {
-  Trabajador.belongsTo(Usuario, {
-    foreignKey: "id_usuario",
-    allowNull: false,
+  Trabajador.hasOne(Usuario, { foreignKey: "id_trabajador", as: "usuario" }); // 'as' es importante para el include
+
+  Usuario.belongsTo(Trabajador, {
+    foreignKey: "id_trabajador",
+    as: "trabajador",
   });
 
-  Usuario.hasOne(Trabajador, {
-    foreignKey: "id_usuario",
-  });
   Reserva.belongsTo(Oferta, {
     foreignKey: "id_oferta",
     allowNull: true,

@@ -4,7 +4,7 @@ import Login from "../components/LoginForm";
 import { useEffect } from "react";
 import PerfilTrabajador from "../components/Trabajador/PerfilTrabajador";
 const Trabajador = () => {
-  const { isAuthenticated, setIsAuthenticated, errors, login } = useAuth();
+  const { isAuthenticated } = useAuth();
   useEffect(() => {}, [isAuthenticated]);
 
   return (

@@ -1,44 +1,52 @@
 import { sequelize } from "../db.js";
 import { DataTypes } from "sequelize";
 
-export const Trabajador = sequelize.define("trabajadores", {
-  id_trabajador: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
+export const Trabajador = sequelize.define(
+  "Trabajador",
+  {
+    // Primer objeto: Atributos/Columnas
+    id_trabajador: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    nombre: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+    },
+    apellidos: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    ci: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    telefono: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    puesto: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    direccion: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    salario: {
+      type: DataTypes.DECIMAL,
+      allowNull: true,
+    },
+    foto_perfil: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
-  id_usuario: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    unique: true, // Un usuario solo puede tener un perfil de trabajador
-  },
-
-  nombre: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  apellidos: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  ci: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-
-  telefono: {
-    type: DataTypes.STRING,
-  },
-  puesto: {
-    type: DataTypes.STRING,
-  },
-  direccion: {
-    type: DataTypes.STRING,
-  },
-  salario: {
-    type: DataTypes.DECIMAL,
-  },
-  foto_perfil: {
-    type: DataTypes.STRING,
-  },
-});
+  {
+    // <-- Esta es la llave que el error señala. Verifica lo que hay justo antes de ella.
+    // Segundo objeto: Opciones del modelo
+    tableName: "trabajadores",
+    timestamps: false,
+  }
+);

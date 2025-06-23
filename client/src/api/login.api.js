@@ -2,7 +2,7 @@ import axios from "./axios.js";
 
 export const loginRequest = async (values) => {
   try {
-    const res = await axios.post(`/auth/login`, values); // Cambiado a ruta más estándar
+    const res = await axios.post(`/api/trabajadores/login`, values); // Cambiado a ruta más estándar
     return res.data;
   } catch (error) {
     if (error.response) {
@@ -20,7 +20,7 @@ export const loginRequest = async (values) => {
 
 export const logoutRequest = async () => {
   try {
-    const res = await axios.post(`/auth/logout`);
+    const res = await axios.post(`/api/trabajadores/logout`);
     return res.data;
   } catch (error) {
     console.error("Error en logout:", error);

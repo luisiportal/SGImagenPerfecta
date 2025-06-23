@@ -22,9 +22,13 @@ const EditarTrabajadorPage = () => {
       if (id) {
         try {
           const trabajador = await listarunTrabajadorRequest(id);
+          console.log("Datos del trabajador recibidos de la API:", trabajador); // <--- AGREGAR ESTO
+          setInitialValues({
+            // ...
+          });
           setInitialValues({
             id_trabajador: trabajador.id_trabajador,
-            usuario: trabajador.usuario,
+            usuario: trabajador.usuario.usuario,
             password: "",
             confirmPassword: "",
             nombre: trabajador.nombre,
@@ -59,6 +63,7 @@ const EditarTrabajadorPage = () => {
     formData.append("puesto", values.puesto);
     formData.append("direccion", values.direccion);
     formData.append("salario", values.salario);
+    console.log(values.usuario, values.password);
 
     if (file) {
       formData.append("imagenPerfil", file);

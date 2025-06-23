@@ -9,61 +9,106 @@ export const listarTrabajadores = async (req, res) => {
       include: [
         {
           model: Usuario,
-          attributes: ["id_usuario", "usuario"], // Incluir datos del usuario
+          as: "usuario",
+          attributes: ["id_usuario", "usuario"],
         },
       ],
       order: [["id_trabajador", "DESC"]],
     });
+    console.log("Trabajadores encontrados prueb:", response.length);
     res.json(response);
   } catch (error) {
+    console.error("Error en listarTrabajadores:", {
+      message: error.message,
+      stack: error.stack,
+    });
     return res.status(500).json({ message: error.message });
   }
 };
-// export const crearTrabajador = async (req, res) => {
-//   let foto_perfil = "default.jpg";
-//   if (req.file !== undefined) {
-//     foto_perfil = req.file.originalname;
-//   }
-//   try {
-//     const {
-//       nombre,
-//       apellidos,
-//       ci,
-//       telefono,
-//       puesto,
-//       direccion,
-//       salario,
-//     } = req.body;
-
-//     const findUser = await Trabajador.findByPk(id_trabajador);
-//     if (!findUser) {
-//       await Trabajador.create({
-//         nombre,
-//         apellidos,
-//         ci,
-//         telefono,
-//         puesto,
-//         direccion,
-//         salario,
-//         foto_perfil,
-//       });
-//       saveImage(req.file, "trabajadores/perfil");
-//       res.status(201).json({ message: "Trabajador creado correctamente" });
-//     } else {
-//       res.status(400).json({ message: "El trabajador ya existe" });
-//     }
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
 
 export const crearTrabajador = async (req, res) => {
   let foto_perfil = "default.jpg";
   if (req.file !== undefined) {
     foto_perfil = req.file.originalname;
   }
-
   try {
+    const {
+      nombre,
+      apellidos,
+      ci,
+      telefono,
+      puesto,
+      direccion,
+      salario,
+      usuario, // Nombre de usuario para el login
+      password, // Contraseña para el login
+    } = req.body;
+
+    // --- Paso 1: Crear el Trabajador ---
+    const nuevoTrabajador = await Trabajador.create({
+      nombre,
+      apellidos,
+      ci,
+      telefono,
+      puesto,
+      direccion,
+      salario,
+      foto_perfil,
+      // IMPORTANTE: NO incluyas 'id_usuario' aquí si la tabla 'trabajadores' NO tiene una FK que referencie a 'usuarios'.
+      // Según tu esquema y asociaciones, la FK está en la tabla 'usuarios'.
+      // Si la incluyes y es null, es porque no la estás enviando y no es necesaria aquí.
+      // Si la incluyes y esperas que se llene automáticamente, no lo hará si no es una clave foránea que apunte a un modelo existente.
+    });
+
+    // --- Paso 2: Crear el Usuario y asociarlo al Trabajador ---
+    // Esto se hace asignando el id_trabajador recién creado al nuevo Usuario
+    if (usuario && password) {
+      const passwordHash = await bcrypt.hash(password, 10);
+      await Usuario.create({
+        usuario,
+        passwordHash,
+        id_trabajador: nuevoTrabajador.id_trabajador, // ¡AQUÍ ES DONDE ASIGNAS LA FK!
+      });
+    } else {
+      // Manejar el caso donde no se proporciona usuario/contraseña si es obligatorio
+      console.warn("Advertencia: Se creó un trabajador sin datos de usuario.");
+      // O podrías lanzar un error si siempre se espera un usuario para cada trabajador
+      // await nuevoTrabajador.destroy(); // Si la creación del usuario es crítica, revierte la creación del trabajador
+      // return res.status(400).json({ message: "Se requiere nombre de usuario y contraseña para el trabajador." });
+    }
+
+    // --- Paso 3: Recuperar el Trabajador con el Usuario incluido para la respuesta (opcional) ---
+    // Esto es para asegurarte de que la respuesta de la API incluya el usuario asociado
+    const trabajadorConUsuario = await Trabajador.findByPk(
+      nuevoTrabajador.id_trabajador,
+      {
+        include: [
+          {
+            model: Usuario,
+            as: "usuario",
+            attributes: ["id_usuario", "usuario"],
+          },
+        ],
+      }
+    );
+
+    res.status(201).json(trabajadorConUsuario);
+  } catch (error) {
+    console.error("Error al crear trabajador:", error);
+    // Para depuración, puedes enviar el error completo al frontend (solo en desarrollo)
+    return res
+      .status(500)
+      .json({ message: error.message, details: error.stack });
+  }
+};
+
+export const actualizarTrabajador = async (req, res) => {
+  try {
+    const id_trabajador = req.params.id;
+    console.log("Recibida solicitud de edición para ID:", id_trabajador);
+    console.log("Cuerpo de la solicitud (req.body):", req.body);
+    console.log("Archivo recibido (req.file):", req.file);
+
     const {
       usuario,
       password,
@@ -76,94 +121,51 @@ export const crearTrabajador = async (req, res) => {
       salario,
     } = req.body;
 
-    // Validación básica de campos requeridos
-    if (!usuario || !password) {
-      return res
-        .status(400)
-        .json({ message: "Usuario y contraseña son obligatorios" });
-    }
-
-    // Verificar si el usuario ya existe
-    const usuarioExistente = await Usuario.findOne({
-      where: { usuario: usuario },
-    });
-
-    if (usuarioExistente) {
-      return res
-        .status(400)
-        .json({ message: "El nombre de usuario ya está registrado" });
-    }
-
-    // Crear el usuario primero
-    const passwordHash = await bcrypt.hash(password, 10);
-    const nuevoUsuario = await Usuario.create({
-      usuario,
-      passwordHash,
-    });
-
-    // Crear el trabajador asociado
-    const nuevoTrabajador = await Trabajador.create({
-      id_usuario: nuevoUsuario.id_usuario,
-      nombre,
-      apellidos,
-      ci,
-      telefono,
-      puesto,
-      direccion,
-      salario,
-      foto_perfil,
-    });
-
-    // Guardar la imagen si fue proporcionada
-    if (req.file) {
-      saveImage(req.file, "trabajadores/perfil");
-    }
-
-    // Obtener el registro completo con la relación de usuario
-    const resultado = await Trabajador.findByPk(nuevoTrabajador.id_trabajador, {
-      include: [
-        {
-          model: Usuario,
-          attributes: ["id_usuario", "usuario"],
-        },
-      ],
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "Trabajador registrado exitosamente",
-      data: resultado,
-    });
-  } catch (error) {
-    console.error("Error en crearTrabajador:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error al crear trabajador",
-      error: error.message,
-    });
-  }
-};
-
-export const actualizarTrabajador = async (req, res) => {
-  try {
-    const id_trabajador = req.params.id;
-    const { nombre, apellidos, ci, telefono, puesto, direccion, salario } =
-      req.body;
-
+    // 1. Encontrar el trabajador existente y su usuario asociado
     const trabajador = await Trabajador.findByPk(id_trabajador, {
-      include: [
-        {
-          model: Usuario,
-          attributes: ["id_usuario", "usuario"],
-        },
-      ],
+      // *** CAMBIO CLAVE AQUÍ: VOLVEMOS a usar 'as: "usuario"' (singular) ***
+      include: [{ model: Usuario, as: "usuario" }], // <-- MODIFICA ESTA LÍNEA
     });
 
     if (!trabajador) {
+      console.warn(
+        `Trabajador con ID ${id_trabajador} no encontrado para edición.`
+      );
       return res.status(404).json({ message: "Trabajador no encontrado" });
     }
 
-    // Actualizar datos del trabajador
+    // 2. Actualizar el usuario asociado (nombre de usuario y/o contraseña)
+    // Asegúrate de acceder al objeto de usuario con el alias correcto (singular 'usuario')
+    if (trabajador.usuario) {
+      // <-- Usa 'trabajador.usuario' aquí (singular)
+      trabajador.usuario.usuario = usuario; // Actualiza el nombre de usuario
+
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        trabajador.usuario.password = await bcrypt.hash(password, salt);
+      }
+      await trabajador.usuario.save(); // Guarda los cambios en el modelo Usuario
+      console.log("Usuario asociado actualizado correctamente.");
+    } else {
+      console.warn(
+        `Trabajador con ID ${id_trabajador} no tiene un usuario asociado.`
+      );
+    }
+
+    // 3. Actualizar los datos del trabajador
+    let foto_perfil_path = trabajador.foto_perfil;
+    if (req.file) {
+      try {
+        foto_perfil_path = await saveImage(req.file);
+        console.log("Nueva imagen de perfil guardada:", foto_perfil_path);
+      } catch (saveError) {
+        console.error("Error al guardar la nueva imagen de perfil:", saveError);
+        return res
+          .status(500)
+          .json({ message: "Error al procesar la imagen de perfil." });
+      }
+    }
+
     trabajador.nombre = nombre;
     trabajador.apellidos = apellidos;
     trabajador.ci = ci;
@@ -171,27 +173,25 @@ export const actualizarTrabajador = async (req, res) => {
     trabajador.puesto = puesto;
     trabajador.direccion = direccion;
     trabajador.salario = salario;
-
-    if (req.file) {
-      trabajador.foto_perfil = req.file.originalname;
-      saveImage(req.file, "trabajadores/perfil");
-    }
+    trabajador.foto_perfil = foto_perfil_path;
 
     await trabajador.save();
+    console.log("Trabajador actualizado correctamente.");
 
-    // Obtener datos actualizados con la información del usuario
-    const trabajadorActualizado = await Trabajador.findByPk(id_trabajador, {
-      include: [
-        {
-          model: Usuario,
-          attributes: ["id_usuario", "usuario"],
-        },
-      ],
-    });
-
-    res.json(trabajadorActualizado);
+    return res
+      .status(200)
+      .json({ message: "Trabajador actualizado correctamente", trabajador });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    console.error("Error en editarTrabajador:", {
+      message: error.message,
+      stack: error.stack,
+      requestBody: req.body,
+      requestFile: req.file,
+    });
+    return res.status(500).json({
+      message: "Error interno del servidor al actualizar el trabajador.",
+      error: error.message,
+    });
   }
 };
 
@@ -226,15 +226,22 @@ export const listarUnTrabajador = async (req, res) => {
       include: [
         {
           model: Usuario,
+          as: "usuario",
           attributes: ["id_usuario", "usuario"],
         },
       ],
     });
-
-    if (!response) return res.status(404).json({ message: "No encontrado" });
-
+    if (!response) {
+      console.warn(`Trabajador con ID ${id_trabajador} no encontrado`);
+      return res.status(404).json({ message: "No encontrado" });
+    }
+    console.log("Trabajador encontrado:", response.toJSON());
     res.json(response);
   } catch (error) {
+    console.error("Error en listarUnTrabajador:", {
+      message: error.message,
+      stack: error.stack,
+    });
     return res.status(500).json({ message: error.message });
   }
 };
