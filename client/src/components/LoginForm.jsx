@@ -5,11 +5,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import MostrarError from "./validacionForm/MostrarError"; // Asegúrate de que MostrarError maneje arrays de errores
+import { useTrabajadorStore } from "../Store/TrabajadorStore";
 
 const Login = () => {
   const { login, errors: authErrors, loading } = useAuth(); // Renombramos 'errors' para evitar conflictos, y obtenemos 'loading'
   const [credencial_invalida, setCredencial_invalida] = useState(null);
   const navigate = useNavigate();
+  const { setTrabajador } = useTrabajadorStore();
 
   // Escucha los errores del contexto y actualiza el estado local de credencial_invalida
   // para que se muestre en el span.
@@ -45,9 +47,16 @@ const Login = () => {
         onSubmit={async (values, { setSubmitting }) => {
           setCredencial_invalida(null); // Limpiar errores antes de intentar login
           try {
-            const result = await login(values); // 'result' contendrá { success: true } o { success: false, message: "..." }
+            const result = await login(values);
+            console.log("result aquii");
+            
+            console.log(result);
+            
+            setTrabajador(result);
+
+            // 'result' contendrá { success: true } o { success: false, message: "..." }
             if (result.success) {
-              navigate("/trabajadores"); // Redirigir solo si el login fue exitoso
+              navigate("/trabajador/login"); // Redirigir solo si el login fue exitoso
             } else {
               // El error ya se maneja en el AuthContext y se propaga a authErrors,
               // que a su vez actualiza credencial_invalida vía useEffect.

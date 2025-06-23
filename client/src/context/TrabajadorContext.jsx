@@ -82,7 +82,7 @@ export const TrabajadorContextProvider = ({ children }) => {
           salario: trabajador.salario || "",
           foto_perfil: trabajador.foto_perfil || "default.jpg",
         };
-        setPerfilUsuario(newProfile);
+        setPerfilUsuario(trabajador);
         return newProfile;
       }
       setPerfilUsuario(null);
@@ -139,7 +139,7 @@ export const TrabajadorContextProvider = ({ children }) => {
         deleteTrabajador,
         loadTrabajadoresContext,
         trabajadores,
-        perfil: perfilUsuario, // Asegúrate de exportar `perfilUsuario` para el perfil real
+        perfilUsuario,
         loadPerfilUsuario,
         // ... otras funciones o estados que necesites
       }}
