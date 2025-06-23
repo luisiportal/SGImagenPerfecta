@@ -13,6 +13,7 @@ import { associations } from "./models/associations.js";
 import notificacionesRoutes from "./routes/notificaciones.routes.js";
 import { Notificacion } from "./models/Notification.model.js";
 import { Op } from "sequelize";
+import routerUsuario from "./routes/usuario.routes.js";
 
 export const app = express();
 app.use(
@@ -28,15 +29,9 @@ app.use(ofertaRoutes);
 app.use(routerReservas);
 app.use(serviciosRoutes);
 app.use(routerTrabajadores);
+app.use(routerUsuario);
 app.use(notificacionesRoutes);
 app.use("/api", loginRouter);
-
-// associations();
-// await sequelize.sync({ alter: true });
-
-// app.listen(PUERTO, () => {
-//   console.log(`El server esta en el puerto : ${PUERTO}....`);
-// });
 
 const initializeDatabase = async () => {
   try {

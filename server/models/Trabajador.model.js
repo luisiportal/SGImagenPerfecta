@@ -7,14 +7,11 @@ export const Trabajador = sequelize.define("trabajadores", {
     primaryKey: true,
     autoIncrement: true,
   },
-  usuario: {
-    type: DataTypes.STRING,
+  id_usuario: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
-  passwordHash: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
+ 
   nombre: {
     type: DataTypes.STRING,
     allowNull: false,

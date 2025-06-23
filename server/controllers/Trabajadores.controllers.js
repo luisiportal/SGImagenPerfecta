@@ -20,8 +20,6 @@ export const crearTrabajador = async (req, res) => {
   }
   try {
     const {
-      usuario,
-      password,
       nombre,
       apellidos,
       ci,
@@ -31,12 +29,9 @@ export const crearTrabajador = async (req, res) => {
       salario,
     } = req.body;
 
-    const findUser = await Trabajador.findOne({ where: { usuario: usuario } });
+    const findUser = await Trabajador.findByPk(id_trabajador);
     if (!findUser) {
-      const passwordHash = password ? await bcrypt.hash(password, 10) : "";
       await Trabajador.create({
-        usuario,
-        passwordHash,
         nombre,
         apellidos,
         ci,
@@ -47,9 +42,9 @@ export const crearTrabajador = async (req, res) => {
         foto_perfil,
       });
       saveImage(req.file, "trabajadores/perfil");
-      res.status(201).json({ message: "Usuario creado correctamente" });
+      res.status(201).json({ message: "Trabajador creado correctamente" });
     } else {
-      res.status(400).json({ message: "El usuario ya existe" });
+      res.status(400).json({ message: "El trabajador ya existe" });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -60,8 +55,6 @@ export const actualizarTrabajador = async (req, res) => {
   try {
     const id_trabajador = req.params.id;
     const {
-      usuario,
-      password,
       nombre,
       apellidos,
       ci,
@@ -75,8 +68,6 @@ export const actualizarTrabajador = async (req, res) => {
     if (!response) {
       return res.status(404).json({ message: "Trabajador no encontrado" });
     }
-
-    response.usuario = usuario;
     response.nombre = nombre;
     response.apellidos = apellidos;
     response.ci = ci;
@@ -84,10 +75,6 @@ export const actualizarTrabajador = async (req, res) => {
     response.puesto = puesto;
     response.direccion = direccion;
     response.salario = salario;
-
-    if (password) {
-      response.passwordHash = await bcrypt.hash(password, 10);
-    }
 
     if (req.file) {
       response.foto_perfil = req.file.originalname;
