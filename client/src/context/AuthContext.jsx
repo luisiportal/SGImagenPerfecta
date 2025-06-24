@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
   };
   // Añadir esta función para actualizar el usuario
   const updateUserProfile = (newProfileData) => {
+    console.log(newProfileData);
     setUser((prev) => ({
       ...prev,
       ...newProfileData,

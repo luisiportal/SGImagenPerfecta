@@ -1,4 +1,3 @@
-// frontend/src/api/notificaciones.api.js
 import axios from "./axios.js";
 
 export const crearNotificacionRequest = async (values) => {
@@ -14,10 +13,8 @@ export const crearNotificacionRequest = async (values) => {
   }
 };
 
-// Modificada para aceptar filtros
 export const obtenerNotificacionesRequest = async (filters = {}) => {
   try {
-    // Construir la URL con parámetros de consulta si hay filtros
     const params = new URLSearchParams(filters).toString();
     const url = params ? `/notificaciones?${params}` : "/notificaciones";
     const { data } = await axios.get(url);
@@ -34,7 +31,7 @@ export const obtenerNotificacionesRequest = async (filters = {}) => {
 export const obtenerNotificacionesPorReservaRequest = async (id_reserva) => {
   try {
     const { data } = await axios.get(`/reservas/${id_reserva}/notificaciones`);
-    return data; // Esto debería devolver un array de notificaciones
+    return data;
   } catch (error) {
     console.error(
       "Error al obtener notificaciones por reserva:",

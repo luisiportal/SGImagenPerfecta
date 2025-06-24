@@ -11,7 +11,7 @@ export const listarTrabajadores = async (req, res) => {
         {
           model: Usuario,
           as: "usuario",
-          attributes: ["id_usuario", "usuario"],
+          attributes: ["id_usuario", "usuario", "rol"],
         },
       ],
       order: [["id_trabajador", "DESC"]],
@@ -38,6 +38,7 @@ export const crearTrabajador = async (req, res) => {
       salario,
       usuario,
       password,
+      rol = "trabajador",
     } = req.body;
 
     const nuevoTrabajador = await Trabajador.create({
@@ -55,6 +56,7 @@ export const crearTrabajador = async (req, res) => {
       await Usuario.create({
         usuario,
         passwordHash,
+        rol,
         id_trabajador: nuevoTrabajador.id_trabajador,
       });
       if (req.file) {
@@ -75,7 +77,7 @@ export const crearTrabajador = async (req, res) => {
           {
             model: Usuario,
             as: "usuario",
-            attributes: ["id_usuario", "usuario"],
+            attributes: ["id_usuario", "usuario", "rol"],
           },
         ],
       }
@@ -104,6 +106,7 @@ export const actualizarTrabajador = async (req, res) => {
       puesto,
       direccion,
       salario,
+      rol,
     } = req.body;
 
     const trabajador = await Trabajador.findByPk(id_trabajador, {
@@ -134,6 +137,11 @@ export const actualizarTrabajador = async (req, res) => {
     // Actualizar datos de usuario si existe
     if (trabajador.usuario) {
       trabajador.usuario.usuario = usuario;
+      console.log("Rol recibido:", rol);
+      if (rol) {
+        console.log("Actualizando rol a:", rol);
+        trabajador.usuario.rol = rol;
+      }
 
       // Solo actualizar la contraseña si se proporcionó una nueva
       if (password && password.trim() !== "") {
@@ -151,6 +159,76 @@ export const actualizarTrabajador = async (req, res) => {
     console.error("Error en editarTrabajador:", error);
     return res.status(500).json({
       message: "Error interno del servidor al actualizar el trabajador.",
+      error: error.message,
+    });
+  }
+};
+
+export const listarUnTrabajador = async (req, res) => {
+  try {
+    const id_trabajador = req.params.id;
+    const response = await Trabajador.findByPk(id_trabajador, {
+      include: [
+        {
+          model: Usuario,
+          as: "usuario",
+          attributes: ["id_usuario", "usuario", "rol"],
+        },
+      ],
+    });
+
+    if (!response) {
+      return res.status(404).json({ message: "No encontrado" });
+    }
+    res.json(response);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const actualizarMiPerfil = async (req, res) => {
+  try {
+    const id_trabajador_param = req.params.id;
+
+    const { nombre, apellidos, ci, telefono, direccion, password } = req.body;
+
+    const trabajador = await Trabajador.findByPk(id_trabajador_param, {
+      include: [{ model: Usuario, as: "usuario" }],
+    });
+
+    if (!trabajador) {
+      return res.status(404).json({ message: "Trabajador no encontrado" });
+    }
+
+    // Actualizar campos permitidos
+    trabajador.nombre = nombre;
+    trabajador.apellidos = apellidos;
+    trabajador.ci = ci;
+    trabajador.telefono = telefono;
+    trabajador.direccion = direccion;
+
+    // Actualizar foto si existe
+    if (req.file) {
+      trabajador.foto_perfil = req.file.originalname;
+      saveImage(req.file, "trabajadores/perfil");
+    }
+
+    await trabajador.save();
+
+    // Actualizar usuario (si existe y si se proporcionó password)
+    if (trabajador.usuario && password && password.trim() !== "") {
+      trabajador.usuario.passwordHash = await bcrypt.hash(password, 10);
+      await trabajador.usuario.save();
+    }
+
+    return res.status(200).json({
+      message: "Perfil actualizado correctamente",
+      trabajador,
+    });
+  } catch (error) {
+    console.error("Error en actualizarMiPerfil:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor",
       error: error.message,
     });
   }
@@ -196,27 +274,5 @@ export const eliminarTrabajador = async (req, res) => {
       message: "Error al eliminar trabajador",
       error: error.message,
     });
-  }
-};
-
-export const listarUnTrabajador = async (req, res) => {
-  try {
-    const id_trabajador = req.params.id;
-    const response = await Trabajador.findByPk(id_trabajador, {
-      include: [
-        {
-          model: Usuario,
-          as: "usuario",
-          attributes: ["id_usuario", "usuario"],
-        },
-      ],
-    });
-
-    if (!response) {
-      return res.status(404).json({ message: "No encontrado" });
-    }
-    res.json(response);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
   }
 };

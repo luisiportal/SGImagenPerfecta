@@ -41,6 +41,15 @@ const PerfilTrabajador = () => {
     <div className="pt-24 min-h-screen bg-gray-50 flex justify-center items-center">
       <div className="min-h-80 w-full max-w-sm bg-white shadow-xl rounded-xl text-gray-900 overflow-hidden transform transition-all duration-300 hover:scale-[1.01]">
         <div className="relative h-40 bg-gradient-to-r from-st_color to-blue-500 flex justify-center items-end p-4">
+          <div className="absolute top-4 right-4 z-10">
+            <span
+              className={`text-white text-sm font-semibold px-3 py-1 rounded-full ${
+                user?.rol === "administrador" ? "bg-green-600" : "bg-blue-600"
+              }`}
+            >
+              {user?.rol === "administrador" ? "Administrador" : "Trabajador"}
+            </span>
+          </div>
           <div className="absolute -bottom-16">
             <img
               className="w-32 h-32 object-cover rounded-full border-4 border-white shadow-lg"

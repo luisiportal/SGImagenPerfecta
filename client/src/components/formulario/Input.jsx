@@ -11,6 +11,8 @@ const Input = ({
   placeholder,
   onFocus,
   onBlur,
+  disabled,
+  className,
 }) => {
   return (
     <div className="mb-4">
@@ -24,14 +26,15 @@ const Input = ({
         type={type}
         name={name}
         id={name}
-        className="px-3 py-2 rounded-md w-full border border-gray-300 bg-white
+        className={`px-3 py-2 rounded-md w-full border border-gray-300 bg-white
                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                   placeholder-gray-400 text-gray-800"
+                   placeholder-gray-400 ${!className ? "bg-gray-200" : "text-gray-800"} ${className || ""}`} // Clase dinámica añadida
         onChange={handleChange}
         value={value}
         placeholder={placeholder}
         onFocus={onFocus}
         onBlur={onBlur}
+        disabled={disabled}
       />
       <MostrarError errors={errors} campo={name} />
     </div>

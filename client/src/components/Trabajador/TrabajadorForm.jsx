@@ -11,6 +11,9 @@ const TrabajadorForm = ({
   onCancel,
   formTitle,
   isEditing,
+  disablePuestoSalario,
+  isAdminUser,
+  isMyProfileEdit,
 }) => {
   const [file, setFile] = useState(null);
   const [notificacion_msg, setNotificacion_msg] = useState(null);
@@ -113,6 +116,25 @@ const TrabajadorForm = ({
                     }
                   />
                 )}
+                {isAdminUser && !isMyProfileEdit && (
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Rol
+                    </label>
+                    <select
+                      name="rol"
+                      value={values.rol || "trabajador"}
+                      onChange={handleChange}
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="trabajador">Trabajador</option>
+                      <option value="administrador">Administrador</option>
+                    </select>
+                    {errors.rol && (
+                      <p className="mt-1 text-sm text-red-600">{errors.rol}</p>
+                    )}
+                  </div>
+                )}
                 <Input
                   name="nombre"
                   label="Nombre"
@@ -152,6 +174,10 @@ const TrabajadorForm = ({
                   value={values.puesto}
                   handleChange={handleChange}
                   errors={errors}
+                  disabled={disablePuestoSalario} // <-- Deshabilita el campo
+                  className={
+                    disablePuestoSalario ? "text-slate-500 bg-slate-200" : ""
+                  }
                 />
                 <Input
                   name="salario"
@@ -160,6 +186,10 @@ const TrabajadorForm = ({
                   value={values.salario}
                   handleChange={handleChange}
                   errors={errors}
+                  disabled={disablePuestoSalario} // <-- Deshabilita el campo
+                  className={
+                    disablePuestoSalario ? "text-slate-500 bg-slate-200" : ""
+                  }
                 />
                 <Input
                   name="direccion"

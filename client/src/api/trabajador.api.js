@@ -1,12 +1,5 @@
 import axios from "./axios.js";
 
-export const cargarPerfilRequest = (id) => {
-  const usuarioEncontrado = trabajadoresDB.find(
-    (user) => user.id_usuario === id
-  );
-  return usuarioEncontrado;
-};
-
 export const listarTrabajadoresRequest = async () => {
   try {
     const { data } = await axios.get(`/trabajadores`);
@@ -43,6 +36,18 @@ export const editarTrabajadoresRequest = async (values, id_trabajador) => {
     return response;
   } catch (error) {
     console.error("Error en editarTrabajadoresRequest:", error);
+    throw error;
+  }
+};
+export const editarMiPerfilRequest = async (values, id_trabajador) => {
+  try {
+    const response = await axios.put(
+      `/trabajadores/my-profile/${id_trabajador}`,
+      values
+    ); // ¡Nueva URL!
+    return response;
+  } catch (error) {
+    console.error("Error en editarMiPerfilRequest:", error);
     throw error;
   }
 };

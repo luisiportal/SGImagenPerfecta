@@ -63,9 +63,7 @@ const ListarReservas = () => {
   const handleDelete = async (id_reserva) => {
     try {
       await eliminarReservaRequest(id_reserva);
-      console.log("Reserva eliminada en el backend. Recargando reservas...");
       await loadReservas();
-      console.log("Reservas recargadas:", reservas); // Verifica el estado 'reservas' aquís
       setNotificacion_msg({
         mensaje: "Reserva eliminada con éxito!",
         errorColor: false,
@@ -81,9 +79,6 @@ const ListarReservas = () => {
 
   const handleCalendarNavigation = useCallback((date) => {
     setCurrentCalendarDate(date);
-    console.log("ListarReservas: Fecha actual del calendario:", date);
-    console.log("ListarReservas: Mes (0-indexado):", date.getMonth());
-    console.log("ListarReservas: Año:", date.getFullYear());
   }, []);
 
   return (

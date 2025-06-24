@@ -8,6 +8,8 @@ const TrabajadorCard = ({
   currentUserRole,
 }) => {
   const navigate = useNavigate();
+  const trabajadorRol =
+    trabajador.rol || trabajador.usuario?.rol || "trabajador";
 
   return (
     <div className="w-full max-w-xs mx-auto">
@@ -16,11 +18,20 @@ const TrabajadorCard = ({
           className={`mx-2 bg-neutral-200 shadow-xl rounded-lg text-gray-900 h-full flex flex-col relative
           ${isCurrentUser ? "border-4 border-blue-500" : ""}`}
         >
-          {isCurrentUser && (
-            <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full z-10">
-              Tú
+          {/* Badge de rol para todos los trabajadores */}
+          <div className="absolute top-2 right-2 z-10">
+            <span
+              className={`text-white text-xs font-semibold px-2 py-1 rounded-full ${
+                trabajadorRol === "administrador"
+                  ? "bg-green-600"
+                  : "bg-blue-600"
+              }`}
+            >
+              {trabajadorRol === "administrador"
+                ? "Administrador"
+                : "Trabajador"}
             </span>
-          )}
+          </div>
 
           <div className="rounded-t-lg h-32 overflow-hidden bg-gray-300"></div>
           <div className="mx-auto w-32 h-32 relative -mt-28 border-4 border-white rounded-full overflow-hidden">

@@ -11,14 +11,17 @@ import {
 const EditarTrabajadorPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { loadTrabajadoresContext, loadPerfilUsuario } = useTrabajadores();
+  const { loadTrabajadoresContext, loadPerfilUsuario, editarMiPerfil } =
+    useTrabajadores();
   const { user } = useAuth();
   const [initialValues, setInitialValues] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchTrabajador = async () => {
       setLoading(true);
+      setError(null);
       if (id) {
         try {
           const trabajador = await listarunTrabajadorRequest(id);
@@ -44,49 +47,71 @@ const EditarTrabajadorPage = () => {
           });
         } catch (error) {
           console.error("Error al cargar trabajador:", error);
-          setInitialValues(null);
+          setError(
+            error.response?.data?.message || "Error al cargar el trabajador."
+          );
+        } finally {
+          setLoading(false);
         }
       }
-      setLoading(false);
     };
     fetchTrabajador();
   }, [id]);
 
   const handleSubmit = async (values, file, formikBag, setNotificacion) => {
-    const formData = new FormData();
-    formData.append("usuario", values.usuario);
-    if (values.password && values.password.trim() !== "") {
-      formData.append("password", values.password);
-    }
-    formData.append("nombre", values.nombre);
-    formData.append("apellidos", values.apellidos);
-    formData.append("ci", values.ci);
-    formData.append("telefono", values.telefono);
-    formData.append("puesto", values.puesto);
-    formData.append("direccion", values.direccion);
-    formData.append("salario", values.salario);
-
-    if (file) {
-      formData.append("imagenPerfil", file);
-    }
+    // Determinar si es la edición del propio perfil o una edición por un admin
+    const isMyProfileEdit = user && String(user.id_trabajador) === id;
+    const isAdminUser = user && user.rol === "administrador";
+    console.log(user.rol);
 
     try {
-      await editarTrabajadoresRequest(formData, id);
+      if (isAdminUser || !isMyProfileEdit) {
+        // Si no es mi propio perfil (es decir, un admin edita a otro), usa la función general
+        const formData = new FormData();
+        formData.append("usuario", values.usuario);
+        if (values.password && values.password.trim() !== "") {
+          formData.append("password", values.password);
+        }
+        formData.append("nombre", values.nombre);
+        formData.append("apellidos", values.apellidos);
+        formData.append("ci", values.ci);
+        formData.append("telefono", values.telefono);
+        formData.append("puesto", values.puesto);
+        formData.append("direccion", values.direccion);
+        formData.append("salario", values.salario);
+        console.log(values.rol);
+
+        if (values.rol) {
+          formData.append("rol", values.rol);
+        }
+
+        if (file) {
+          formData.append("imagenPerfil", file);
+        }
+        await editarTrabajadoresRequest(formData, id);
+      } else {
+        // Si es el propio perfil, usa la función específica para mi perfil
+        await editarMiPerfil(values, file, id); // Llama a la función del contexto
+      }
+
       setNotificacion({
-        mensaje: "Trabajador actualizado correctamente",
+        mensaje: "Perfil actualizado correctamente",
         errorColor: false,
       });
       setTimeout(async () => {
-        await loadTrabajadoresContext();
-        if (user && user.id_trabajador == id) {
-          await loadPerfilUsuario(user.id_trabajador);
+        // Si es la edición de mi propio perfil, navega al perfil, si no, a la plantilla de trabajadores
+        if (isMyProfileEdit) {
+          await loadPerfilUsuario(user.id_trabajador); // Recarga para asegurar los datos actualizados
+          navigate("/trabajador/login"); // Asumiendo que /profile es la ruta de PerfilTrabajador
+        } else {
+          await loadTrabajadoresContext(); // Recarga la lista de trabajadores para el admin
+          navigate("/trabajador/plantilla");
         }
-        navigate("/trabajador/plantilla");
       }, 2000);
     } catch (error) {
-      console.error("Error al actualizar trabajador:", error);
+      console.error("Error al actualizar perfil:", error);
       const errorMessage =
-        error.response?.data?.message || "Error al actualizar el trabajador.";
+        error.response?.data?.message || "Error al actualizar el perfil.";
       setNotificacion({ mensaje: errorMessage, errorColor: true });
     } finally {
       formikBag.setSubmitting(false);
@@ -94,7 +119,11 @@ const EditarTrabajadorPage = () => {
   };
 
   const handleCancel = () => {
-    navigate("/trabajador/plantilla");
+    if (user && user.id_trabajador == id) {
+      navigate("/trabajador/login"); //
+    } else {
+      navigate("/trabajador/plantilla");
+    }
   };
 
   if (loading || (id && !initialValues)) {
@@ -104,7 +133,30 @@ const EditarTrabajadorPage = () => {
       </div>
     );
   }
+  if (error) {
+    return (
+      <div className="text-center mt-8 text-red-600">
+        {error}
+        <button
+          onClick={() =>
+            navigate(
+              user && user.id_trabajador == id
+                ? "/trabajador/login"
+                : "/trabajador/plantilla"
+            )
+          }
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+        >
+          Volver
+        </button>
+      </div>
+    );
+  }
 
+  // Determinar si los campos 'puesto' y 'salario' deben ser editables
+  const isMyProfileEdit = user && String(user.id_trabajador) === id;
+  const isAdminUser = user && user.rol === "administrador";
+  const disablePuestoSalario = isMyProfileEdit && !isAdminUser;
   return (
     <>
       {initialValues && (
@@ -114,6 +166,9 @@ const EditarTrabajadorPage = () => {
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           isEditing={true}
+          disablePuestoSalario={disablePuestoSalario}
+          isAdminUser={isAdminUser} // Pasamos si el usuario actual es admin
+          isMyProfileEdit={isMyProfileEdit}
         />
       )}
     </>
