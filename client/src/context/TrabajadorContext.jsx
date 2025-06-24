@@ -141,7 +141,7 @@ export const TrabajadorContextProvider = ({ children }) => {
           foto_perfil: trabajador.foto_perfil,
         };
         setPerfilUsuario(newProfile);
-        return newProfile; // Devuelve el perfil para sincronización
+        return newProfile;
       }
       return null;
     } catch (error) {
@@ -211,9 +211,7 @@ export const TrabajadorContextProvider = ({ children }) => {
         deleteTrabajador,
         loadTrabajadoresContext,
         trabajadores,
-        perfil,
-        loadTrabajador,
-        perfilUsuario,
+        perfil: perfilUsuario, // Asegúrate de exportar `perfilUsuario` para el perfil real
         loadPerfilUsuario,
         editarMiPerfil,
       }}

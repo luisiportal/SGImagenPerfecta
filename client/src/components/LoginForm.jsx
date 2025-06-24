@@ -3,11 +3,23 @@ import * as Yup from "yup";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import MostrarError from "./validacionForm/MostrarError";
+import MostrarError from "./validacionForm/MostrarError"; // Asegúrate de que MostrarError maneje arrays de errores
 
 const Login = () => {
   const { login } = useAuth();
   const [credencial_invalida, setCredencial_invalida] = useState(null);
+  const navigate = useNavigate();
+
+  // Escucha los errores del contexto y actualiza el estado local de credencial_invalida
+  // para que se muestre en el span.
+  // Podrías mostrar directamente authErrors en el JSX si MostrarError puede manejar eso.
+  React.useEffect(() => {
+    if (authErrors && authErrors.length > 0) {
+      setCredencial_invalida(authErrors[0]); // Muestra el primer error del array
+    } else {
+      setCredencial_invalida(null); // Limpia el mensaje si no hay errores
+    }
+  }, [authErrors]);
 
   return (
     <div className="h-screen">
@@ -28,9 +40,24 @@ const Login = () => {
         })}
         onSubmit={async (values) => {
           try {
-            const { response } = await login(values);
-            setCredencial_invalida(response.data.message);
-          } catch (error) {}
+            const result = await login(values); // 'result' contendrá { success: true } o { success: false, message: "..." }
+            if (result.success) {
+              navigate("/trabajadores"); // Redirigir solo si el login fue exitoso
+            } else {
+              // El error ya se maneja en el AuthContext y se propaga a authErrors,
+              // que a su vez actualiza credencial_invalida vía useEffect.
+              // No es necesario un setCredencial_invalida directo aquí.
+            }
+          } catch (error) {
+            // Este catch solo se activaría si hay un error MUY inesperado que no fue capturado
+            // por loginRequest o AuthContext.login.
+            console.error("Error inesperado en LoginForm:", error);
+            setCredencial_invalida(
+              "Ocurrió un error inesperado al iniciar sesión."
+            );
+          } finally {
+            setSubmitting(false); // Siempre deshabilitar el botón de submit
+          }
         }}
       >
         {({ isSubmitting, errors }) => (

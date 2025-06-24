@@ -28,6 +28,8 @@ const PerfilTrabajador = () => {
     fetchPerfil();
   }, [user]);
 
+  console.log(perfilUsuario);
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-50">
