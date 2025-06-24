@@ -36,6 +36,8 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Credencial inválida" });
     }
 
+    const userRole = userFound.rol;
+
     if (!userFound.trabajador) {
       return res
         .status(400)
@@ -44,6 +46,7 @@ export const login = async (req, res) => {
 
     const token = await createAccessToken({
       id: userFound.id_usuario,
+      rol: userFound.rol,
     });
 
     res.cookie("token", token, {
@@ -57,6 +60,7 @@ export const login = async (req, res) => {
       nombre: userFound.trabajador.nombre,
       apellidos: userFound.trabajador.apellidos,
       foto_perfil: userFound.trabajador.foto_perfil,
+      rol: userFound.rol,
     });
   } catch (error) {
     console.error("Error en login:", error); // 13. Log de error interno
@@ -100,7 +104,7 @@ export const verifyToken = async (req, res) => {
     if (!userFound || !userFound.trabajador) {
       return res.status(401).json({ message: "No autorizado" });
     }
-
+    console.log(res.rol, userFound.rol);
     return res.json({
       id_usuario: userFound.id_usuario,
       id_trabajador: userFound.trabajador.id_trabajador,
@@ -112,6 +116,7 @@ export const verifyToken = async (req, res) => {
       telefono: userFound.trabajador.telefono,
       direccion: userFound.trabajador.direccion,
       salario: userFound.trabajador.salario,
+      rol: userFound.rol,
     });
   } catch (error) {
     console.error("Error en verifyToken:", error);

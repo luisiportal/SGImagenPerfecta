@@ -2,6 +2,7 @@ import { Trabajador } from "../models/Trabajador.model.js";
 import { Usuario } from "../models/Usuario.model.js";
 import bcrypt from "bcryptjs";
 import { saveImage } from "./upload.multer.js";
+import { sequelize } from "../db.js";
 
 export const listarTrabajadores = async (req, res) => {
   try {
@@ -156,24 +157,45 @@ export const actualizarTrabajador = async (req, res) => {
 };
 
 export const eliminarTrabajador = async (req, res) => {
+  const transaction = await sequelize.transaction(); // Iniciar transacción
+
   try {
+    // 1. Buscar el trabajador con su usuario asociado
     const trabajador = await Trabajador.findByPk(req.params.id, {
-      include: [Usuario],
+      include: [
+        {
+          model: Usuario,
+          as: "usuario",
+          required: false,
+        },
+      ],
+      transaction,
     });
 
     if (!trabajador) {
-      return res.status(404).json({ message: "Trabajador no encontrado" });
+      await transaction.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "Trabajador no encontrado",
+      });
     }
-
-    await trabajador.destroy();
 
     if (trabajador.usuario) {
-      await trabajador.usuario.destroy();
+      await trabajador.usuario.destroy({ transaction });
     }
+
+    await trabajador.destroy({ transaction });
+    await transaction.commit();
 
     res.sendStatus(204);
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    await transaction.rollback();
+    console.error("Error al eliminar trabajador:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error al eliminar trabajador",
+      error: error.message,
+    });
   }
 };
 
@@ -189,6 +211,7 @@ export const listarUnTrabajador = async (req, res) => {
         },
       ],
     });
+
     if (!response) {
       return res.status(404).json({ message: "No encontrado" });
     }

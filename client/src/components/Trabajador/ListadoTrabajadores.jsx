@@ -17,7 +17,6 @@ const ListadoTrabajadores = () => {
     const fetchTrabajadores = async () => {
       try {
         await loadTrabajadoresContext();
-        console.log("prueba");
       } catch (error) {
         console.error("Error loading trabajadores:", error);
       }
@@ -32,9 +31,13 @@ const ListadoTrabajadores = () => {
 
   const handleConfirmDelete = async () => {
     if (trabajadorToDelete) {
-      await deleteTrabajador(trabajadorToDelete);
-      setShowConfirmModal(false);
-      setTrabajadorToDelete(null);
+      try {
+        await deleteTrabajador(trabajadorToDelete);
+        setShowConfirmModal(false);
+        setTrabajadorToDelete(null);
+      } catch (error) {
+        console.error("Error al eliminar:", error);
+      }
     }
   };
 
@@ -49,12 +52,14 @@ const ListadoTrabajadores = () => {
         <h1 className="text-5xl font-extrabold text-gray-800 leading-tight mb-6">
           Trabajadores
         </h1>
-        <Link to={"/trabajador/new"}>
-          <button className="flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-105">
-            <AgregarSVG />
-            Añadir Nuevos Trabajadores
-          </button>
-        </Link>
+        {user && user.rol === "administrador" && (
+          <Link to={"/trabajador/new"}>
+            <button className="flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-105">
+              <AgregarSVG />
+              Añadir Nuevos Trabajadores
+            </button>
+          </Link>
+        )}
       </section>
       <div className="flex flex-wrap justify-center gap-2 max-w-6xl mx-auto p-12">
         {trabajadores.map((trabajador) => (
@@ -65,6 +70,7 @@ const ListadoTrabajadores = () => {
             isCurrentUser={
               user && user.id_trabajador === trabajador.id_trabajador
             }
+            currentUserRole={user ? user.rol : null}
           />
         ))}
       </div>

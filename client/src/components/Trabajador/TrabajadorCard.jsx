@@ -1,7 +1,12 @@
 import { React, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const TrabajadorCard = ({ trabajador, onDeleteClick, isCurrentUser }) => {
+const TrabajadorCard = ({
+  trabajador,
+  onDeleteClick,
+  isCurrentUser,
+  currentUserRole,
+}) => {
   const navigate = useNavigate();
 
   return (
@@ -45,27 +50,28 @@ const TrabajadorCard = ({ trabajador, onDeleteClick, isCurrentUser }) => {
 
               <p className="text-gray-700">Salario: {trabajador.salario} cup</p>
             </div>
+            {currentUserRole === "administrador" && (
+              <div className="flex justify-center gap-x-4 mt-4">
+                <button
+                  className={`bg-red-500 px-4 py-2 font-bold text-white rounded hover:bg-red-600 transition-colors ${isCurrentUser ? "cursor-not-allowed opacity-50" : ""}`}
+                  onClick={() => onDeleteClick(trabajador.id_trabajador)}
+                  disabled={isCurrentUser}
+                >
+                  Eliminar
+                </button>
 
-            <div className="flex justify-center gap-x-4 mt-4">
-              <button
-                className={`bg-red-500 px-4 py-2 font-bold text-white rounded hover:bg-red-600 transition-colors ${isCurrentUser ? "cursor-not-allowed opacity-50" : ""}`}
-                onClick={() => onDeleteClick(trabajador.id_trabajador)}
-                disabled={isCurrentUser}
-              >
-                Eliminar
-              </button>
-
-              <button
-                className="bg-blue-500 px-4 py-2 font-bold text-white rounded hover:bg-blue-600 transition-colors"
-                onClick={() => {
-                  navigate(
-                    `/trabajador/profile/edit/${trabajador.id_trabajador}`
-                  );
-                }}
-              >
-                Editar
-              </button>
-            </div>
+                <button
+                  className="bg-blue-500 px-4 py-2 font-bold text-white rounded hover:bg-blue-600 transition-colors"
+                  onClick={() => {
+                    navigate(
+                      `/trabajador/profile/edit/${trabajador.id_trabajador}`
+                    );
+                  }}
+                >
+                  Editar
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

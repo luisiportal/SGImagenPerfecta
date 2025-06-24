@@ -155,6 +155,7 @@ export const TrabajadorContextProvider = ({ children }) => {
 
   const deleteTrabajador = async (id_trabajador) => {
     try {
+      console.log("Eliminando trabajador (Context):", id_trabajador); // Debug
       await eliminarTrabajadorRequest(id_trabajador);
       setTrabajadores(
         trabajadores.filter(
@@ -163,6 +164,7 @@ export const TrabajadorContextProvider = ({ children }) => {
       );
     } catch (error) {
       console.error("Error al eliminar trabajador:", error);
+      // throw error; // Propaga el error para manejarlo en el componente
     }
   };
 

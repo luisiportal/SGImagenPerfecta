@@ -26,7 +26,7 @@ export const Usuario = sequelize.define(
         key: "id_trabajador", // La clave primaria en Trabajador
       },
       onUpdate: "CASCADE",
-      onDelete: "SET NULL", // O 'CASCADE' si quieres eliminar el usuario si se elimina el trabajador
+      onDelete: "CASCADE", // O 'CASCADE' si quieres eliminar el usuario si se elimina el trabajador
     },
     rol: {
       type: DataTypes.ENUM("trabajador", "administrador"), // Solo dos roles posibles

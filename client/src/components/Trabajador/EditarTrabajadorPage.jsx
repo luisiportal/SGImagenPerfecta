@@ -22,10 +22,12 @@ const EditarTrabajadorPage = () => {
       if (id) {
         try {
           const trabajador = await listarunTrabajadorRequest(id);
-          console.log("Datos del trabajador recibidos de la API:", trabajador); // <--- AGREGAR ESTO
-          setInitialValues({
-            // ...
-          });
+
+          if (!trabajador.usuario.usuario) {
+            setError("Este trabajador no tiene un usuario asociado.");
+            return;
+          }
+
           setInitialValues({
             id_trabajador: trabajador.id_trabajador,
             usuario: trabajador.usuario.usuario,
@@ -63,7 +65,6 @@ const EditarTrabajadorPage = () => {
     formData.append("puesto", values.puesto);
     formData.append("direccion", values.direccion);
     formData.append("salario", values.salario);
-    console.log(values.usuario, values.password);
 
     if (file) {
       formData.append("imagenPerfil", file);
@@ -77,9 +78,6 @@ const EditarTrabajadorPage = () => {
       });
       setTimeout(async () => {
         await loadTrabajadoresContext();
-        console.log("User.Idtrabaj: ", user.id_trabajador);
-        console.log("este es user: ", user);
-        console.log("este es id: ", id);
         if (user && user.id_trabajador == id) {
           await loadPerfilUsuario(user.id_trabajador);
         }

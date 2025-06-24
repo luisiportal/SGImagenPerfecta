@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errors, setErrors] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   const login = async (user) => {
     try {
@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }) => {
         id_trabajador: data.id_trabajador,
         usuario: data.usuario,
         foto_perfil: data.foto_perfil,
+        rol: data.rol,
       });
       return data; // Devuelve los datos para posibles usos
     } catch (error) {
@@ -62,7 +63,10 @@ export const AuthProvider = ({ children }) => {
       if (cookies.token) {
         const { data } = await verifyTokenRequest(cookies.token);
         setIsAuthenticated(true);
-        setUser(data);
+        setUser({
+          ...data,
+          rol: data.rol, // Asegurar que el rol viene del backend
+        });
       }
     }
     checkLogin();
