@@ -38,7 +38,6 @@ const NotificacionCard = ({ notificacion, onUpdate }) => {
     }
   };
 
-  // Formatear fecha_sesion de Reserva
   const formatFechaSesion = (dateString) => {
     if (!dateString) return "Fecha no disponible";
     const date = new Date(dateString);

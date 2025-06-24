@@ -18,13 +18,11 @@ export const ReservaFormContent = ({
   reservedDates,
   handleCancelAction,
 }) => {
-  // Verificar si es una oferta personalizada
   const isOfertaPersonalizada =
     values.id_oferta === null && oferta_personalizada.length > 0;
 
   return (
     <Form className="bg-neutral-200 max-w-md rounded-md p-4 mx-auto">
-      {/* Mostrar servicios solo si es una oferta personalizada */}
       {isOfertaPersonalizada && !isEditing && (
         <ServiciosSeleccionados servicios={oferta_personalizada} />
       )}

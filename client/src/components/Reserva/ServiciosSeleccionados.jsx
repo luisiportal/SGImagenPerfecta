@@ -1,4 +1,3 @@
-// components/reserva/ServiciosSeleccionados.jsx
 import { calcularPrecioOfertaPersonalizada } from "../../utils/calculos";
 
 export const ServiciosSeleccionados = ({ servicios }) => {

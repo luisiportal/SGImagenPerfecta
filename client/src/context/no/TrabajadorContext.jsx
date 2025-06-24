@@ -9,7 +9,6 @@ import {
   eliminarTrabajadorRequest,
   listarTrabajadoresRequest,
   listarunTrabajadorRequest,
-  editarMiPerfilRequest,
 } from "../api/trabajador.api";
 import { useAuth } from "./AuthContext";
 
@@ -40,11 +39,11 @@ export const TrabajadorContextProvider = ({ children }) => {
     salario: "",
     foto_perfil: "",
   });
-  const [perfilUsuario, setPerfilUsuario] = useState(null); // Nuevo estado para el usuario autenticado
+  const [perfilUsuario, setPerfilUsuario] = useState(null);
 
   const { isAuthenticated, user } = useAuth();
 
-  const loadTrabajadoresContext = useCallback(async () => {
+  const loadTrabajadoresContext = async () => {
     try {
       const response = await listarTrabajadoresRequest();
       setTrabajadores(response);
@@ -52,7 +51,7 @@ export const TrabajadorContextProvider = ({ children }) => {
       console.error("Error cargando trabajadores en el contexto:", error);
       setTrabajadores([]);
     }
-  }, []);
+  };
 
   const loadTrabajador = useCallback(async (id_trabajador) => {
     if (!id_trabajador) {
@@ -141,7 +140,7 @@ export const TrabajadorContextProvider = ({ children }) => {
           foto_perfil: trabajador.foto_perfil,
         };
         setPerfilUsuario(newProfile);
-        return newProfile; // Devuelve el perfil para sincronización
+        return newProfile;
       }
       return null;
     } catch (error) {
@@ -153,38 +152,9 @@ export const TrabajadorContextProvider = ({ children }) => {
       return null;
     }
   }, []);
-  const editarMiPerfil = async (values, file, id_trabajador) => {
-    // Recibe el archivo
-    try {
-      const formData = new FormData();
-      // Asegúrate de que los campos coincidan con los permitidos en el backend para actualizarMiPerfil
-      formData.append("nombre", values.nombre);
-      formData.append("apellidos", values.apellidos);
-      formData.append("ci", values.ci);
-      formData.append("telefono", values.telefono);
-      formData.append("direccion", values.direccion);
 
-      // Solo añadir si existen y no están vacíos
-      if (values.usuario) formData.append("usuario", values.usuario);
-      if (values.password && values.password.trim() !== "") {
-        formData.append("password", values.password);
-      }
-      if (file) {
-        formData.append("imagenPerfil", file);
-      }
-
-      const res = await editarMiPerfilRequest(formData, id_trabajador);
-      // Tras una edición exitosa, podrías recargar el perfil del usuario para asegurar que los datos estén actualizados
-      await loadPerfilUsuario(id_trabajador); // Recarga el perfil de usuario
-      return res;
-    } catch (error) {
-      console.error("Error en editarMiPerfil (Context):", error);
-      throw error;
-    }
-  };
   const deleteTrabajador = async (id_trabajador) => {
     try {
-      console.log("Eliminando trabajador (Context):", id_trabajador); // Debug
       await eliminarTrabajadorRequest(id_trabajador);
       setTrabajadores(
         trabajadores.filter(
@@ -193,9 +163,12 @@ export const TrabajadorContextProvider = ({ children }) => {
       );
     } catch (error) {
       console.error("Error al eliminar trabajador:", error);
-      // throw error; // Propaga el error para manejarlo en el componente
     }
   };
+
+  useEffect(() => {
+    loadTrabajadoresContext();
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated && user && user.id_trabajador) {
@@ -215,7 +188,6 @@ export const TrabajadorContextProvider = ({ children }) => {
         loadTrabajador,
         perfilUsuario,
         loadPerfilUsuario,
-        editarMiPerfil,
       }}
     >
       {children}
