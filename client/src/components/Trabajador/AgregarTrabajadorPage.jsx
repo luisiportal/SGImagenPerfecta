@@ -1,14 +1,19 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import TrabajadorForm from "./TrabajadorForm";
 import { useTrabajadores } from "../../context/TrabajadorContext";
-import { crearTrabajadoresRequest } from "../../api/trabajador.api";
+import {
+  crearTrabajadoresRequest,
+  editarTrabajadoresRequest,
+  listarunTrabajadorRequest,
+} from "../../api/trabajador.api";
 
 const AgregarTrabajadorPage = () => {
+  const params = useParams();
+  const id_trabajador = params.id;
   const navigate = useNavigate();
   const { loadTrabajadoresContext } = useTrabajadores();
-
-  const initialValues = {
+  const [trabajador, setTrabajador] = useState({
     usuario: "",
     password: "",
     confirmPassword: "",
@@ -20,9 +25,21 @@ const AgregarTrabajadorPage = () => {
     direccion: "",
     salario: "",
     foto_perfil: "",
-  };
+    rol: "",
+  });
+
+  useEffect(() => {
+    const cargarTrabajador = async () => {
+      const response = await listarunTrabajadorRequest(id_trabajador);
+
+      setTrabajador({ ...response, usuario: response.usuario.usuario,rol:response.usuario.rol });
+    };
+
+    if (id_trabajador) cargarTrabajador();
+  }, []);
 
   const handleSubmit = async (values, file, formikBag, setNotificacion) => {
+    
     const formData = new FormData();
     formData.append("usuario", values.usuario);
     if (values.password) {
@@ -35,17 +52,16 @@ const AgregarTrabajadorPage = () => {
     formData.append("puesto", values.puesto);
     formData.append("direccion", values.direccion);
     formData.append("salario", values.salario);
+    formData.append("rol", values.rol);
 
     if (file) {
       formData.append("imagenPerfil", file);
     }
 
     try {
-      await crearTrabajadoresRequest(formData);
-      setNotificacion({
-        mensaje: "Usuario creado correctamente",
-        errorColor: false,
-      });
+      !id_trabajador
+        ? await crearTrabajadoresRequest(values)
+        : await editarTrabajadoresRequest(values,id_trabajador);
       setTimeout(async () => {
         await loadTrabajadoresContext();
         navigate("/trabajador/plantilla");
@@ -66,11 +82,11 @@ const AgregarTrabajadorPage = () => {
 
   return (
     <TrabajadorForm
-      formTitle="Agregar Trabajador"
-      initialValues={initialValues}
+      formTitle={id_trabajador ? "Editar Trabajador" : "Agregar Trabajador"}
       onSubmit={handleSubmit}
       onCancel={handleCancel}
       isEditing={false}
+      trabajador={trabajador}
     />
   );
 };

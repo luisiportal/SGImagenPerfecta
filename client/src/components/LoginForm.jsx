@@ -1,7 +1,6 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import MostrarError from "./validacionForm/MostrarError";
 
@@ -30,7 +29,9 @@ const Login = () => {
           try {
             const { response } = await login(values);
             setCredencial_invalida(response.data.message);
-          } catch (error) {}
+          } catch (error) {
+            console.log(error);
+          }
         }}
       >
         {({ isSubmitting, errors }) => (

@@ -4,21 +4,21 @@ import Input from "../formulario/Input";
 import schemaTrabajadores from "../validacionForm/schemaTrabajadores";
 import Notificacion from "../validacionForm/Notificacion";
 import ConfirmModal from "../Modal/ConfirmModal";
+import { useAuth } from "../../context/AuthContext";
 
 const TrabajadorForm = ({
-  initialValues,
   onSubmit,
   onCancel,
   formTitle,
   isEditing,
   disablePuestoSalario,
-  isAdminUser,
-  isMyProfileEdit,
+  trabajador,
 }) => {
   const [file, setFile] = useState(null);
   const [notificacion_msg, setNotificacion_msg] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { user } = useAuth();
 
   const handleCancelClick = () => {
     setShowConfirmModal(true);
@@ -39,7 +39,7 @@ const TrabajadorForm = ({
         {formTitle}
       </h1>
       <Formik
-        initialValues={initialValues}
+        initialValues={trabajador}
         enableReinitialize={true}
         validationSchema={schemaTrabajadores()}
         context={{ $isEditing: isEditing }}
@@ -66,7 +66,7 @@ const TrabajadorForm = ({
                   ) : (
                     <img
                       className="w-full h-full object-cover"
-                      src={`/images/trabajadores/perfil/${values.foto_perfil || "default.jpg"}`}
+                      src={`/images/trabajadores/perfil/${trabajador.foto_perfil || "default.jpg"}`}
                       alt="Foto de perfil"
                       onError={(e) => {
                         e.target.src =
@@ -116,14 +116,14 @@ const TrabajadorForm = ({
                     }
                   />
                 )}
-                {isAdminUser && !isMyProfileEdit && (
+                {user.rol === "administrador" && (
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Rol
                     </label>
                     <select
                       name="rol"
-                      value={values.rol || "trabajador"}
+                      value={values.rol}
                       onChange={handleChange}
                       className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     >

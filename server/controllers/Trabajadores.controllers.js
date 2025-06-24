@@ -109,6 +109,9 @@ export const actualizarTrabajador = async (req, res) => {
       rol,
     } = req.body;
 
+    console.log(rol);
+    
+
     const trabajador = await Trabajador.findByPk(id_trabajador, {
       include: [{ model: Usuario, as: "usuario" }],
     });
