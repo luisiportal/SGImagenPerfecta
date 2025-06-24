@@ -39,11 +39,11 @@ export const TrabajadorContextProvider = ({ children }) => {
     salario: "",
     foto_perfil: "",
   });
-  const [perfilUsuario, setPerfilUsuario] = useState(null); // Nuevo estado para el usuario autenticado
+  const [perfilUsuario, setPerfilUsuario] = useState(null);
 
   const { isAuthenticated, user } = useAuth();
 
-  const loadTrabajadoresContext = useCallback(async () => {
+  const loadTrabajadoresContext = async () => {
     try {
       const response = await listarTrabajadoresRequest();
       setTrabajadores(response);
@@ -51,7 +51,7 @@ export const TrabajadorContextProvider = ({ children }) => {
       console.error("Error cargando trabajadores en el contexto:", error);
       setTrabajadores([]);
     }
-  }, []);
+  };
 
   const loadTrabajador = useCallback(async (id_trabajador) => {
     if (!id_trabajador) {
@@ -140,7 +140,7 @@ export const TrabajadorContextProvider = ({ children }) => {
           foto_perfil: trabajador.foto_perfil,
         };
         setPerfilUsuario(newProfile);
-        return newProfile; // Devuelve el perfil para sincronización
+        return newProfile;
       }
       return null;
     } catch (error) {
@@ -165,6 +165,10 @@ export const TrabajadorContextProvider = ({ children }) => {
       console.error("Error al eliminar trabajador:", error);
     }
   };
+
+  useEffect(() => {
+    loadTrabajadoresContext();
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated && user && user.id_trabajador) {

@@ -53,7 +53,7 @@ const EditarTrabajadorPage = () => {
   const handleSubmit = async (values, file, formikBag, setNotificacion) => {
     const formData = new FormData();
     formData.append("usuario", values.usuario);
-    if (values.password) {
+    if (values.password && values.password.trim() !== "") {
       formData.append("password", values.password);
     }
     formData.append("nombre", values.nombre);

@@ -1,24 +1,5 @@
 import axios from "./axios.js";
 
-// export const loginRequest = async (values) => {
-//   try {
-//     const res = await axios.post(`/trabajadores/login`, values);
-//     return res.data;
-//   } catch (error) {
-//     if (error.response) {
-//       console.error("Error de respuesta del servidor:", error.response.data);
-//       console.error("Estado:", error.response.status);
-//       throw error.response.data;
-//     } else if (error.request) {
-//       console.error("No se recibió respuesta del servidor:", error.request);
-//       throw new Error("No se recibió respuesta del servidor.");
-//     } else {
-//       console.error("Error al configurar la solicitud:", error.message);
-//       throw new Error("Error al configurar la solicitud.");
-//     }
-//   }
-// };
-
 export const cargarPerfilRequest = (id) => {
   const usuarioEncontrado = trabajadoresDB.find(
     (user) => user.id_usuario === id
@@ -39,7 +20,6 @@ export const listarTrabajadoresRequest = async () => {
 export const listarunTrabajadorRequest = async (id_trabajador) => {
   try {
     const { data } = await axios.get(`/trabajadores/${id_trabajador}`);
-    console.log("Datos del trabajador recibidos:", data);
     return data;
   } catch (error) {
     console.error("Error en listarunTrabajadorRequest:", error);
@@ -49,7 +29,7 @@ export const listarunTrabajadorRequest = async (id_trabajador) => {
 
 export const crearTrabajadoresRequest = async (formData) => {
   try {
-    const response = await axios.post(`/api/trabajadores`, formData);
+    const response = await axios.post(`/trabajadores`, formData);
     return response;
   } catch (error) {
     console.error("Error en crearTrabajadoresRequest:", error);

@@ -14,7 +14,7 @@ const routerTrabajadores = Router();
 routerTrabajadores.get("/trabajadores", listarTrabajadores);
 routerTrabajadores.post(
   "/trabajadores",
-
+  authRequired,
   uploadTrabajador.single("imagenPerfil"),
   crearTrabajador
 );

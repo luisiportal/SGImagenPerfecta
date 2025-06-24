@@ -10,19 +10,11 @@ const PerfilTrabajador = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log("PerfilTrabajador - Usuario actual:", user);
-    console.log("PerfilTrabajador - PerfilUsuario actual:", perfilUsuario);
-
     const fetchPerfil = async () => {
       if (user && user.id_trabajador) {
         setIsLoading(true);
         try {
-          console.log(
-            "Cargando perfil para id_trabajador:",
-            user.id_trabajador
-          );
-          const resultado = await loadPerfilUsuario(user.id_trabajador);
-          console.log("Resultado de loadPerfilUsuario:", resultado);
+          await loadPerfilUsuario(user.id_trabajador);
         } catch (error) {
           console.error("Error al cargar perfil:", error);
         } finally {

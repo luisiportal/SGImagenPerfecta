@@ -28,6 +28,11 @@ export const Usuario = sequelize.define(
       onUpdate: "CASCADE",
       onDelete: "SET NULL", // O 'CASCADE' si quieres eliminar el usuario si se elimina el trabajador
     },
+    rol: {
+      type: DataTypes.ENUM("trabajador", "administrador"), // Solo dos roles posibles
+      allowNull: false,
+      defaultValue: "trabajador", // Valor por defecto
+    },
   },
   {
     tableName: "usuarios",

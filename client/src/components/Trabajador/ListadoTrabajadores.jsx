@@ -17,6 +17,7 @@ const ListadoTrabajadores = () => {
     const fetchTrabajadores = async () => {
       try {
         await loadTrabajadoresContext();
+        console.log("prueba");
       } catch (error) {
         console.error("Error loading trabajadores:", error);
       }

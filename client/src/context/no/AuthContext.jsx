@@ -1,6 +1,5 @@
 import React, { createContext, useEffect } from "react";
 import { useState, useContext } from "react";
-
 import Cookies from "js-cookie";
 import {
   loginRequest,
@@ -20,12 +19,12 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [errors, setErrors] = useState(null);
+  const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const login = async (user) => {
     try {
-      const { data } = await loginRequest(user);
+      const data = await loginRequest(user);
       setIsAuthenticated(true);
       setUser({
         id_trabajador: data.id_trabajador,
