@@ -37,3 +37,12 @@ export const formatDate = (date) => {
     return null;
   }
 };
+export const formatDateEnvio = (date) => {
+  if (!date || !isDate(date) || isNaN(date.getTime())) return null;
+  try {
+    return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
+  } catch (error) {
+    console.error("Error al formatear la fecha:", date, error);
+    return null;
+  }
+};

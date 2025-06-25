@@ -7,7 +7,7 @@ const ServicioCard = ({
   onDeleteSuccess,
   onEditClick,
   onDeleteResult,
-  onOpenDeleteModal, // Nuevo prop para abrir el modal de confirmación
+  onOpenDeleteModal,
 }) => {
   const [hovered, setHovered] = useState(false);
 
@@ -29,7 +29,7 @@ const ServicioCard = ({
             onDeleteSuccess={onDeleteSuccess}
             onEditClick={onEditClick}
             onDeleteResult={onDeleteResult}
-            onOpenDeleteModal={onOpenDeleteModal} // Pasa el nuevo callback
+            onOpenDeleteModal={onOpenDeleteModal}
           />
         </div>
       )}

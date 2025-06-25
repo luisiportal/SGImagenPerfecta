@@ -49,7 +49,7 @@ const ListarReservas = () => {
         mensaje: "Reserva actualizada con éxito!",
         errorColor: false,
       });
-      await loadReservas(); //revisar
+      await loadReservas();
     } catch (error) {
       console.error("Error al actualizar reserva en handleUpdate:", error);
       setNotificacion_msg({

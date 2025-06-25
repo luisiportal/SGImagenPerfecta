@@ -25,21 +25,24 @@ const AgregarTrabajadorPage = () => {
     direccion: "",
     salario: "",
     foto_perfil: "",
-    rol: "",
+    rol: "trabajador",
   });
 
   useEffect(() => {
     const cargarTrabajador = async () => {
       const response = await listarunTrabajadorRequest(id_trabajador);
 
-      setTrabajador({ ...response, usuario: response.usuario.usuario,rol:response.usuario.rol });
+      setTrabajador({
+        ...response,
+        usuario: response.usuario?.usuario ?? "",
+        rol: response.usuario?.rol ?? "",
+      });
     };
 
     if (id_trabajador) cargarTrabajador();
-  }, []);
+  }, [id_trabajador]);
 
   const handleSubmit = async (values, file, formikBag, setNotificacion) => {
-    
     const formData = new FormData();
     formData.append("usuario", values.usuario);
     if (values.password) {
@@ -59,17 +62,27 @@ const AgregarTrabajadorPage = () => {
     }
 
     try {
-      !id_trabajador
-        ? await crearTrabajadoresRequest(values)
-        : await editarTrabajadoresRequest(values,id_trabajador);
+      if (!id_trabajador) {
+        await crearTrabajadoresRequest(formData);
+        setNotificacion({
+          mensaje: "Trabajador creado exitosamente.",
+          errorColor: false,
+        });
+      } else {
+        await editarTrabajadoresRequest(formData, id_trabajador);
+        setNotificacion({
+          mensaje: "Trabajador actualizado exitosamente.",
+          errorColor: false,
+        });
+      }
       setTimeout(async () => {
         await loadTrabajadoresContext();
         navigate("/trabajador/plantilla");
       }, 2000);
     } catch (error) {
-      console.error("Error al crear trabajador:", error);
+      console.error("Error al procesar trabajador:", error);
       const errorMessage =
-        error.response?.data?.message || "Error al crear trabajador.";
+        error.response?.data?.message || "Error al procesar trabajador.";
       setNotificacion({ mensaje: errorMessage, errorColor: true });
     } finally {
       formikBag.setSubmitting(false);
@@ -85,7 +98,7 @@ const AgregarTrabajadorPage = () => {
       formTitle={id_trabajador ? "Editar Trabajador" : "Agregar Trabajador"}
       onSubmit={handleSubmit}
       onCancel={handleCancel}
-      isEditing={false}
+      isEditing={!!id_trabajador}
       trabajador={trabajador}
     />
   );

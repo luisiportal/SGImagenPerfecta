@@ -18,6 +18,33 @@ const FiltroNotificaciones = ({ filtros, setFiltros }) => {
       <h3 className="text-lg font-semibold mb-3">Filtrar Notificaciones</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
+          <label className="block text-sm text-gray-700 mb-1">Tipo:</label>
+          <select
+            name="tipo"
+            value={filtros.tipo || ""}
+            onChange={handleChange}
+            className="w-full border rounded px-2 py-1"
+          >
+            <option value="">Todos</option>
+            <option value="email">Email</option>
+            <option value="sistema">Sistema</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm text-gray-700 mb-1">Enviado:</label>
+          <input
+            type="checkbox"
+            name="enviado"
+            checked={filtros.enviado === "true"}
+            onChange={(e) =>
+              setFiltros((prev) => ({
+                ...prev,
+                enviado: e.target.checked ? "true" : "",
+              }))
+            }
+          />
+        </div>
+        <div>
           <label className="block text-sm text-gray-700 mb-1">Desde:</label>
           <input
             type="date"

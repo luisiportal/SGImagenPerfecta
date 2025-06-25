@@ -154,15 +154,13 @@ const ReservationsCalendar = ({
     []
   );
 
-  // Obtener el rango del mes para la vista de agenda
-  // Actualizar el rango de la agenda para restringir fechas
   const agendaRange = useMemo(() => {
     const { start, end } = getMonthRange(currentDate);
     return { start, end };
   }, [currentDate, getMonthRange]);
 
   return (
-    <div className="rbc-calendar-container min-w-[500px] uppercase">
+    <div className="rbc-calendar-container min-w-[500px]">
       <div style={{ height: "800px" }}>
         <Calendar
           localizer={localizer}
@@ -256,21 +254,18 @@ const ReservationsCalendar = ({
       )}
 
       {selectedReserva && showEditModal && (
-        <div
-          className="rbc-modal-overlay rbc-modal-overlay-visible"
-          onClick={() => handleCloseEditModal(true)}
-        >
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
           <div
-            className="rbc-edit-modal-content"
+            className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto relative"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => handleCloseEditModal(true)}
-              className="rbc-modal-close-button"
+              className="absolute top-2 right-2 p-1 text-gray-500 hover:text-gray-700 transition-colors duration-150"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="rbc-modal-close-icon"
+                className="h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -284,8 +279,10 @@ const ReservationsCalendar = ({
               </svg>
             </button>
 
-            <div className="rbc-modal-body">
-              <h2 className="rbc-modal-title">Editar Reserva</h2>
+            <div className="p-6 pt-10">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">
+                Editar Reserva
+              </h2>
               <ReservarForm
                 initialValues={selectedReserva}
                 onSubmit={handleGuardarEdicion}

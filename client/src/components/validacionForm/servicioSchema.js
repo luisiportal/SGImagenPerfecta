@@ -9,8 +9,8 @@ export const servicioSchema = yup.object().shape({
   descripcion_servicio: yup
     .string()
     .max(500, "La descripción no puede exceder los 500 caracteres")
-    .transform((value) => (!value?.trim() ? null : value)) // Convierte "  ", "\t\t", etc. → null
-    .nullable(), // Permite valores nulos
+    .transform((value) => (!value?.trim() ? null : value))
+    .nullable(),
   precio_servicio: yup
     .number()
     .typeError("El precio debe ser un número")

@@ -1,9 +1,6 @@
-// src/validacionForm/schemaTrabajadores.js
 import * as Yup from "yup";
 
-export const schemaTrabajadores = (
-  isEditing // Aceptar isEditing como argumento
-) =>
+export const schemaTrabajadores = (isEditing) =>
   Yup.object({
     usuario: Yup.string()
       .required("Campo requerido")
@@ -27,9 +24,7 @@ export const schemaTrabajadores = (
           }
         ),
       otherwise: (schema) =>
-        schema
-          // .required("Campo requerido")
-          .min(8, "La contraseña debe tener al menos 8 caracteres"),
+        schema.min(8, "La contraseña debe tener al menos 8 caracteres"),
     }),
     confirmPassword: Yup.string().when("password", {
       is: (password) => password && password.length > 0,

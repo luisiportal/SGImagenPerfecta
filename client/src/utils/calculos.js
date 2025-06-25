@@ -1,5 +1,3 @@
-// client/src/utils/priceUtils.js
-
 export const calcularPrecioOfertaPersonalizada = (servicios) => {
   const total = servicios.reduce(
     (total, servicio) =>

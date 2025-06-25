@@ -174,7 +174,7 @@ const TrabajadorForm = ({
                   value={values.puesto}
                   handleChange={handleChange}
                   errors={errors}
-                  disabled={disablePuestoSalario} // <-- Deshabilita el campo
+                  disabled={disablePuestoSalario}
                   className={
                     disablePuestoSalario ? "text-slate-500 bg-slate-200" : ""
                   }
@@ -186,7 +186,7 @@ const TrabajadorForm = ({
                   value={values.salario}
                   handleChange={handleChange}
                   errors={errors}
-                  disabled={disablePuestoSalario} // <-- Deshabilita el campo
+                  disabled={disablePuestoSalario}
                   className={
                     disablePuestoSalario ? "text-slate-500 bg-slate-200" : ""
                   }
@@ -223,7 +223,7 @@ const TrabajadorForm = ({
                       <span className="sr-only">Seleccionar imagen</span>
                       <input
                         type="file"
-                        name="imagenPerfil"
+                        name="foto_Perfil"
                         accept="image/*"
                         onChange={(e) => setFile(e.target.files?.[0])}
                         className="block w-full text-sm text-gray-500

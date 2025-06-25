@@ -1,4 +1,3 @@
-// notificaciones.routes.js
 import { Router } from "express";
 import {
   crearNotificacion,
@@ -8,7 +7,7 @@ import {
   eliminarNotificacion,
   obtenerNotificacionesPorReserva,
   programarEliminacion,
-  enviarCorreoNotificacion, // ¡Asegúrate de agregar esta importación!
+  enviarCorreoNotificacion,
 } from "../controllers/Notificaciones.controllers.js";
 import { authRequired } from "../middlewares/validateToken.js";
 
@@ -29,10 +28,6 @@ router.get(
   obtenerNotificacionesPorReserva
 );
 
-// Nueva ruta para enviar correo
-router.post(
-  "/notificaciones/enviar-correo", // O la ruta que prefieras
-  enviarCorreoNotificacion
-);
+router.post("/notificaciones/enviar-correo", enviarCorreoNotificacion);
 
 export default router;

@@ -39,18 +39,6 @@ export const editarTrabajadoresRequest = async (values, id_trabajador) => {
     throw error;
   }
 };
-export const editarMiPerfilRequest = async (values, id_trabajador) => {
-  try {
-    const response = await axios.put(
-      `/trabajadores/my-profile/${id_trabajador}`,
-      values
-    ); // ¡Nueva URL!
-    return response;
-  } catch (error) {
-    console.error("Error en editarMiPerfilRequest:", error);
-    throw error;
-  }
-};
 
 export const eliminarTrabajadorRequest = async (id_trabajador) => {
   try {

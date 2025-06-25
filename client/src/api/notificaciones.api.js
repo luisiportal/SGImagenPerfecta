@@ -30,13 +30,13 @@ export const obtenerNotificacionesRequest = async (filters = {}) => {
 
 export const obtenerNotificacionesPorReservaRequest = async (id_reserva) => {
   try {
-    const { data } = await axios.get(`/reservas/${id_reserva}/notificaciones`);
-    return data;
+    const response = await axios.get(`/reservas/notificaciones/${id_reserva}`);
+    return response.data;
   } catch (error) {
-    console.error(
-      "Error al obtener notificaciones por reserva:",
-      error.response?.data || error.message
-    );
+    if (error.response && error.response.status === 404) {
+      return [];
+    }
+    console.error("Error al obtener notificaciones por reserva:", error);
     throw error;
   }
 };
@@ -76,13 +76,28 @@ export const programarEliminacionRequest = async (
 ) => {
   try {
     const res = await axios.put(
-      `/notificaciones/${id_notificacion}/programar-eliminacion`,
+      `/notificaciones/programar-eliminacion/${id_notificacion}`,
       { fecha_eliminacion }
     );
     return res.data;
   } catch (error) {
     console.error(
       "Error al programar eliminación:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+export const enviarCorreoNotificacionRequest = async (id_notificacion) => {
+  try {
+    const res = await axios.post(`/notificaciones/enviar-correo`, {
+      id_notificacion,
+    });
+    return res.data;
+  } catch (error) {
+    console.error(
+      "Error al enviar correo de notificación:",
       error.response?.data || error.message
     );
     throw error;

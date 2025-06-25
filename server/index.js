@@ -55,7 +55,7 @@ const limpiarNotificacionesExpiradas = async () => {
     const resultado = await Notificacion.destroy({
       where: {
         fecha_eliminacion: {
-          [Op.lte]: sequelize.fn("NOW"), // Usando Op importado
+          [Op.lte]: sequelize.fn("NOW"),
         },
       },
     });

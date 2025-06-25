@@ -79,7 +79,6 @@ export const ReservarForm = ({
         ? new Date(`${initialValues.fecha_sesion}T00:00:00`)
         : null;
 
-      // Asegurar que oferta_personalizada tenga la estructura correcta
       const safeOfertaPersonalizada = initialValues.oferta_personalizada
         ?.ofertas_servicios
         ? initialValues.oferta_personalizada
@@ -111,14 +110,12 @@ export const ReservarForm = ({
 
       const obtenerServicios = (oferta) => {
         if (!oferta) return [];
-        // Si es un objeto con ofertas_servicios, usa esa propiedad
         if (
           oferta.ofertas_servicios &&
           Array.isArray(oferta.ofertas_servicios)
         ) {
           return oferta.ofertas_servicios;
         }
-        // Si es un array directamente, úsalo
         if (Array.isArray(oferta)) {
           return oferta;
         }
@@ -143,8 +140,6 @@ export const ReservarForm = ({
         oferta_personalizada: serviciosParaEnviar,
       };
 
-      console.log("Datos enviados:", dataToSend);
-      console.log(isEditing);
       if (isEditing) {
         await onSubmit(dataToSend);
       } else {
@@ -175,7 +170,6 @@ export const ReservarForm = ({
       if (onGoBackToServicios) {
         onGoBackToServicios();
       } else if (onCloseModal) {
-        console.log("55");
         onCloseModal();
       }
     } else {
@@ -193,23 +187,18 @@ export const ReservarForm = ({
       if (onCloseModal) {
         onCloseModal(isEditing ? true : returnToDetails);
       } else if (onCancel && isEditing) {
-        console.log("44");
         onCancel(true);
       } else {
-        console.log("33");
         navigate(-1);
       }
     } else if (genericModalType === "success") {
       setOferta_personalizada([]);
       if (isEditing) {
-        console.log("11");
         if (onCloseModal) {
-          console.log("00");
           onCloseModal();
         }
       } else {
-        console.log("22");
-        navigate(-1); // Navega a la página anterior solo si NO estás editando
+        navigate(-1);
       }
     }
     console.log("99");

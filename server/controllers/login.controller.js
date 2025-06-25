@@ -62,7 +62,7 @@ export const login = async (req, res) => {
       rol: userFound.rol,
     });
   } catch (error) {
-    console.error("Error en login:", error); // 13. Log de error interno
+    console.error("Error en login:", error);
     return res.status(500).json({ message: "Error interno del servidor" });
   }
 };
@@ -80,7 +80,6 @@ export const verifyToken = async (req, res) => {
   try {
     const decoded = jwt.verify(token, TOKEN_SECRET);
 
-    // Buscar el usuario en lugar del trabajador
     const userFound = await Usuario.findByPk(decoded.id, {
       include: [
         {

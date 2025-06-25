@@ -3,7 +3,7 @@ import React from "react";
 const Edit_ElimBTN_Servicio = ({
   id_servicio,
   onEditClick,
-  onOpenDeleteModal, // Nuevo callback para abrir el modal de confirmación
+  onOpenDeleteModal,
 }) => {
   return (
     <div className="flex space-x-2">

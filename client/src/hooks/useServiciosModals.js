@@ -1,4 +1,3 @@
-// src/hooks/useServiciosModals.js
 import { useState } from "react";
 
 export const useServiciosModals = () => {
@@ -16,7 +15,6 @@ export const useServiciosModals = () => {
   const handleCloseEditModal = () => {
     setShowEditModal(false);
     setServicioToEditId(null);
-    // Aquí puedes disparar una recarga de servicios si es necesario
   };
 
   const handleOpenCreateModal = () => {

@@ -1,4 +1,3 @@
-// NavbarComponent.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import BarraMovil from "./navbar/BarraMovil";

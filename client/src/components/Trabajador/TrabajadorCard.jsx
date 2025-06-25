@@ -12,7 +12,7 @@ const TrabajadorCard = ({
     trabajador.rol || trabajador.usuario?.rol || "trabajador";
 
   return (
-    <div className="w-full max-w-xs mx-auto">
+    <div className="max-w-xs mx-auto min-w-sm">
       <div className="pt-12">
         <div
           className={`mx-2 bg-neutral-200 shadow-xl rounded-lg text-gray-900 h-full flex flex-col relative

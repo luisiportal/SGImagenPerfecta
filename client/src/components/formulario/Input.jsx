@@ -4,7 +4,7 @@ import MostrarError from "../validacionForm/MostrarError";
 const Input = ({
   type,
   name,
-  value,
+  value = "",
   handleChange,
   errors,
   label,
@@ -28,7 +28,7 @@ const Input = ({
         id={name}
         className={`px-3 py-2 rounded-md w-full border border-gray-300 bg-white
                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                   placeholder-gray-400 ${!className ? "bg-gray-200" : "text-gray-800"} ${className || ""}`} // Clase dinámica añadida
+                   placeholder-gray-400 ${!className ? "bg-gray-200" : "text-gray-800"} ${className || ""}`}
         onChange={handleChange}
         value={value}
         placeholder={placeholder}

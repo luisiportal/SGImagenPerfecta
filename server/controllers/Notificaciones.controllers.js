@@ -15,6 +15,121 @@ const transporter = nodemailer.createTransport({
     pass: "32991ed99d0b8d",
   },
 });
+const sendSingleEmailNotification = async (notificacion) => {
+  if (!notificacion.Reserva || !notificacion.Reserva.email_cliente) {
+    console.warn(
+      `[Notificación ID: ${notificacion.id_notificacion}] No hay datos de reserva o email del cliente.`
+    );
+    throw new Error("Missing client email or reservation data.");
+  }
+
+  try {
+    const recipientEmail = notificacion.Reserva.email_cliente;
+    const subject =
+      notificacion.asunto || notificacion.titulo || "Notificación de Reserva"; // Asunto de la notificación
+    const emailContent = notificacion.mensaje;
+
+    await transporter.sendMail({
+      from: '"Tu Negocio" <info@tunegocio.com>', // Remitente del email
+      to: recipientEmail,
+      subject: subject,
+      html: emailContent,
+    });
+
+    console.log(
+      `[Email Enviado] Notificación ID: ${notificacion.id_notificacion} a ${recipientEmail}`
+    );
+    return true; // Éxito en el envío
+  } catch (emailError) {
+    console.error(
+      `[Error Envío Email] Notificación ID: ${notificacion.id_notificacion} -`,
+      emailError.message
+    );
+    throw emailError; // Re-lanza el error para manejarlo en la función principal
+  }
+};
+
+// **Función para el Cron Job: Buscar y Enviar Emails Pendientes**
+export const checkAndSendPendingEmails = async () => {
+  console.log(
+    `[CRON JOB] Iniciando verificación de notificaciones pendientes... (${new Date().toISOString()})`
+  );
+  const transaction = await sequelize.transaction(); // Iniciar una transacción
+  try {
+    const now = new Date();
+
+    const pendingNotifications = await Notificacion.findAll({
+      where: {
+        fecha_envio: { [Op.lte]: now }, // Fecha de envío menor o igual a la fecha y hora actual
+        enviado: false, // Que aún no se haya enviado
+        tipo: "email", // Que sea de tipo email
+      },
+      include: [
+        {
+          model: Reserva,
+          as: "Reserva", // Asegúrate de que este 'as' coincida con tu asociación en associations.js
+          attributes: [
+            "nombre_cliente",
+            "apellidos",
+            "email_cliente",
+            "fecha_sesion",
+            "hora_sesion",
+          ],
+        },
+      ],
+      transaction: transaction, // Asegurarse de que la consulta esté dentro de la transacción
+    });
+
+    if (pendingNotifications.length === 0) {
+      console.log(
+        "[CRON JOB] No se encontraron notificaciones por email pendientes."
+      );
+      await transaction.commit(); // Confirmar la transacción incluso si no hay nada que hacer
+      return {
+        message: "No hay notificaciones por email pendientes para enviar.",
+      };
+    }
+
+    console.log(
+      `[CRON JOB] Encontradas ${pendingNotifications.length} notificaciones por email pendientes.`
+    );
+
+    for (const notificacion of pendingNotifications) {
+      try {
+        await sendSingleEmailNotification(notificacion); // Usar la función auxiliar
+
+        // Actualizar el estado de la notificación después del envío exitoso
+        notificacion.enviado = true;
+        notificacion.fecha_envio_real = new Date(); // Registrar la fecha real de envío
+        await notificacion.save({ transaction: transaction }); // Guardar dentro de la transacción
+      } catch (error) {
+        // Si hay un error en el envío de un correo, lo registramos pero continuamos con los demás
+        console.error(
+          `[CRON JOB ERROR] Falló el envío de la notificación ID: ${notificacion.id_notificacion}. Error: ${error.message}`
+        );
+        // Opcional: Podrías añadir lógica aquí para marcar la notificación con un error,
+        // o incrementar un contador de intentos fallidos.
+      }
+    }
+
+    await transaction.commit(); // Confirmar todos los cambios si todo el proceso fue bien
+    console.log(
+      "[CRON JOB] Proceso de envío de emails completado y transacción confirmada."
+    );
+    return {
+      message: `Se procesaron ${pendingNotifications.length} notificaciones.`,
+    };
+  } catch (error) {
+    await transaction.rollback(); // Deshacer todos los cambios si ocurre un error inesperado
+    console.error(
+      "[CRON JOB ERROR GLOBAL] Error en checkAndSendPendingEmails:",
+      error
+    );
+    throw new Error(
+      "Error interno del servidor al procesar notificaciones por email."
+    );
+  }
+};
 
 export const enviarCorreoNotificacion = async (req, res) => {
   try {
@@ -38,6 +153,12 @@ export const enviarCorreoNotificacion = async (req, res) => {
         .status(400)
         .json({ message: "La notificación no es de tipo email." });
     }
+    await sendSingleEmailNotification(notificacion);
+
+    // Si todo fue bien, actualiza el estado y guarda
+    notificacion.enviado = true;
+    notificacion.fecha_envio_real = new Date();
+    await notificacion.save();
 
     if (!notificacion.Reserva || !notificacion.Reserva.correo_electronico) {
       return res.status(400).json({
@@ -71,7 +192,6 @@ export const enviarCorreoNotificacion = async (req, res) => {
         <li><strong>Precio:</strong> $${precioFormateado}</li>
       </ul>
       <p>Gracias por tu preferencia.</p>
-      <p>Atentamente,</p>
       <p>Estudio Fotográfico Otra Dimensión</p>
     `;
 
@@ -121,10 +241,11 @@ export const crearNotificacion = async (req, res) => {
       mensaje,
       tipo,
       asunto,
+      fecha_envio,
+      enviado: false,
       destinatario: reserva.correo_electronico || "N/A",
       fecha_eliminacion: fechaEliminacion,
     });
-    console.log("respuesta" + notificacion);
     res.status(201).json(notificacion);
   } catch (error) {
     res.status(500).json({
@@ -181,12 +302,6 @@ export const obtenerNotificaciones = async (req, res) => {
     }
     if (nombre) {
       const nombreNormalizado = nombre;
-      console.log(
-        "Nombre original:",
-        nombre,
-        "Normalizado:",
-        nombreNormalizado
-      );
       include[0].where[Op.or] = [
         { nombre_cliente: { [Op.like]: `%${nombreNormalizado}%` } },
         { apellidos: { [Op.like]: `%${nombreNormalizado}%` } },
@@ -198,7 +313,6 @@ export const obtenerNotificaciones = async (req, res) => {
       include,
       order: [["fecha_envio", "DESC"]],
     });
-    console.log(notificaciones);
 
     res.json(notificaciones);
   } catch (error) {
@@ -238,7 +352,14 @@ export const obtenerNotificacionPorId = async (req, res) => {
 export const actualizarNotificacion = async (req, res) => {
   try {
     const { id } = req.params;
-    const { id_reserva, mensaje, tipo, asunto, fecha_eliminacion } = req.body;
+    const {
+      id_reserva,
+      mensaje,
+      tipo,
+      asunto,
+      fecha_envio,
+      fecha_eliminacion,
+    } = req.body;
 
     const notificacion = await Notificacion.findByPk(id);
     if (!notificacion) {
@@ -254,8 +375,16 @@ export const actualizarNotificacion = async (req, res) => {
         });
       }
     }
+    let fechaEnvio = notificacion.fecha_envio;
+    if (fecha_envio !== undefined && fecha_envio !== null) {
+      fechaEnvio = new Date(fecha_envio);
+      if (isNaN(fechaEnvio.getTime())) {
+        return res.status(400).json({
+          message: "La fecha de envío es inválida",
+        });
+      }
+    }
 
-    // Si se cambia la reserva, actualiza el destinatario
     let destinatarioActualizado = notificacion.destinatario;
     if (id_reserva && id_reserva !== notificacion.id_reserva) {
       const nuevaReserva = await Reserva.findByPk(id_reserva);
@@ -272,6 +401,7 @@ export const actualizarNotificacion = async (req, res) => {
       asunto: asunto || notificacion.asunto,
       destinatario: destinatarioActualizado,
       fecha_eliminacion: fechaEliminacion,
+      fecha_envio: fechaEnvio,
     });
 
     res.json(notificacion);
@@ -311,7 +441,7 @@ export const obtenerNotificacionesPorReserva = async (req, res) => {
       include: [
         {
           model: Reserva,
-          as: "Reserva", // <-- ¡Aquí está la corrección! Usa el alias 'Reserva'
+          as: "Reserva",
           attributes: [
             "nombre_cliente",
             "apellidos",
@@ -331,7 +461,7 @@ export const obtenerNotificacionesPorReserva = async (req, res) => {
       });
     }
 
-    res.json(notificaciones);
+    res.json(notificaciones || []);
   } catch (error) {
     res.status(500).json({
       message: "Error al obtener notificaciones por reserva",

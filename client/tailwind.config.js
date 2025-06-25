@@ -16,11 +16,10 @@ export default {
         h_4foto: 379,
       },
       fontFamily: {
-        // Aquí defines tu nueva familia de fuentes
-        greatVibes: ['"Great Vibes"', "cursive"], // Puedes añadir fuentes de fallback
+        greatVibes: ['"Great Vibes"', "cursive"],
       },
       screens: {
-        "min-line": { raw: "(max-width: 200px)" }, // ajusta a lo que necesites
+        "min-line": { raw: "(max-width: 200px)" },
       },
     },
   },

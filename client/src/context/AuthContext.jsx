@@ -33,18 +33,20 @@ export const AuthProvider = ({ children }) => {
         foto_perfil: data.foto_perfil,
         rol: data.rol,
       });
-      return data; // Devuelve los datos para posibles usos
+      return data;
     } catch (error) {
       return error;
     }
   };
-  // Añadir esta función para actualizar el usuario
-  const updateUserProfile = (newProfileData) => {
-    console.log(newProfileData);
+
+  const updateUserProfile = (newProfileData, showNotification) => {
     setUser((prev) => ({
       ...prev,
       ...newProfileData,
     }));
+    if (showNotification) {
+      showNotification("Perfil actualizado correctamente");
+    }
   };
 
   const logout = async (user) => {
@@ -66,7 +68,7 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
         setUser({
           ...data,
-          rol: data.rol, // Asegurar que el rol viene del backend
+          rol: data.rol,
         });
       }
     }

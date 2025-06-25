@@ -20,22 +20,22 @@ export const Usuario = sequelize.define(
     },
     id_trabajador: {
       type: DataTypes.INTEGER,
-      allowNull: true, // Puede ser null si un usuario no siempre es un trabajador
+      allowNull: true,
       references: {
-        model: Trabajador, // Referencia al modelo Trabajador
-        key: "id_trabajador", // La clave primaria en Trabajador
+        model: Trabajador,
+        key: "id_trabajador",
       },
       onUpdate: "CASCADE",
-      onDelete: "CASCADE", // O 'CASCADE' si quieres eliminar el usuario si se elimina el trabajador
+      onDelete: "CASCADE",
     },
     rol: {
-      type: DataTypes.ENUM("trabajador", "administrador"), // Solo dos roles posibles
+      type: DataTypes.ENUM("trabajador", "administrador"),
       allowNull: false,
-      defaultValue: "trabajador", // Valor por defecto
+      defaultValue: "trabajador",
     },
   },
   {
     tableName: "usuarios",
-    timestamps: false, // O true si quieres createdAt/updatedAt
+    timestamps: false,
   }
 );

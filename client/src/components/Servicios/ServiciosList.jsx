@@ -32,22 +32,18 @@ const ServiciosList = () => {
     handleOpenServiciosModalFromReserva,
   } = useServiciosModals();
 
-  // Estado para el modal de información (éxito/error)
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [infoMessage, setInfoMessage] = useState("");
   const [infoType, setInfoType] = useState("success");
 
-  // Estado para el modal de confirmación de eliminación
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [servicioToDeleteId, setServicioToDeleteId] = useState(null);
 
-  // Maneja la apertura del modal de confirmación
   const handleOpenDeleteModal = (id_servicio) => {
     setServicioToDeleteId(id_servicio);
     setShowDeleteModal(true);
   };
 
-  // Maneja la confirmación de eliminación
   const handleConfirmDelete = async () => {
     try {
       await eliminarServicioRequest(servicioToDeleteId);
@@ -67,13 +63,11 @@ const ServiciosList = () => {
     }
   };
 
-  // Maneja la cancelación del modal de confirmación
   const handleCancelDelete = () => {
     setShowDeleteModal(false);
     setServicioToDeleteId(null);
   };
 
-  // Maneja el cierre del modal de información
   const handleCloseInfoModal = () => {
     setShowInfoModal(false);
     setInfoMessage("");
@@ -130,8 +124,8 @@ const ServiciosList = () => {
                   isAuthenticated={isAuthenticated}
                   onDeleteSuccess={handleDeleteSuccess}
                   onEditClick={handleOpenEditModal}
-                  onDeleteResult={handleCloseInfoModal} // No se usa directamente, pero se mantiene por compatibilidad
-                  onOpenDeleteModal={handleOpenDeleteModal} // Pasa el nuevo callback
+                  onDeleteResult={handleCloseInfoModal}
+                  onOpenDeleteModal={handleOpenDeleteModal}
                 />
               ))}
             </div>

@@ -1,5 +1,5 @@
 export const isAdmin = (req, res, next) => {
-  const { rol } = req.user; // Asume que el usuario está en req.user después de authRequired
+  const { rol } = req.user;
   if (rol !== "administrador") {
     return res
       .status(403)

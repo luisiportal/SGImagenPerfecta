@@ -4,6 +4,8 @@ import { Oferta_Personalizada } from "../models/Oferta_Personalizada.js";
 import { Oferta_Servicio } from "../models/Oferta_Servicio.js";
 import sequelize from "../db.js";
 import { Servicio } from "../models/Servicio.model.js";
+import { Notificacion } from "../models/Notificacion.model.js";
+import { enviarCorreoNotificacion } from "./Notificaciones.controllers.js";
 
 export const ListarReservas = async (req, res) => {
   try {
@@ -199,8 +201,6 @@ export const actualizarReserva = async (req, res) => {
       correo_electronico,
       pagado,
     } = req.body;
-
-    // 1. Validación básica de campos obligatorios
     if (
       !nombre_cliente ||
       !apellidos ||
@@ -212,7 +212,6 @@ export const actualizarReserva = async (req, res) => {
       return res.status(400).json({ message: "Faltan campos obligatorios." });
     }
 
-    // 2. Obtener reserva existente CON SUS RELACIONES
     const reserva = await Reserva.findByPk(id_reserva, {
       include: [
         { model: Oferta, required: false },

@@ -11,10 +11,9 @@ const ListarReservasCard = ({
 }) => {
   const { isAuthenticated } = useAuth();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [localReserva, setLocalReserva] = useState(reserva); // Estado local para la reserva
-  const [isUpdating, setIsUpdating] = useState(false); // Estado para indicar si se está actualizando el pago
+  const [localReserva, setLocalReserva] = useState(reserva);
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  // Sincroniza el estado local con la prop 'reserva' cuando cambie
   useEffect(() => {
     setLocalReserva(reserva);
   }, [reserva]);
@@ -42,21 +41,19 @@ const ListarReservasCard = ({
 
   const handlePaymentToggle = async (e) => {
     const newPaidStatus = e.target.checked;
-    setIsUpdating(true); // Indica que la actualización está en progreso
+    setIsUpdating(true);
     try {
-      // Llama a la API para actualizar el estado de pago
       await actualizarEstadoPagoRequest(localReserva.id_reserva, newPaidStatus);
-      // Actualiza el estado local de la reserva
+
       setLocalReserva({ ...localReserva, pagado: newPaidStatus });
-      // Si hay una función para actualizar la reserva en el componente padre, llámala
+
       if (onReservationUpdate) {
         onReservationUpdate();
       }
     } catch (error) {
       console.error("Error al actualizar estado de pago:", error);
-      // Aquí podrías añadir una notificación al usuario si la actualización falla
     } finally {
-      setIsUpdating(false); // La actualización ha terminado
+      setIsUpdating(false);
     }
   };
 
@@ -79,7 +76,7 @@ const ListarReservasCard = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300 my-3 mx-auto w-full max-w-md">
+    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg hover:-translate-y-1 transition-transform duration-300 mx-auto w-full max-w-md">
       <div className="p-6">
         <div className="uppercase tracking-wide text-sm text-indigo-600 font-bold mb-2 border-b border-indigo-100 pb-2 flex justify-between items-center">
           <span>Detalles de la Reserva</span>

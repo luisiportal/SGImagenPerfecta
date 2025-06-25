@@ -181,7 +181,7 @@ const OfertaForm = () => {
                   value={values.locacion}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 >
-                  <option value="">Selecciona una opción</option>
+                  <option>Selecciona una opción</option>
                   <option value="Estudio">Estudio</option>
                   <option value="Exterior">Exterior</option>
                   <option value="Ambas">Ambas</option>

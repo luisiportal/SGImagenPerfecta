@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
 export const useservicios = create((set) => ({
-  servicios: [], // <--- Make sure it's an empty array
+  servicios: [],
   setservicios: (newServicios) => set({ servicios: newServicios }),
 }));

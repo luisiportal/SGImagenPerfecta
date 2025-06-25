@@ -50,7 +50,6 @@ const ListarServicios = ({
         { ...servicio, cantidad: 1 },
       ]);
     }
-    // No necesitamos un else aquí, la palomita lo indicará.
   };
 
   const handleAccept = () => {
@@ -68,7 +67,6 @@ const ListarServicios = ({
     setAlertMessage("");
   };
 
-  // New function to clear all selected services
   const handleClearServicios = () => {
     setOferta_personalizada([]);
   };

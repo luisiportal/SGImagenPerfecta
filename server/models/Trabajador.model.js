@@ -4,7 +4,6 @@ import { DataTypes } from "sequelize";
 export const Trabajador = sequelize.define(
   "Trabajador",
   {
-    // Primer objeto: Atributos/Columnas
     id_trabajador: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -44,8 +43,6 @@ export const Trabajador = sequelize.define(
     },
   },
   {
-    // <-- Esta es la llave que el error señala. Verifica lo que hay justo antes de ella.
-    // Segundo objeto: Opciones del modelo
     tableName: "trabajadores",
     timestamps: false,
   }

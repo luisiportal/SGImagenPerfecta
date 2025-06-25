@@ -11,7 +11,7 @@ import {
 import { authRequired } from "../middlewares/validateToken.js";
 const routerReservas = Router();
 
-routerReservas.get("/reservas/fechas-reservadas", obtenerFechasReservadas); // Nueva ruta para obtener fechas reservadas
+routerReservas.get("/reservas/fechas-reservadas", obtenerFechasReservadas);
 routerReservas.get("/reservas/listar", authRequired, ListarReservas);
 routerReservas.post("/reservas/crear", crearReserva);
 routerReservas.get("/reservas/listar/:id", listarUnaReserva);

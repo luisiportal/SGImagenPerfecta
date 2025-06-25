@@ -7,9 +7,9 @@ import {
   StyleSheet,
   PDFDownloadLink,
 } from "@react-pdf/renderer";
-import format from "date-fns/format"; // Importar date-fns para formatear fechas
-import { es } from "date-fns/locale"; // Localización en español
-import { parseDateForCalendar } from "../utils/dateUtils"; // Importar la función de normalización
+import format from "date-fns/format";
+import { es } from "date-fns/locale";
+import { parseDateForCalendar } from "../utils/dateUtils";
 
 const monthNames = [
   "Enero",
@@ -26,7 +26,6 @@ const monthNames = [
   "Diciembre",
 ];
 
-// Estilos para el documento PDF
 const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
@@ -84,21 +83,19 @@ const styles = StyleSheet.create({
   },
 });
 
-// Componente para el documento PDF que renderiza la tabla
 const ReservationsDocument = ({ reservations, month, year }) => {
   const targetMonth = month;
   const targetYear = year;
 
   const filteredReservations = reservations.filter((reserva) => {
     if (!reserva.fecha_sesion) return false;
-    const reservationDate = parseDateForCalendar(reserva.fecha_sesion); // Usar parseDateForCalendar
+    const reservationDate = parseDateForCalendar(reserva.fecha_sesion);
     return (
       reservationDate.getMonth() === targetMonth &&
       reservationDate.getFullYear() === targetYear
     );
   });
 
-  // Define los anchos individuales para cada columna del encabezado
   const colWidthsHeader = {
     cliente: "25%",
     oferta: "25%",
@@ -107,7 +104,6 @@ const ReservationsDocument = ({ reservations, month, year }) => {
     telefono: "20%",
   };
 
-  // Define los anchos individuales para cada columna de las filas de datos
   const colWidthsData = {
     cliente: "25%",
     oferta: "25%",
@@ -186,7 +182,7 @@ const ReservationsDocument = ({ reservations, month, year }) => {
                   ]}
                 >
                   {format(
-                    parseDateForCalendar(reserva.fecha_sesion), // Usar parseDateForCalendar
+                    parseDateForCalendar(reserva.fecha_sesion),
                     "dd/MM/yyyy",
                     { locale: es }
                   )}
@@ -212,11 +208,10 @@ const ReservationsDocument = ({ reservations, month, year }) => {
   );
 };
 
-// Componente principal del botón de exportación (sin cambios aquí)
 const ReservationsPdfExport = ({ reservations, month, year }) => {
   const filteredReservations = reservations.filter((reserva) => {
     if (!reserva.fecha_sesion) return false;
-    const reservationDate = parseDateForCalendar(reserva.fecha_sesion); // Usar parseDateForCalendar
+    const reservationDate = parseDateForCalendar(reserva.fecha_sesion);
     return (
       reservationDate.getMonth() === month &&
       reservationDate.getFullYear() === year
