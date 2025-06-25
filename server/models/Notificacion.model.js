@@ -31,7 +31,7 @@ export const Notificacion = sequelize.define(
       defaultValue: false,
     },
     tipo: {
-      type: DataTypes.ENUM("email", "sms", "sistema"),
+      type: DataTypes.ENUM("email", "sistema"),
       allowNull: false,
     },
     destinatario: {
@@ -45,8 +45,7 @@ export const Notificacion = sequelize.define(
     fecha_eliminacion: {
       type: DataTypes.DATE,
       allowNull: true,
-      comment:
-        "Fecha programada para eliminación automática. Si es null, persiste hasta eliminación manual",
+      comment: "Fecha programada para eliminación automática.",
     },
   },
   {

@@ -9,7 +9,6 @@ export const login = async (req, res) => {
   const { usuario, password } = req.body;
 
   try {
-    // Validar campos requeridos
     if (!usuario || !password) {
       return res
         .status(400)
@@ -104,7 +103,6 @@ export const verifyToken = async (req, res) => {
     if (!userFound || !userFound.trabajador) {
       return res.status(401).json({ message: "No autorizado" });
     }
-    console.log(res.rol, userFound.rol);
     return res.json({
       id_usuario: userFound.id_usuario,
       id_trabajador: userFound.trabajador.id_trabajador,

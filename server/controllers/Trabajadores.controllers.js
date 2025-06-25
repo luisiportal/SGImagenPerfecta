@@ -109,9 +109,6 @@ export const actualizarTrabajador = async (req, res) => {
       rol,
     } = req.body;
 
-    console.log(rol);
-    
-
     const trabajador = await Trabajador.findByPk(id_trabajador, {
       include: [{ model: Usuario, as: "usuario" }],
     });
@@ -120,7 +117,6 @@ export const actualizarTrabajador = async (req, res) => {
       return res.status(404).json({ message: "Trabajador no encontrado" });
     }
 
-    // Actualizar datos del trabajador
     trabajador.nombre = nombre;
     trabajador.apellidos = apellidos;
     trabajador.ci = ci;
@@ -129,7 +125,6 @@ export const actualizarTrabajador = async (req, res) => {
     trabajador.direccion = direccion;
     trabajador.salario = salario;
 
-    // Actualizar foto de perfil si existe
     if (req.file) {
       trabajador.foto_perfil = req.file.originalname;
       saveImage(req.file, "trabajadores/perfil");
@@ -137,16 +132,12 @@ export const actualizarTrabajador = async (req, res) => {
 
     await trabajador.save();
 
-    // Actualizar datos de usuario si existe
     if (trabajador.usuario) {
       trabajador.usuario.usuario = usuario;
-      console.log("Rol recibido:", rol);
       if (rol) {
-        console.log("Actualizando rol a:", rol);
         trabajador.usuario.rol = rol;
       }
 
-      // Solo actualizar la contraseña si se proporcionó una nueva
       if (password && password.trim() !== "") {
         trabajador.usuario.passwordHash = await bcrypt.hash(password, 10);
       }
@@ -189,59 +180,10 @@ export const listarUnTrabajador = async (req, res) => {
   }
 };
 
-export const actualizarMiPerfil = async (req, res) => {
-  try {
-    const id_trabajador_param = req.params.id;
-
-    const { nombre, apellidos, ci, telefono, direccion, password } = req.body;
-
-    const trabajador = await Trabajador.findByPk(id_trabajador_param, {
-      include: [{ model: Usuario, as: "usuario" }],
-    });
-
-    if (!trabajador) {
-      return res.status(404).json({ message: "Trabajador no encontrado" });
-    }
-
-    // Actualizar campos permitidos
-    trabajador.nombre = nombre;
-    trabajador.apellidos = apellidos;
-    trabajador.ci = ci;
-    trabajador.telefono = telefono;
-    trabajador.direccion = direccion;
-
-    // Actualizar foto si existe
-    if (req.file) {
-      trabajador.foto_perfil = req.file.originalname;
-      saveImage(req.file, "trabajadores/perfil");
-    }
-
-    await trabajador.save();
-
-    // Actualizar usuario (si existe y si se proporcionó password)
-    if (trabajador.usuario && password && password.trim() !== "") {
-      trabajador.usuario.passwordHash = await bcrypt.hash(password, 10);
-      await trabajador.usuario.save();
-    }
-
-    return res.status(200).json({
-      message: "Perfil actualizado correctamente",
-      trabajador,
-    });
-  } catch (error) {
-    console.error("Error en actualizarMiPerfil:", error);
-    return res.status(500).json({
-      message: "Error interno del servidor",
-      error: error.message,
-    });
-  }
-};
-
 export const eliminarTrabajador = async (req, res) => {
-  const transaction = await sequelize.transaction(); // Iniciar transacción
+  const transaction = await sequelize.transaction();
 
   try {
-    // 1. Buscar el trabajador con su usuario asociado
     const trabajador = await Trabajador.findByPk(req.params.id, {
       include: [
         {

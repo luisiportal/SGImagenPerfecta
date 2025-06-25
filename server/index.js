@@ -11,7 +11,7 @@ import routerTrabajadores from "./routes/trabajadores.routes.js";
 import serviciosRoutes from "./routes/servicios.routes.js";
 import { associations } from "./models/associations.js";
 import notificacionesRoutes from "./routes/notificaciones.routes.js";
-import { Notificacion } from "./models/Notification.model.js";
+import { Notificacion } from "./models/Notificacion.model.js";
 import { Op } from "sequelize";
 import routerUsuario from "./routes/usuario.routes.js";
 

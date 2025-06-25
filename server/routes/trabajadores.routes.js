@@ -5,7 +5,7 @@ import {
   eliminarTrabajador,
   listarTrabajadores,
   listarUnTrabajador,
-  actualizarMiPerfil,
+  // actualizarMiPerfil,
 } from "../controllers/Trabajadores.controllers.js";
 import { uploadTrabajador } from "../controllers/upload.multer.js";
 import { authRequired } from "../middlewares/validateToken.js";
@@ -21,12 +21,12 @@ routerTrabajadores.post(
   uploadTrabajador.single("imagenPerfil"),
   crearTrabajador
 );
-routerTrabajadores.put(
-  "/trabajadores/my-profile/:id", // Podrías usar /trabajadores/profile/:id o /my-profile/:id
-  authRequired,
-  uploadTrabajador.single("imagenPerfil"),
-  actualizarMiPerfil // Usa la nueva función de controlador
-);
+// routerTrabajadores.put(
+//   "/trabajadores/my-profile/:id",
+//   authRequired,
+//   uploadTrabajador.single("imagenPerfil"),
+//   actualizarMiPerfil
+// );
 routerTrabajadores.put(
   "/trabajadores/:id",
   authRequired,
